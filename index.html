@@ -6,33 +6,38 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#081018">
-<title>WHO-0</title>
+<title>WHO-0 · Version 5</title>
 <style>
-:root{--bg:#081018;--panel:#101b26;--line:#27445f;--text:#ecf7ff;--muted:#9db5c7;--accent:#7ad9ff;--good:#7fffb2;--bad:#ff7b8b;--gold:#ffd36e}
-*{box-sizing:border-box}body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:radial-gradient(circle at 50% 0%,#17314b 0,#081018 38%,#05090e 100%);color:var(--text);min-height:100vh}
+:root{--bg:#081018;--panel:#101b26;--line:#27445f;--text:#ecf7ff;--muted:#9db5c7;--accent:#7ad9ff;--good:#7fffb2;--bad:#ff7b8b;--gold:#ffd36e;--purple:#c6a8ff}
+*{box-sizing:border-box}html{background:#05090e}body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:radial-gradient(circle at 50% 0%,#17314b 0,#081018 38%,#05090e 100%);color:var(--text);min-height:100vh}
 .app{max-width:520px;margin:auto;padding:max(16px,env(safe-area-inset-top)) 14px max(40px,env(safe-area-inset-bottom))}
-header{padding:8px 0 10px}.brand{display:flex;align-items:end;justify-content:space-between;gap:12px}.brand h1{margin:0;font-size:32px;letter-spacing:.08em}.tag,.small{color:var(--muted);font-size:12px}.tag{text-align:right}
+header{padding:8px 0 10px;position:sticky;top:0;z-index:5;background:linear-gradient(180deg,#081018 70%,transparent)}
+.brand{display:flex;align-items:end;justify-content:space-between;gap:12px}.brand h1{margin:0;font-size:32px;letter-spacing:.08em}.tag,.small{color:var(--muted);font-size:12px}.tag{text-align:right}
 .card{background:linear-gradient(180deg,#122130,#0d1721);border:1px solid var(--line);border-radius:18px;padding:14px;box-shadow:0 8px 30px #0006;margin:10px 0}
 .hero{padding:24px 18px}.hero h2{font-size:34px;line-height:1;margin:4px 0 12px}.hero p{color:#c9d8e3;line-height:1.45}
-button{appearance:none;min-height:48px;-webkit-tap-highlight-color:transparent;touch-action:manipulation;border:0;border-radius:14px;padding:13px 14px;font-weight:850;font-size:15px;background:var(--accent);color:#00131e;width:100%}button.secondary{background:#162838;color:var(--text);border:1px solid var(--line)}button.ghost{background:transparent;color:var(--muted);border:1px solid var(--line)}
+button{appearance:none;min-height:48px;-webkit-tap-highlight-color:transparent;touch-action:manipulation;border:0;border-radius:14px;padding:13px 14px;font-weight:850;font-size:15px;background:var(--accent);color:#00131e;width:100%;cursor:pointer}
+button.secondary{background:#162838;color:var(--text);border:1px solid var(--line)}button.ghost{background:transparent;color:var(--muted);border:1px solid var(--line)}button.danger{background:#391923;color:#ffdce1;border:1px solid #713241}button:disabled{opacity:.35;cursor:default}
 .segment{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:8px}.segment button{background:#132333;color:var(--text);border:1px solid var(--line)}.segment button.on{background:var(--accent);color:#00131e}
 .rangeRow{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:10px 0}.rangeRow select{flex:1;background:#0b151f;color:var(--text);border:1px solid var(--line);border-radius:12px;padding:12px;font-size:16px}
 .rangePreview{display:flex;gap:4px;overflow:hidden}.docDot{flex:1;text-align:center;padding:7px 2px;border-radius:8px;background:#0b151f;color:#52697b;font-size:11px}.docDot.on{background:#173b55;color:#d9f4ff}
 .season{font-size:25px;font-weight:900;margin:4px 0}.slots{display:grid;gap:8px}.slot{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:11px 12px;border:1px solid var(--line);border-radius:14px;background:#0b151f}.slot b{display:block}.empty{color:#6f8799}
 .options{display:grid;gap:12px;margin-top:12px}.pick{padding:12px;border-radius:14px;border:1px solid var(--line);background:#0b151f}
-.pick.doctor{border-color:#2d7caf;background:linear-gradient(180deg,#10283a,#0b151f)}
-.pick.companion{border-color:#a9852c;background:linear-gradient(180deg,#332913,#0b151f)}
-.pick.teamup{border-color:#3e8a5a;background:linear-gradient(180deg,#13301f,#0b151f)}
+.pick.doctor{border-color:#2d7caf;background:linear-gradient(180deg,#10283a,#0b151f)}.pick.companion{border-color:#a9852c;background:linear-gradient(180deg,#332913,#0b151f)}.pick.teamup{border-color:#3e8a5a;background:linear-gradient(180deg,#13301f,#0b151f)}
 .slot.doctor{border-color:#2d7caf}.slot.companion{border-color:#a9852c}.slot.teamup{border-color:#3e8a5a}
-.roleDot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px;background:currentColor}
-.roleDoctor{color:#79c9ff}.roleCompanion{color:#ffd36e}.roleTeamup{color:#7fffb2}.pickTop{display:flex;justify-content:space-between;gap:10px;align-items:start}.pick h3{margin:0 0 5px;font-size:17px}.overall{font-size:25px;font-weight:950;color:var(--gold)}.overall small{display:block;font-size:8px;letter-spacing:.08em;color:var(--muted);text-align:center}.meta{display:flex;gap:6px;flex-wrap:wrap}.pill{font-size:11px;color:#ccecff;background:#153149;border:1px solid #295577;border-radius:999px;padding:4px 7px}.stats{font-size:12px;color:var(--muted);margin-top:7px}.pick button{margin-top:9px}
+.roleDot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px;background:currentColor}.roleDoctor{color:#79c9ff}.roleCompanion{color:#ffd36e}.roleTeamup{color:#7fffb2}
+.pickTop{display:flex;justify-content:space-between;gap:10px;align-items:start}.pick h3{margin:0 0 5px;font-size:17px}.overall{font-size:25px;font-weight:950;color:var(--gold)}.overall small{display:block;font-size:8px;letter-spacing:.08em;color:var(--muted);text-align:center}
+.meta{display:flex;gap:6px;flex-wrap:wrap}.pill{font-size:11px;color:#ccecff;background:#153149;border:1px solid #295577;border-radius:999px;padding:4px 7px}.stats{font-size:12px;color:var(--muted);margin-top:7px}.pick button{margin-top:9px}
 .toolbar{display:flex;gap:8px}.toolbar button{flex:1}.counter{font-size:12px;color:var(--gold);font-weight:800;margin-top:8px}
-.encounter{padding:13px 0;border-bottom:1px solid #1d3347}.win{color:var(--good);font-weight:900}.loss{color:var(--bad);font-weight:900}.draw{color:var(--gold);font-weight:900}.story{color:#c8d6df;font-size:13px;line-height:1.4;margin-top:4px}
-.score{font-size:42px;font-weight:950;line-height:1;margin:6px 0}.ach{padding:8px 10px;border-radius:12px;background:#132437;margin:6px 0;border:1px solid #284b66}
+.encounterHero{text-align:center;padding:22px 16px}.encounterNo{font-size:12px;color:var(--muted);letter-spacing:.08em}.enemy{font-size:34px;line-height:1.02;margin:8px 0 4px}.form{font-size:15px;color:var(--gold);font-weight:850}.resultWord{font-size:18px;font-weight:950;letter-spacing:.08em;margin-top:14px}.win{color:var(--good)}.loss{color:var(--bad)}.draw{color:var(--gold)}
+.story{color:#c8d6df;font-size:14px;line-height:1.5;margin-top:8px}.score{font-size:42px;font-weight:950;line-height:1;margin:6px 0}.recordBar{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:10px}.recordBar div{background:#0b151f;border:1px solid var(--line);border-radius:12px;padding:8px;text-align:center}.recordBar b{display:block;font-size:20px}
+.event{border-color:#7459a4;background:radial-gradient(circle at 50% 0%,#39245f 0,#151a2b 56%,#0d1721 100%)}.eventIcon{font-size:30px}.event h2{font-size:29px;line-height:1.05;margin:8px 0}.eventChoice{display:grid;gap:8px;margin-top:14px}.eventResult{padding:12px;border:1px solid #5a477d;background:#15132a;border-radius:13px;margin-top:12px}
+.halfway{border-color:#a9852c;background:radial-gradient(circle at 50% 0%,#493613 0,#181912 60%,#0d1721 100%)}.halfway h2{font-size:29px;line-height:1.05;margin:8px 0}
+.ach{padding:10px;border-radius:12px;background:#132437;margin:7px 0;border:1px solid #284b66}.locked{opacity:.58}.archiveTitle{display:flex;justify-content:space-between;align-items:end;gap:12px}.archiveTitle h2{margin:3px 0;font-size:26px}.classified{letter-spacing:.08em}
 .vortex{border-color:#7655c7;background:radial-gradient(circle at 50% 20%,#342266,#111725 60%);text-align:center}.vortex h2{font-size:30px;margin:8px}.doctorCrew{font-weight:900;color:#d9c9ff;margin:12px 0}
+.miniTable{display:grid;gap:7px;margin-top:12px}.miniRow{display:flex;justify-content:space-between;gap:10px;border-bottom:1px solid #1d3347;padding:8px 0}.miniRow:last-child{border:0}.note{font-size:12px;color:var(--muted);line-height:1.45}
 .footer{font-size:11px;color:#6f8799;text-align:center;margin-top:18px}
 </style></head>
-<body><div class="app"><header><div class="brand"><h1>WHO-0</h1><div class="tag">Build a TARDIS team.<br>Save the universe.</div></div></header><main id="app"></main><div class="footer">Fan-made gameplay prototype.</div></div>
+<body><div class="app"><header><div class="brand"><h1>WHO-0</h1><div class="tag">Build a TARDIS team.<br>Save the universe.</div></div></header><main id="app"></main><div class="footer">Version 5 · Fan-made gameplay prototype.</div></div>
 <script>
 const seasons=[
 {n:'Season 2',y:'1964–65',chars:[
@@ -174,116 +179,410 @@ const seasons=[
 {name:'Carla Sunday',type:'Support',sci:55,act:65,inf:92,surv:84,tags:['Earth']},
 {name:'Mrs Flood',type:'Support',sci:88,act:42,inf:91,surv:90,tags:['Earth']}]}
 ];
-const opponents=[
-['Daleks','sci','Doctor'],['Cybermen','sci','surv'],['The Master','inf','Doctor'],['Davros','sci','Doctor'],
-['Sontarans','act','sci'],['Weeping Angels','surv','sci'],['Ice Warriors','act','inf'],['Silurians & Sea Devils','sci','inf'],
-['Zygons','inf','sci'],['Autons','act','surv'],['The Toymaker','inf','Doctor'],['Morbius','Doctor','surv'],
-['Great Intelligence','sci','inf'],['Black Guardian','Doctor','inf'],['Omega','sci','Doctor'],['Wirrn','surv','act'],
-['Vashta Nerada','surv','sci'],['Judoon','act','inf'],['The Silence','surv','inf'],['The Rani','sci','Doctor']
+
+const normalOpponents=[
+{name:'Daleks',threat:85,k1:'sci',k2:'Doctor'},
+{name:'Cybermen',threat:83,k1:'sci',k2:'surv'},
+{name:'The Toymaker',threat:82,k1:'inf',k2:'Doctor'},
+{name:'Morbius',threat:81,k1:'Doctor',k2:'surv',timeLord:true},
+{name:'Weeping Angels',threat:80,k1:'surv',k2:'sci'},
+{name:'The Silence',threat:79,k1:'surv',k2:'inf'},
+{name:'Black Guardian',threat:79,k1:'Doctor',k2:'inf'},
+{name:'Sontarans',threat:78,k1:'act',k2:'sci'},
+{name:'Great Intelligence & Yeti',threat:77,k1:'sci',k2:'inf'},
+{name:'Ice Warriors',threat:76,k1:'act',k2:'inf'},
+{name:'Wirrn',threat:75,k1:'surv',k2:'act'},
+{name:'The Rani',threat:75,k1:'sci',k2:'Doctor',timeLord:true},
+{name:'Silurians & Sea Devils',threat:74,k1:'sci',k2:'inf'},
+{name:'Zygons',threat:73,k1:'inf',k2:'sci'},
+{name:'Vashta Nerada',threat:73,k1:'surv',k2:'sci'},
+{name:'The Axons',threat:72,k1:'sci',k2:'surv'},
+{name:'Autons',threat:70,k1:'act',k2:'surv'},
+{name:'Weng-Chiang & Mr Sin',threat:69,k1:'inf',k2:'surv'},
+{name:'Judoon',threat:68,k1:'act',k2:'inf'},
+{name:'The Candyman',threat:65,k1:'act',k2:'surv'}
 ];
+
+const bonusOpponents=[
+{name:'Sutekh',threat:98,k1:'Doctor',k2:'surv'},
+{name:'The Master',threat:94,k1:'inf',k2:'Doctor',timeLord:true},
+{name:'Davros',threat:92,k1:'sci',k2:'Doctor'},
+{name:'The Cyber Controller',threat:90,k1:'sci',k2:'surv'},
+{name:'Fenric',threat:90,k1:'inf',k2:'Doctor'},
+{name:'The Confession Dial',threat:85,k1:'surv',k2:'Doctor'},
+{name:'Rassilon',threat:85,k1:'inf',k2:'Doctor',timeLord:true},
+{name:'The Valeyard',threat:85,k1:'inf',k2:'Doctor',timeLord:true},
+{name:'Omega',threat:80,k1:'sci',k2:'Doctor',timeLord:true},
+{name:'The War Lord',threat:80,k1:'act',k2:'inf'}
+];
+
 const slots=['Doctor','Companion 1','Companion 2','Team-up 1','Team-up 2'];
 const doctorNumbers={'First Doctor':1,'Second Doctor':2,'Third Doctor':3,'Fourth Doctor':4,'Fifth Doctor':5,'Sixth Doctor':6,'Seventh Doctor':7,'Eighth Doctor':8,'Ninth Doctor':9,'Tenth Doctor':10,'Eleventh Doctor':11,'Twelfth Doctor':12,'Thirteenth Doctor':13,'Fourteenth Doctor':14,'Fifteenth Doctor':15,'War Doctor':8.5};
-let settings={rerolls:1,minDoc:1,maxDoc:15},team={},current=null,rerollsLeft=1,results=[];
+const gallifreyans=new Set(['First Doctor','Second Doctor','Third Doctor','Fourth Doctor','Fifth Doctor','Sixth Doctor','Seventh Doctor','Eighth Doctor','War Doctor','Ninth Doctor','Tenth Doctor','Eleventh Doctor','Twelfth Doctor','Thirteenth Doctor','Fourteenth Doctor','Fifteenth Doctor','Romana II','The Master','The Monk','The Rani','Professor Chronotis']);
+const awardDefs=[
+{id:'gallifrey',name:'GALLIFREY UNITED',desc:'Build a complete team of Gallifreyans.'},
+{id:'allaboard',name:'ALL ABOARD',desc:'Everyone has TARDIS experience.'},
+{id:'offearth',name:'NOT FROM AROUND HERE',desc:'Everyone has been off Earth.'},
+{id:'daleks',name:'EXTERMINATE THIS',desc:'Everyone has encountered the Daleks.'},
+{id:'davros',name:'I KNOW DAVROS',desc:'Everyone has encountered Davros.'},
+{id:'unit',name:'UNIT FAMILY',desc:'Three or more UNIT-linked characters.'},
+{id:'timelords',name:'TOO MANY TIME LORDS',desc:'Three or more Gallifreyans in one team.'},
+{id:'alphabet',name:'ALPHABET SOUP',desc:'Every character name starts with the same letter.'},
+{id:'perfect',name:'PERFECT UNIVERSE',desc:'Win all 20 regular encounters.'},
+{id:'noRerolls',name:'AGAINST ALL ODDS',desc:'Reach 15 wins without using a re-roll.'},
+{id:'bonus',name:'TIME LORD VICTORIOUS',desc:'Complete the Bonus Game.'},
+{id:'artefacts',name:'CABINET OF CURIOSITIES',desc:'Encounter every rare event at least once.'},
+{id:'survivor',name:'THERE’S ALWAYS A WAY',desc:'Reach 15 wins after suffering a severe rare-event penalty.'}
+];
+
+let settings={rerolls:1,minDoc:1,maxDoc:15};
+let team={},current=null,currentOffer=[],rerollsLeft=1,rerollsUsed=0;
+let run=null,eventState=null,halfwayDone=false,bonusRun=null;
 const app=document.getElementById('app');
+
 function rand(a){return a[Math.floor(Math.random()*a.length)]}
-function doctorNoForSeason(s){let d=s.chars.find(c=>c.type==='Doctor');return d?doctorNumbers[d.name]:null}
-function availableSeasons(){return seasons.filter(s=>{let n=doctorNoForSeason(s);return n&&n>=settings.minDoc&&n<=settings.maxDoc})}
+function shuffle(a){let b=[...a];for(let i=b.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]]}return b}
+function clamp(v,a,b){return Math.max(a,Math.min(b,v))}
+function tagsFor(c){let t=[...(c.tags||[])];if(gallifreyans.has(c.name)&&!t.includes('Gallifreyan'))t.push('Gallifreyan');if(gallifreyans.has(c.name)&&!t.includes('Time Lord'))t.push('Time Lord');return t}
+function charWithTags(c){return {...c,tags:tagsFor(c)}}
+function allCharacters(){return seasons.flatMap(s=>s.chars.map(c=>({...charWithTags(c),season:s.n})))}
+function uniqueCharacters(chars){let seen=new Set;return chars.filter(c=>{if(seen.has(c.name))return false;seen.add(c.name);return true})}
+function doctorNosForSeason(s){return s.chars.filter(c=>c.type==='Doctor').map(c=>doctorNumbers[c.name]).filter(n=>n!=null)}
+function availableSeasons(){return seasons.filter(s=>doctorNosForSeason(s).some(n=>n>=settings.minDoc&&n<=settings.maxDoc))}
 function role(c,slot){
- if(slot==='Doctor'){
-   if(c.type!=='Doctor')return false;
-   const n=doctorNumbers[c.name];
-   return n>=settings.minDoc&&n<=settings.maxDoc;
- }
+ if(slot==='Doctor'){if(c.type!=='Doctor')return false;let n=doctorNumbers[c.name];return n>=settings.minDoc&&n<=settings.maxDoc}
  if(slot.startsWith('Companion'))return c.type==='Companion';
  return c.type==='Support'
 }
 function overall(c,slot=''){let base=(c.sci+c.act+c.inf+c.surv)/4;if(c.type==='Doctor')base=base*.82+(c.pop||80)*.18;if(slot==='Companion 1')base=base*.72+c.sci*.28;if(slot==='Companion 2')base=base*.72+c.act*.28;return Math.round(base)}
-function menu(){
- app.innerHTML=`<div class="card hero">
- <div class="small">THE UNIVERSE IS IN CHAOS</div>
- <h2>Time and space are out of control.</h2>
- <p>The cosmos is teetering on the edge of destruction.</p>
- <p><b>You’re our last hope.</b></p>
- <p>Use the Time Scoop to assemble a TARDIS team capable of putting the universe back together.</p>
- <div style="margin:18px 0 16px;padding:14px;border:1px solid var(--line);border-radius:14px;background:#0b151f">
-   <div class="small" style="margin-bottom:10px">BUILD YOUR TARDIS TEAM</div>
-   <div class="slots">
-     <div class="slot doctor"><div><b>Doctor × 1</b><span class="roleDoctor"><span class="roleDot"></span>TARDIS blue</span></div></div>
-     <div class="slot companion"><div><b>Companions × 2</b><span class="roleCompanion"><span class="roleDot"></span>Gold</span></div></div>
-     <div class="slot teamup"><div><b>Team-ups × 2</b><span class="roleTeamup"><span class="roleDot"></span>Green</span></div></div>
-   </div>
- </div>
- <button onclick="startGame()">START GAME</button></div>
- <div class="card"><b>Re-rolls</b><div class="small">Change how forgiving the Time Scoop is.</div><div class="segment">${[0,1,3].map(n=>`<button class="${settings.rerolls===n?'on':''}" onclick="setRerolls(${n})">${n}<br><span class="small">${n===0?'Hard':n===1?'Normal':'Easy'}</span></button>`).join('')}</div></div>
- <div class="card"><b>Doctor era</b><div class="small">Only seasons featuring Doctors inside this range can be pulled in by the Time Scoop.</div><div class="rangeRow"><select id="minD" onchange="rangeChanged()">${doctorOpts(settings.minDoc)}</select><span>to</span><select id="maxD" onchange="rangeChanged()">${doctorOpts(settings.maxDoc)}</select></div><div class="rangePreview">${Array.from({length:15},(_,i)=>`<div class="docDot ${i+1>=settings.minDoc&&i+1<=settings.maxDoc?'on':''}">${i+1}</div>`).join('')}</div></div>`;
-}
 function doctorOpts(sel){return Array.from({length:15},(_,i)=>`<option value="${i+1}" ${i+1===sel?'selected':''}>${i+1}</option>`).join('')}
 function setRerolls(n){settings.rerolls=n;menu()}
-function rangeChanged(){let a=+document.getElementById('minD').value,b=+document.getElementById('maxD').value;if(a>b){if(a!==settings.minDoc)b=a;else a=b}settings.minDoc=a;settings.maxDoc=b;menu()}
-function startGame(){team={};results=[];rerollsLeft=settings.rerolls;current=null;drawSeason()}
-function drawSeason(isReroll=false){let pool=availableSeasons();if(current&&pool.length>1)pool=pool.filter(s=>s!==current);current=rand(pool);draft()}
-function reroll(){if(rerollsLeft<1)return;rerollsLeft--;drawSeason(true)}
-function teamHTML(){return `<div class="card"><div class="small">YOUR TARDIS FIVE</div><div class="slots">${slots.map(s=>`<div class="slot ${s==='Doctor'?'doctor':s.startsWith('Companion')?'companion':'teamup'}"><div><b>${s}</b><span class="${team[s]?'':'empty'}">${team[s]?team[s].name:'Empty'}</span></div>${team[s]?`<span class="pill">${team[s].season} · ${overall(team[s],s)}</span>`:''}</div>`).join('')}</div></div>`}
-function draft(){
- if(Object.keys(team).length===5){app.innerHTML=teamHTML()+`<div class="card"><button onclick="simulate()">RUN THE 20 ENCOUNTERS</button><button class="secondary" style="margin-top:8px" onclick="menu()">Back to menu</button></div>`;return}
- let empty=slots.filter(s=>!team[s]);
- app.innerHTML=teamHTML()+`<div class="card"><div class="small">TIME SCOOP LOCKED ON</div><div class="season">${current.n}</div><div class="small">${current.y}</div><div class="counter">TIME SCOOP RE-ROLLS: ${rerollsLeft}</div><div class="options">${current.chars.map((c,i)=>`<div class="pick ${c.type==='Doctor'?'doctor':c.type==='Companion'?'companion':'teamup'}"><div class="pickTop"><div><h3>${c.name}</h3><div class="meta"><span class="${c.type==='Doctor'?'roleDoctor':c.type==='Companion'?'roleCompanion':'roleTeamup'}"><span class="roleDot"></span>${c.type==='Support'?'Team-up':c.type}</span>${c.tags.slice(0,3).map(t=>`<span class="pill">${t}</span>`).join('')}</div></div><div class="overall">${overall(c)}<small>VALUE</small></div></div><div class="stats">Science ${c.sci} · Action ${c.act} · Influence ${c.inf} · Survival ${c.surv}${c.pop?` · Popularity ${c.pop}`:''}</div>${empty.filter(s=>role(c,s)).map(s=>`<button onclick="pick(${i},'${s}')">Choose as ${s} · ${overall(c,s)}</button>`).join('')}</div>`).join('')}</div><div class="toolbar"><button class="secondary" onclick="drawSeason()">ACTIVATE TIME SCOOP</button><button class="secondary" ${rerollsLeft<1?'disabled':''} onclick="reroll()">RE-ROLL (${rerollsLeft})</button></div></div>`;
- window.scrollTo({top:0,behavior:'smooth'})
+function rangeChanged(){let a=+document.getElementById('minD').value,b=+document.getElementById('maxD').value;if(a>b)b=a;settings.minDoc=a;settings.maxDoc=b;menu()}
+function scrollTop(){window.scrollTo({top:0,behavior:'smooth'})}
+function roleClass(slotOrType){let s=slotOrType;return s==='Doctor'?'doctor':(s==='Companion'||String(s).startsWith('Companion'))?'companion':'teamup'}
+function roleLabel(c){return c.type==='Support'?'Team-up':c.type}
+function saveArchive(obj){localStorage.setItem('who0_black_archive_v5',JSON.stringify(obj))}
+function loadArchive(){try{return JSON.parse(localStorage.getItem('who0_black_archive_v5'))||{awards:[],events:[]}}catch(e){return{awards:[],events:[]}}}
+function unlock(id){let a=loadArchive();if(!a.awards.includes(id)){a.awards.push(id);saveArchive(a)}}
+function recordEvent(id){let a=loadArchive();if(!a.events.includes(id)){a.events.push(id);saveArchive(a)}if(a.events.length>=rareEvents.length)unlock('artefacts')}
+
+function menu(){
+ let archive=loadArchive();
+ app.innerHTML=`<div class="card hero"><div class="small">THE UNIVERSE IS IN CHAOS</div><h2>Time and space are out of control.</h2><p>The cosmos is teetering on the edge of destruction.</p><p><b>You’re our last hope.</b></p><p>Use the Time Scoop to assemble a TARDIS team capable of putting the universe back together.</p>
+ <div style="margin:18px 0 16px;padding:14px;border:1px solid var(--line);border-radius:14px;background:#0b151f"><div class="small" style="margin-bottom:10px">BUILD YOUR TARDIS TEAM</div><div class="slots"><div class="slot doctor"><div><b>Doctor × 1</b><span class="roleDoctor"><span class="roleDot"></span>TARDIS blue</span></div></div><div class="slot companion"><div><b>Companions × 2</b><span class="roleCompanion"><span class="roleDot"></span>Gold</span></div></div><div class="slot teamup"><div><b>Team-ups × 2</b><span class="roleTeamup"><span class="roleDot"></span>Green</span></div></div></div></div>
+ <button onclick="startGame()">START GAME</button></div>
+ <div class="card"><b>Re-rolls</b><div class="small">Re-roll the character choices without changing the season.</div><div class="segment">${[0,1,3].map(n=>`<button class="${settings.rerolls===n?'on':''}" onclick="setRerolls(${n})">${n}<br><span class="small">${n===0?'Hard':n===1?'Normal':'Easy'}</span></button>`).join('')}</div></div>
+ <div class="card"><b>Doctor era</b><div class="small">Only seasons featuring Doctors inside this range can be pulled in by the Time Scoop.</div><div class="rangeRow"><select id="minD" onchange="rangeChanged()">${doctorOpts(settings.minDoc)}</select><span>to</span><select id="maxD" onchange="rangeChanged()">${doctorOpts(settings.maxDoc)}</select></div><div class="rangePreview">${Array.from({length:15},(_,i)=>`<div class="docDot ${i+1>=settings.minDoc&&i+1<=settings.maxDoc?'on':''}">${i+1}</div>`).join('')}</div></div>
+ <div class="card" onclick="showArchive()" style="cursor:pointer"><div class="archiveTitle"><div><div class="small">THE BLACK ARCHIVE</div><h2>${archive.awards.length} / ??</h2></div><button style="width:auto;padding:10px 14px;min-height:40px" onclick="event.stopPropagation();showArchive()">OPEN</button></div><div class="small">Records persist on this device.</div></div>`;
 }
-function pick(i,slot){team[slot]={...current.chars[i],season:current.n};current=null;if(Object.keys(team).length<5)drawSeason();else draft()}
-function doctorPower(){let d=team.Doctor;return d.sci*.3+d.act*.15+d.inf*.25+d.surv*.15+d.pop*.15}
-function slotPower(slot,key){let c=team[slot],base=c[key]||0;if(slot==='Companion 1')base=base*.75+c.sci*.25;if(slot==='Companion 2')base=base*.75+c.act*.25;return base}
-function teamMetric(key){let d=team.Doctor,dv=key==='Doctor'?doctorPower():(d[key]||doctorPower());return(dv+slotPower('Companion 1',key)+slotPower('Companion 2',key)+slotPower('Team-up 1',key)+slotPower('Team-up 2',key))/5}
-function chemistry(){let b=0,v=Object.values(team);['TARDIS','Off Earth','UNIT','Daleks','Davros','Time Lord'].forEach(t=>{let n=v.filter(c=>c.tags.includes(t)).length;if(n>=3)b+=n*1.3});return b}
-const winLines=[
-'The plan looks impossible right up until the moment it works.',
-'At the last possible second, the Doctor spots the flaw. Everything changes.',
-'The enemy closes in. Your team refuses to run. That proves to be a mistake for the enemy.',
-'One absurd idea, two seconds to spare, and the universe survives another day.',
-'The trap snaps shut. Unfortunately for them, your team is already three moves ahead.',
-'For one terrible moment it looks over. Then somebody does something brilliant.'
-];
-const lossLines=[
-'The warning comes too late. The doors slam shut and the TARDIS is forced into retreat.',
-'The Doctor had a plan. The enemy had anticipated it.',
-'Something goes badly wrong. Then it gets worse.',
-'The last escape route disappears. This time, there is no clever speech to save the day.',
-'The TARDIS engines scream. Staying another second would be fatal.',
-'The team gambles everything on one move. It does not pay off.'
-];
-const drawLines=[
-'Neither side wins. Your team escapes with seconds to spare and several unanswered questions.',
-'The universe survives, but nobody is calling this a victory.',
-'A final stalemate buys just enough time for the TARDIS to dematerialise.',
-'The enemy is stopped, for now. The Doctor looks unconvinced that this is over.'
-];
+function showArchive(){
+ let archive=loadArchive();
+ app.innerHTML=`<div class="card"><div class="archiveTitle"><div><div class="small">THE BLACK ARCHIVE</div><h2>${archive.awards.length} RECORDS UNLOCKED</h2></div></div>${awardDefs.map(a=>archive.awards.includes(a.id)?`<div class="ach">🔓 <b>${a.name}</b><div class="small">${a.desc}</div></div>`:`<div class="ach locked classified">▰ CLASSIFIED</div>`).join('')}<button class="secondary" style="margin-top:10px" onclick="menu()">BACK</button></div>`;scrollTop()
+}
+function startGame(){
+ team={};current=null;currentOffer=[];rerollsLeft=settings.rerolls;rerollsUsed=0;run=null;eventState=null;halfwayDone=false;bonusRun=null;
+ drawSeason()
+}
+function resetUniverse(){if(confirm('Abandon this timeline and reset the universe?'))menu()}
+function chooseSeason(){
+ let pool=availableSeasons();
+ if(current&&pool.length>1)pool=pool.filter(s=>s!==current);
+ current=rand(pool)
+}
+function offerForCurrent(){
+ let empty=slots.filter(s=>!team[s]);
+ let taken=new Set(Object.values(team).map(c=>c.name));
+ let eligible=current.chars.map(charWithTags).filter(c=>!taken.has(c.name)&&empty.some(s=>role(c,s)));
+ let target=Math.min(4,eligible.length);
+ let mixed=shuffle(eligible).slice(0,target);
+ // Make sure a Doctor is visible when the Doctor slot is empty and the season contains one.
+ if(!team.Doctor){
+   let docs=eligible.filter(c=>role(c,'Doctor'));
+   if(docs.length&&!mixed.some(c=>c.type==='Doctor')){if(mixed.length)mixed[mixed.length-1]=rand(docs);else mixed=[rand(docs)]}
+ }
+ currentOffer=uniqueCharacters(mixed)
+}
+function drawSeason(){chooseSeason();offerForCurrent();draft()}
+function reroll(){
+ if(rerollsLeft<1)return;
+ rerollsLeft--;rerollsUsed++;offerForCurrent();draft()
+}
+function teamHTML(){
+ return `<div class="card"><div class="small">YOUR TARDIS FIVE</div><div class="slots">${slots.map(s=>`<div class="slot ${roleClass(s)}"><div><b>${s}</b><span class="${team[s]?'':'empty'}">${team[s]?team[s].name:'Empty'}</span></div>${team[s]?`<span class="pill">${team[s].season||''} · ${overall(team[s],s)}</span>`:''}</div>`).join('')}</div></div>`
+}
+function draft(){
+ if(Object.keys(team).length===5){
+   evaluateTeamAwards();
+   app.innerHTML=teamHTML()+`<div class="card"><div class="small">THE TEAM IS ASSEMBLED</div><h2 style="margin:6px 0 10px">The universe is waiting.</h2><button onclick="beginRun()">BEGIN ENCOUNTERS</button><button class="secondary" style="margin-top:8px" onclick="resetUniverse()">RESET THE UNIVERSE</button></div>`;scrollTop();return
+ }
+ let empty=slots.filter(s=>!team[s]);
+ app.innerHTML=teamHTML()+`<div class="card"><div class="small">TIME SCOOP LOCKED ON</div><div class="season">${current.n}</div><div class="small">${current.y}</div><div class="counter">RE-ROLLS: ${rerollsLeft}</div><div class="options">${currentOffer.length?currentOffer.map((c,i)=>`<div class="pick ${roleClass(c.type)}"><div class="pickTop"><div><h3>${c.name}</h3><div class="meta"><span class="${c.type==='Doctor'?'roleDoctor':c.type==='Companion'?'roleCompanion':'roleTeamup'}"><span class="roleDot"></span>${roleLabel(c)}</span>${c.tags.slice(0,3).map(t=>`<span class="pill">${t}</span>`).join('')}</div></div><div class="overall">${overall(c)}<small>VALUE</small></div></div><div class="stats">Science ${c.sci} · Action ${c.act} · Influence ${c.inf} · Survival ${c.surv}${c.pop?` · Popularity ${c.pop}`:''}</div>${empty.filter(s=>role(c,s)).map(s=>`<button onclick="pick(${i},'${s}')">Choose as ${s} · ${overall(c,s)}</button>`).join('')}</div>`).join(''):`<div class="empty">No eligible characters in this Time Scoop. Activate a new one.</div>`}</div>
+ <div class="toolbar" style="margin-top:12px"><button class="ghost" onclick="resetUniverse()">RESET THE UNIVERSE</button><button class="secondary" ${rerollsLeft<1?'disabled':''} onclick="reroll()">RE-ROLL (${rerollsLeft})</button></div></div>`;scrollTop()
+}
+function pick(i,slot){
+ let c=currentOffer[i];if(!c)return;
+ if(Object.values(team).some(x=>x.name===c.name))return;
+ team[slot]={...c,season:current.n};current=null;currentOffer=[];
+ if(Object.keys(team).length<5)drawSeason();else draft()
+}
+
+function doctorPower(mod=0){let d=team.Doctor;return d.sci*.3+d.act*.15+d.inf*.25+d.surv*.15+d.pop*.15+mod}
+function slotPower(slot,key){
+ let c=team[slot];if(!c)return 0;
+ let base=c[key]||0;if(slot==='Companion 1')base=base*.75+c.sci*.25;if(slot==='Companion 2')base=base*.75+c.act*.25;return base
+}
+function chemistry(){
+ let b=0,v=Object.values(team);['TARDIS','Off Earth','UNIT','Daleks','Davros','Time Lord','Gallifreyan'].forEach(t=>{let n=v.filter(c=>c.tags.includes(t)).length;if(n>=3)b+=n*1.15});return b
+}
+function teamMetric(key,mods={}){
+ let values=[];
+ if(!mods.excludeDoctor&&team.Doctor){
+   let d=team.Doctor,dv=key==='Doctor'?doctorPower(mods.doctorBonus||0):((d[key]||doctorPower())+(mods.doctorBonus||0));values.push(dv)
+ }
+ ['Companion 1','Companion 2','Team-up 1','Team-up 2'].forEach(s=>{if(team[s])values.push(slotPower(s,key))});
+ if(mods.excludeKey===key)return 0;
+ return values.length?values.reduce((a,b)=>a+b,0)/values.length:0
+}
+function encounterPower(o){
+ let mods=run.mods||{};
+ let p=(teamMetric(o.k1,mods)+teamMetric(o.k2,mods))/2+chemistry()+(Math.random()*10-5);
+ return p
+}
+function formText(n){return n>0?`+${n}`:`${n}`}
+function buildRunOpponents(list){return shuffle(list).map(o=>({...o,form:Math.floor(Math.random()*11)-5}))}
+function beginRun(){
+ let count=Math.random()<.35?2:1;
+ let candidates=shuffle(Array.from({length:15},(_,i)=>i+2).filter(n=>n!==10));
+ let eventAt=candidates.slice(0,count).sort((a,b)=>a-b);
+ run={opponents:buildRunOpponents(normalOpponents),index:0,wins:0,draws:0,losses:0,results:[],mods:{},eventAt,eventTriggered:[],severePenalty:false,pendingReturn:null,spoilerPrepared:false};
+ showEncounter()
+}
+function currentOpponent(){return run.opponents[run.index]}
+function recordBox(){
+ return `<div class="recordBar"><div><b>${run.wins}</b><span class="small">WINS</span></div><div><b>${run.draws}</b><span class="small">DRAWS</span></div><div><b>${run.losses}</b><span class="small">LOSSES</span></div></div>`
+}
+function showEncounter(){
+ if(run.index>=20){finishRun();return}
+ if(run.pendingReturn&&run.index===run.pendingReturn.at){restoreWaitingCompanion();return}
+ if(run.index===10&&!halfwayDone){halfwayEvent();return}
+ let number=run.index+1;
+ if(run.eventAt.includes(number)&&!run.eventTriggered.includes(number)){triggerRareEvent(number);return}
+ let o=currentOpponent();
+ let spoiler=run.spoilerPrepared?`<div class="ach" style="margin-top:12px">📜 <b>SPOILERS:</b> You prepared for this encounter.</div>`:'';
+ app.innerHTML=teamHTML()+`<div class="card encounterHero"><div class="encounterNo">ENCOUNTER ${number} / 20</div><div class="enemy">${o.name}</div><div class="form">FORM ${formText(o.form)}</div>${spoiler}<div class="story">${openingLine(o.name)}</div><button style="margin-top:16px" onclick="resolveEncounter()">RUN ENCOUNTER</button><button class="ghost" style="margin-top:8px" onclick="skipRemaining()">SKIP TO RESULTS</button>${recordBox()}</div>`;scrollTop()
+}
+function openingLine(name){
+ const map={'Daleks':'A Dalek assault fleet is closing in.','Cybermen':'Conversion has begun. Logic says resistance is useless.','The Rani':'A Time Lord experiment is tearing the local timeline apart.','Morbius':'A forbidden Time Lord mind is stirring again.','Great Intelligence & Yeti':'The Intelligence has mobilised its Yeti.','The Candyman':'The pipes are filling with something far too sweet.','Weng-Chiang & Mr Sin':'Something sinister is moving through the fog.','The Axons':'Axonite is being offered to the whole world.'};
+ return map[name]||`${name} stand between your team and the safety of the universe.`
+}
+const winLines=['The plan looks impossible right up until the moment it works.','At the last possible second, the Doctor spots the flaw. Everything changes.','One absurd idea, two seconds to spare, and the universe survives another day.','The trap snaps shut. Unfortunately for them, your team is already three moves ahead.'];
+const lossLines=['The warning comes too late. The TARDIS is forced into retreat.','The Doctor had a plan. The enemy had anticipated it.','Something goes badly wrong. Then it gets worse.','The TARDIS engines scream. Staying another second would be fatal.'];
+const drawLines=['Neither side wins. Your team escapes with seconds to spare.','The universe survives, but nobody is calling this a victory.','A final stalemate buys just enough time for the TARDIS to dematerialise.'];
 const special={
 'Daleks':{w:'The Dalek battle computer predicts victory with 99.7% certainty. The Doctor grins. That leaves 0.3%.',l:'“EXTERMINATE!” fills the air. The TARDIS dematerialises under heavy fire.'},
-'Weeping Angels':{w:'Nobody blinks. Nobody breathes. Somehow, everyone makes it back to the TARDIS.',l:'Someone blinks. Then someone screams. When the lights return, the corridor is empty.'},
 'Cybermen':{w:'Logic says resistance is useless. Your team introduces the Cybermen to a new variable.',l:'The conversion chambers activate. The Doctor has no choice but to run.'},
-'The Master':{w:'The Master smiles, certain the game is won. The Doctor smiles back.',l:'The Master planned for the Doctor’s plan. And the plan after that.'},
-'Davros':{w:'Davros has calculated every possibility except one: this particular group of idiots.',l:'Davros watches in silence as the final escape route closes.'},
-'Wirrn':{w:'The Wirrn swarm closes in. Fire, nerve and one desperate idea keep the team alive.',l:'The walls begin to move. Too late, the team realises the Wirrn are already inside.'},
+'Weeping Angels':{w:'Nobody blinks. Nobody breathes. Somehow, everyone makes it back to the TARDIS.',l:'Someone blinks. Then someone screams. When the lights return, the corridor is empty.'},
 'Morbius':{w:'Morbius roars back to life. The Doctor answers with a contest of wills and wins by inches.',l:'The mind of Morbius overwhelms the room. Even the Doctor cannot hold the line.'},
-'Silurians & Sea Devils':{w:'Two ancient Earth powers unite. Your team somehow persuades them not to wipe humanity off the map.',l:'The alliance beneath the Earth and sea proves too strong. Retreat is the only option.'}
+'Silurians & Sea Devils':{w:'Two ancient Earth powers unite. Your team somehow prevents a war with humanity.',l:'The alliance beneath the Earth and sea proves too strong. Retreat is the only option.'},
+'The Candyman':{w:'The Doctor turns the Happiness Patrol’s own absurd machinery against them.',l:'The fondant tide rises. This has become much less funny than it looked.'},
+'Weng-Chiang & Mr Sin':{w:'The cabinet closes, Mr Sin is stopped, and history snaps back into place.',l:'In the fog and confusion, Weng-Chiang slips one move ahead.'},
+'The Axons':{w:'The gift of Axonite proves to have one tiny flaw: the Doctor has read the small print.',l:'The Axons tighten their grip and the power drains away.'}
 };
-function story(name,res){let s=special[name];if(s&&res==='WIN'&&s.w)return s.w;if(s&&res==='LOSS'&&s.l)return s.l;return rand(res==='WIN'?winLines:res==='LOSS'?lossLines:drawLines)}
-function achievements(){let v=Object.values(team),a=[],all=t=>v.every(c=>c.tags.includes(t));if(all('TARDIS'))a.push('All Aboard · every member has TARDIS experience');if(all('Off Earth'))a.push('Not From Around Here · everyone has been off Earth');if(all('Daleks'))a.push('Exterminate This · everyone has encountered the Daleks');if(all('Davros'))a.push('I Know Davros · everyone has encountered Davros');if(v.filter(c=>c.tags.includes('UNIT')).length>=3)a.push('UNIT Family · three or more UNIT-linked characters');return a}
-function simulate(){
- let wins=0,draws=0,ch=chemistry();results=[];
- opponents.forEach(([name,k1,k2],idx)=>{let p=(teamMetric(k1)+teamMetric(k2))/2+ch+(Math.random()*18-9),enemy=72+idx*.9+Math.random()*12,r=p-enemy,res=r>3?'WIN':r<-3?'LOSS':'DRAW';if(res==='WIN')wins++;if(res==='DRAW')draws++;results.push({name,res,story:story(name,res)})});
- let a=achievements(),total=wins*3+draws;
- app.innerHTML=teamHTML()+`<div class="card"><div class="small">FINAL RECORD</div><div class="score">${wins}-${draws}-${20-wins-draws}</div><div class="small">SCORE ${total} · TEAM VALUE ${slots.reduce((n,s)=>n+overall(team[s],s),0)}</div></div><div class="card">${results.map((x,i)=>`<div class="encounter"><div class="small">ENCOUNTER ${i+1}/20</div><b>${x.name}</b><div class="${x.res==='WIN'?'win':x.res==='LOSS'?'loss':'draw'}">${x.res}</div><div class="story">${x.story}</div></div>`).join('')}</div><div class="card"><div class="small">SECRET ARCHIVE</div>${a.length?a.map(x=>`<div class="ach">🔓 ${x}</div>`).join(''):`<div class="empty">No hidden combinations found this run.</div>`}</div>${wins>=15?multiDoctorPrompt():`<div class="card"><button onclick="startGame()">PLAY AGAIN</button><button class="secondary" style="margin-top:8px" onclick="menu()">MENU</button></div>`}`;
- window.scrollTo({top:0,behavior:'smooth'})
+function timeRamStory(o){
+ return rand([
+ 'Neither Time Lord will yield. Both TARDISes lock onto the same coordinates. A Time Ram becomes inevitable — until both sides disengage at the final second.',
+ 'The contest collapses into a deadlock. The Doctor threatens a Time Ram. For once, everyone decides survival is the better argument.',
+ 'Two Time Lord minds, two impossible plans, no way out. The TARDISes converge — then shear apart a heartbeat before a Time Ram.'
+ ])
 }
-function multiDoctorPrompt(){return `<div class="card vortex"><div class="small">TIME DISTORTION DETECTED</div><h2>Something is wrong with time.</h2><p>Your performance has attracted help from elsewhere in the Doctor's timeline.</p><button onclick="multiDoctor()">ENTER THE VORTEX</button></div>`}
-function multiDoctor(){
- let currentNo=doctorNumbers[team.Doctor.name],docs=availableSeasons().map(s=>s.chars.find(c=>c.type==='Doctor')).filter(Boolean).filter((d,i,a)=>doctorNumbers[d.name]!==currentNo&&a.findIndex(x=>x.name===d.name)===i);
- let allies=[];while(docs.length&&allies.length<2){let i=Math.floor(Math.random()*docs.length);allies.push(docs.splice(i,1)[0])}
- let crew=[team.Doctor,...allies],power=crew.reduce((n,d)=>n+overall(d),0)/crew.length;
- let foes=['The Master','The Time Lords','The Daleks'],wins=0,rows=foes.map((f,i)=>{let ok=power+(Math.random()*20-10)>78+i*5;if(ok)wins++;return `<div class="encounter"><b>${f}</b><div class="${ok?'win':'loss'}">${ok?'VICTORY':'DEFEAT'}</div><div class="story">${ok?rand(winLines):rand(lossLines)}</div></div>`}).join('');
- app.innerHTML=`<div class="card vortex"><div class="small">MULTI-DOCTOR ADVENTURE</div><h2>${wins===3?'TIMELINE RESTORED':'TIME IS FRACTURING'}</h2><div class="doctorCrew">${crew.map(d=>d.name).join(' · ')}</div></div><div class="card">${rows}</div><div class="card">${wins===3?'<div class="ach">🔓 THE THREE DOCTORS · Survive a Multi-Doctor Adventure</div>':''}<button onclick="startGame()">PLAY AGAIN</button><button class="secondary" style="margin-top:8px" onclick="menu()">MENU</button></div>`;
- window.scrollTo({top:0,behavior:'smooth'})
+function story(o,res){
+ if(res==='DRAW'&&o.timeLord)return timeRamStory(o);
+ let s=special[o.name];if(s&&res==='WIN'&&s.w)return s.w;if(s&&res==='LOSS'&&s.l)return s.l;
+ return rand(res==='WIN'?winLines:res==='LOSS'?lossLines:drawLines)
 }
+function resolveEncounter(auto=false){
+ let o=currentOpponent(),p=encounterPower(o),enemy=o.threat+o.form,r=p-enemy,res=r>3?'WIN':r<-3?'LOSS':'DRAW';
+ if(res==='WIN')run.wins++;else if(res==='DRAW')run.draws++;else run.losses++;
+ let row={...o,res,story:story(o,res)};run.results.push(row);
+ // one-encounter modifiers expire here
+ run.mods={};run.spoilerPrepared=false;
+ if(auto){run.index++;return}
+ app.innerHTML=teamHTML()+`<div class="card encounterHero"><div class="encounterNo">ENCOUNTER ${run.index+1} / 20 · ${o.name}</div><div class="resultWord ${res==='WIN'?'win':res==='LOSS'?'loss':'draw'}">${res}</div><div class="story">${row.story}</div>${recordBox()}<button style="margin-top:16px" onclick="nextEncounter()">NEXT ENCOUNTER</button><button class="ghost" style="margin-top:8px" onclick="skipRemaining()">SKIP TO RESULTS</button></div>`;scrollTop()
+}
+function nextEncounter(){run.index++;showEncounter()}
+function skipRemaining(){
+ while(run.index<20){
+   if(run.pendingReturn&&run.index===run.pendingReturn.at)applyWaitingReturnSilently();
+   if(run.index===10&&!halfwayDone)halfwayDone=true; // skip interrupts if player skips
+   resolveEncounter(true)
+ }
+ finishRun()
+}
+
+const rareEvents=[
+{id:'sonic',name:'SONIC SCREWDRIVER',icon:'🪛',intro:'You’re locked in. The Doctor has the sonic screwdriver — but nobody knows what the lock is made of.'},
+{id:'acebat',name:'ACE’S BASEBALL BAT',icon:'⚾️',intro:'Ace has found a baseball bat and a very bad idea.'},
+{id:'summit',name:'GALACTIC FEDERATION SUMMIT',icon:'🌐',intro:'The galaxy is on the brink of war. Somehow, the Doctor has ended up chairing the emergency summit.'},
+{id:'spoilers',name:'SPOILERS…',icon:'📜',intro:'You discover a message left by your future self.'},
+{id:'psychic',name:'PSYCHIC PAPER',icon:'🪪',intro:'Nobody has checked your credentials. Yet.'},
+{id:'vortex',name:'VORTEX MANIPULATOR',icon:'⌚️',intro:'A vortex manipulator is sitting there, fully charged and looking deeply unreliable.'}
+];
+function triggerRareEvent(number){
+ let available=rareEvents.filter(e=>!run.eventTriggered.includes(e.id));
+ let ev=rand(available.length?available:rareEvents);run.eventTriggered.push(number);eventState=ev;recordEvent(ev.id);
+ if(ev.id==='sonic')return eventCard(ev,`<button onclick="rareChoice('sonic_try')">TRY THE SONIC</button><button class="secondary" onclick="rareChoice('decline')">LEAVE IT</button>`);
+ if(ev.id==='acebat')return eventCard(ev,`<button onclick="rareChoice('bat_hand')">HAND-POWERED</button><button class="secondary" onclick="rareChoice('bat_omega')">HAND OF OMEGA-POWERED</button>`);
+ if(ev.id==='summit')return eventCard(ev,`<button onclick="rareChoice('summit_chair')">CHAIR THE SUMMIT</button><button class="secondary" onclick="rareChoice('decline')">KEEP A LOW PROFILE</button>`);
+ if(ev.id==='spoilers')return eventCard(ev,`<button onclick="rareChoice('spoilers_read')">READ IT</button><button class="secondary" onclick="rareChoice('decline')">DESTROY IT</button>`);
+ if(ev.id==='psychic')return eventCard(ev,`<button onclick="rareChoice('paper_show')">SHOW THE PAPER</button><button class="secondary" onclick="rareChoice('decline')">DON’T RISK IT</button>`);
+ if(ev.id==='vortex')return eventCard(ev,`<button onclick="rareChoice('vortex_jump')">JUMP</button><button class="secondary" onclick="rareChoice('decline')">STAY PUT</button>`)
+}
+function eventCard(ev,buttons){
+ app.innerHTML=teamHTML()+`<div class="card event"><div class="eventIcon">${ev.icon}</div><div class="small">TEMPORAL ANOMALY</div><h2>${ev.name}</h2><div class="story">${ev.intro}</div><div class="eventChoice">${buttons}</div></div>`;scrollTop()
+}
+function rareResult(title,text,next='continue'){
+ app.innerHTML=teamHTML()+`<div class="card event"><div class="small">${eventState.name}</div><h2>${title}</h2><div class="eventResult">${text}</div><button style="margin-top:14px" onclick="${next==='continue'?'showEncounter()':next}">CONTINUE</button></div>`;scrollTop()
+}
+function rareChoice(choice){
+ if(choice==='decline')return rareResult('PROBABLY WISE','Nothing changes. For once, causality is grateful.');
+ if(choice==='sonic_try'){
+   if(Math.random()<.5){run.mods.doctorBonus=5;return rareResult('MECHANICAL LOCK','The lock clicks open. <b>Doctor +5 for the next encounter.</b>')}
+   run.mods.doctorBonus=-5;return rareResult('WOOD. OF COURSE IT’S WOOD.','The sonic achieves absolutely nothing useful. <b>Doctor -5 for the next encounter.</b>')
+ }
+ if(choice==='bat_hand'){run.mods.doctorBonus=(run.mods.doctorBonus||0)+2;return rareResult('BATTER UP','No cosmic shortcuts. Just timing. <b>Doctor +2 for the next encounter.</b>')}
+ if(choice==='bat_omega'){
+   if(Math.random()<.55){run.mods.doctorBonus=(run.mods.doctorBonus||0)+7;return rareResult('HAND OF OMEGA-POWERED','That was wildly irresponsible. It also worked. <b>Doctor +7 for the next encounter.</b>')}
+   run.mods.doctorBonus=(run.mods.doctorBonus||0)-5;run.severePenalty=true;return rareResult('TOO MUCH POWER','The feedback nearly takes your head off. <b>Doctor -5 for the next encounter.</b>')
+ }
+ if(choice==='summit_chair'){
+   if(Math.random()<.55){run.mods.doctorBonus=5;return rareResult('WAR AVERTED','Against all odds, the summit holds. <b>Doctor +5 for the next encounter.</b>')}
+   run.mods.excludeDoctor=true;run.severePenalty=true;return rareResult('IMPOSTER!','Someone finally checks the credentials. The Doctor is ejected. <b>The Doctor’s score is excluded from the next encounter.</b>')
+ }
+ if(choice==='paper_show'){
+   if(Math.random()<.62){run.mods.doctorBonus=4;return rareResult('OFFICIAL ENOUGH','Nobody questions it. <b>Doctor +4 for the next encounter.</b>')}
+   run.mods.excludeDoctor=true;run.severePenalty=true;return rareResult('DOESN’T WORK ON THEM','They stare at the blank card. <b>The Doctor is excluded from the next encounter.</b>')
+ }
+ if(choice==='vortex_jump'){
+   if(Math.random()<.58){run.mods.doctorBonus=5;return rareResult('RIGHT PLACE, RIGHT TIME','For once the coordinates are perfect. <b>Doctor +5 for the next encounter.</b>')}
+   run.mods.excludeKey='surv';run.severePenalty=true;return rareResult('WRONG CENTURY','You spend the encounter trying to get back. <b>Survival contributes nothing next time.</b>')
+ }
+ if(choice==='spoilers_read')return resolveSpoilers()
+}
+function resolveSpoilers(){
+ let roll=Math.random();
+ if(roll<.42){
+   let o=currentOpponent();eventState={...eventState,spoilerTarget:o};return spoilerSwapScreen(o)
+ }
+ if(roll<.57)return rareResult('RED HERRING','The message is accurate, fascinating and completely irrelevant. Nothing changes.');
+ if(roll<.72){run.mods.excludeKey=rand(['sci','act','inf','surv']);run.severePenalty=true;return rareResult('RABBIT HOLE',`You obsess over one clue and miss the obvious. <b>${run.mods.excludeKey.toUpperCase()} contributes nothing next encounter.</b>`)}
+ if(roll<.86){currentOpponent().form=clamp(currentOpponent().form+3,-5,8);return rareResult('WRONG TIMELINE','The warning was meant for another reality. <b>The next opponent gains +3 Form.</b>')}
+ if(roll<.95){run.mods.excludeDoctor=true;run.severePenalty=true;return rareResult('TEMPORAL FEEDBACK','Knowing too much destabilises the Doctor’s part in events. <b>The Doctor is excluded next encounter.</b>')}
+ let old=currentOpponent();let rest=run.opponents.slice(run.index+1);if(rest.length){let replacement=rest.shift();run.opponents[run.index]=replacement;run.opponents.splice(run.index+1,0,old)}return rareResult('BUTTERFLY EFFECT','You changed the future by reading it. <b>The next opponent has changed completely.</b>')
+}
+function spoilerSwapScreen(o){
+ let keyScores={[o.k1]:1,[o.k2]:1};
+ let candidates=uniqueCharacters(allCharacters().filter(c=>c.type==='Companion'&&!Object.values(team).some(x=>x.name===c.name)))
+   .map(c=>({...c,fit:(c[o.k1]||0)+(c[o.k2]||0)})).sort((a,b)=>b.fit-a.fit).slice(0,3);
+ app.innerHTML=teamHTML()+`<div class="card event"><div class="small">SPOILERS!</div><h2>${o.name} are next.</h2><div class="story">You have time to prepare. Swap one Companion for a Time Scoop recruit chosen to counter this threat — or keep your team.</div><div class="options">${candidates.map((c,i)=>`<div class="pick companion"><div class="pickTop"><h3>${c.name}</h3><div class="overall">${overall(c)}<small>VALUE</small></div></div><div class="stats">Science ${c.sci} · Action ${c.act} · Influence ${c.inf} · Survival ${c.surv}</div><div class="toolbar"><button onclick="spoilerSwap(${i},'Companion 1')">REPLACE C1</button><button onclick="spoilerSwap(${i},'Companion 2')">REPLACE C2</button></div></div>`).join('')}</div><button class="secondary" style="margin-top:10px" onclick="run.spoilerPrepared=true;showEncounter()">KEEP CURRENT TEAM</button></div>`;
+ eventState.candidates=candidates;scrollTop()
+}
+function spoilerSwap(i,slot){
+ let c=eventState.candidates[i];team[slot]={...c};run.spoilerPrepared=true;rareResult('PREPARED',`${c.name} joins the TARDIS team specifically to face ${eventState.spoilerTarget.name}.`)
+}
+
+const halfwayEvents=[
+{id:'regen',name:'REGENERATION',intro:'The Doctor is changing. There’s no stopping it.'},
+{id:'traitor',name:'TRAITOR!',intro:'One of your Team-ups has been working against you.'},
+{id:'away',name:'THE ONE THAT GOT AWAY',intro:'Your weakest team member leaves — but the Time Scoop suddenly finds exceptional replacements.'},
+{id:'sorry',name:'I’M SORRY. I’M SO SORRY.',intro:'One Companion is lost to the timeline. You need somebody new.'},
+{id:'timecrash',name:'TIME CRASH',intro:'Another incarnation of the Doctor has crashed into your timeline.'},
+{id:'unit',name:'UNIT REINFORCEMENTS',intro:'UNIT have arrived and they are offering help.'},
+{id:'parallel',name:'PARALLEL UNIVERSE',intro:'Somebody is not quite the person you remember.'},
+{id:'redecorate',name:'YOU’VE REDECORATED!',intro:'The TARDIS has made room for somebody new.'},
+{id:'tardis',name:'THE TARDIS CHOOSES',intro:'The old girl has opinions about your team.'},
+{id:'exterminated',name:'EXTERMINATED!',intro:'A blast catches your strongest non-Doctor. You need a replacement immediately.'},
+{id:'waited',name:'THE COMPANION WHO WAITED',intro:'One Companion vanishes from the timeline. They may not be gone forever.'}
+];
+function halfwayEvent(){
+ halfwayDone=true;let ev=rand(halfwayEvents);eventState=ev;
+ app.innerHTML=teamHTML()+`<div class="card halfway"><div class="small">HALFWAY · 10 / 20</div><h2>${ev.name}</h2><div class="story">${ev.intro}</div><button style="margin-top:14px" onclick="applyHalfway('${ev.id}')">CONTINUE</button></div>`;scrollTop()
+}
+function replacementCandidates(slot,count=3,elite=false,filterFn=null){
+ let chars=uniqueCharacters(allCharacters().filter(c=>role(c,slot)&&!Object.values(team).some(x=>x.name===c.name)&&(!filterFn||filterFn(c))));
+ chars=chars.sort((a,b)=>overall(b,slot)-overall(a,slot));
+ if(!elite)chars=shuffle(chars);
+ return chars.slice(0,count)
+}
+function chooseReplacement(slot,candidates,title,allowKeep=false,after='showEncounter()'){
+ eventState={...eventState,slot,candidates,after};
+ app.innerHTML=teamHTML()+`<div class="card halfway"><div class="small">TIME SCOOP</div><h2>${title}</h2><div class="options">${candidates.map((c,i)=>`<div class="pick ${roleClass(c.type)}"><div class="pickTop"><h3>${c.name}</h3><div class="overall">${overall(c,slot)}<small>VALUE</small></div></div><div class="stats">Science ${c.sci} · Action ${c.act} · Influence ${c.inf} · Survival ${c.surv}</div><button onclick="completeReplacement(${i})">RECRUIT</button></div>`).join('')}</div>${allowKeep?`<button class="secondary" style="margin-top:10px" onclick="${after}">KEEP CURRENT TEAM</button>`:''}</div>`;scrollTop()
+}
+function completeReplacement(i){
+ let c=eventState.candidates[i];team[eventState.slot]={...c};let fn=eventState.after||'showEncounter()';eval(fn)
+}
+function weakestSlot(){return slots.reduce((a,s)=>overall(team[s],s)<overall(team[a],a)?s:a,slots[0])}
+function strongestNonDoctor(){let s=slots.slice(1);return s.reduce((a,x)=>overall(team[x],x)>overall(team[a],a)?x:a,s[0])}
+function applyHalfway(id){
+ if(id==='regen'){let c=replacementCandidates('Doctor',3,false);return chooseReplacement('Doctor',c,'CHOOSE THE NEXT DOCTOR')}
+ if(id==='traitor'){let pool=['Team-up 1','Team-up 2'].filter(s=>team[s]);let slot=rand(pool);let old=team[slot].name;delete team[slot];return chooseReplacement(slot,replacementCandidates(slot,3),`${old.toUpperCase()} WAS THE TRAITOR`)}
+ if(id==='away'){let slot=weakestSlot();delete team[slot];return chooseReplacement(slot,replacementCandidates(slot,3,true),'THE TIME SCOOP FINDS THE BEST')}
+ if(id==='sorry'){let slot=rand(['Companion 1','Companion 2']);delete team[slot];return chooseReplacement(slot,replacementCandidates(slot,3),'FIND A NEW COMPANION')}
+ if(id==='timecrash'){return chooseReplacement('Doctor',replacementCandidates('Doctor',3,false),'ANOTHER DOCTOR ARRIVES',true)}
+ if(id==='unit'){let slot=rand(['Team-up 1','Team-up 2']);let c=replacementCandidates(slot,3,false,x=>x.tags.includes('UNIT'));return chooseReplacement(slot,c.length?c:replacementCandidates(slot,3),'UNIT OFFERS REINFORCEMENTS',true)}
+ if(id==='parallel'){let slot=rand(slots);let old=team[slot];let candidates=uniqueCharacters(allCharacters().filter(c=>role(c,slot)&&c.name!==old.name&&!Object.values(team).some(x=>x.name===c.name))).sort((a,b)=>Math.abs(overall(a,slot)-overall(old,slot))-Math.abs(overall(b,slot)-overall(old,slot))).slice(0,3);team[slot]={...rand(candidates)};return halfwayResult('PARALLEL SELF',`${old.name} has been replaced by ${team[slot].name}.`)}
+ if(id==='redecorate'){let candidates=slots.map(slot=>({slot,c:rand(replacementCandidates(slot,5))})).filter(x=>x.c).slice(0,3);eventState={...eventState,swapOptions:candidates};app.innerHTML=teamHTML()+`<div class="card halfway"><div class="small">YOU’VE REDECORATED!</div><h2>Make one change.</h2><div class="options">${candidates.map((x,i)=>`<div class="pick ${roleClass(x.c.type)}"><h3>${x.c.name}</h3><div class="small">Replace ${x.slot}</div><button onclick="redecorateSwap(${i})">SWAP</button></div>`).join('')}</div><button class="secondary" onclick="showEncounter()">KEEP CURRENT TEAM</button></div>`;return}
+ if(id==='tardis'){let slot=weakestSlot(),currentScore=overall(team[slot],slot);let candidates=replacementCandidates(slot,8,false).sort((a,b)=>chemFit(b)-chemFit(a));let best=candidates[0];let old=team[slot].name;if(best)team[slot]={...best};return halfwayResult('THE TARDIS HAS DECIDED',`${old} is replaced by ${best?best.name:'nobody'}. The choice is based on team chemistry, not reputation.`)}
+ if(id==='exterminated'){let slot=strongestNonDoctor(),old=team[slot].name;delete team[slot];run.severePenalty=true;return chooseReplacement(slot,replacementCandidates(slot,3),`${old.toUpperCase()} IS GONE`)}
+ if(id==='waited'){let slot=rand(['Companion 1','Companion 2']),c=team[slot];delete team[slot];run.pendingReturn={slot,char:c,at:run.index+2};return halfwayResult('WAIT FOR ME',`${c.name} is gone. You will face the next two encounters with a four-person team.`)}
+}
+function chemFit(c){let tags=c.tags||[];return Object.values(team).reduce((n,x)=>n+tags.filter(t=>x.tags.includes(t)).length,0)}
+function redecorateSwap(i){let x=eventState.swapOptions[i];team[x.slot]={...x.c};halfwayResult('NEW LOOK TARDIS',`${x.c.name} joins the team.`)}
+function halfwayResult(title,text){app.innerHTML=teamHTML()+`<div class="card halfway"><div class="small">HALFWAY EVENT</div><h2>${title}</h2><div class="story">${text}</div><button style="margin-top:14px" onclick="showEncounter()">CONTINUE</button></div>`;scrollTop()}
+function restoreWaitingCompanion(){let p=run.pendingReturn;team[p.slot]={...p.char,sci:clamp(p.char.sci+5,0,100),act:clamp(p.char.act+5,0,100),inf:clamp(p.char.inf+5,0,100),surv:clamp(p.char.surv+5,0,100)};run.pendingReturn=null;app.innerHTML=teamHTML()+`<div class="card halfway"><div class="small">THE COMPANION WHO WAITED</div><h2>${p.char.name} is back.</h2><div class="story">Older, tougher and carrying a very long story. <b>+5 to all four stats.</b></div><button style="margin-top:14px" onclick="showEncounter()">CONTINUE</button></div>`;scrollTop()}
+function applyWaitingReturnSilently(){let p=run.pendingReturn;if(!p)return;team[p.slot]={...p.char,sci:clamp(p.char.sci+5,0,100),act:clamp(p.char.act+5,0,100),inf:clamp(p.char.inf+5,0,100),surv:clamp(p.char.surv+5,0,100)};run.pendingReturn=null}
+
+function evaluateTeamAwards(){
+ let v=Object.values(team),all=t=>v.length===5&&v.every(c=>c.tags.includes(t));
+ if(all('Gallifreyan'))unlock('gallifrey');if(all('TARDIS'))unlock('allaboard');if(all('Off Earth'))unlock('offearth');if(all('Daleks'))unlock('daleks');if(all('Davros'))unlock('davros');
+ if(v.filter(c=>c.tags.includes('UNIT')).length>=3)unlock('unit');if(v.filter(c=>c.tags.includes('Gallifreyan')).length>=3)unlock('timelords');
+ let initials=v.map(c=>c.name.replace(/^(The |First |Second |Third |Fourth |Fifth |Sixth |Seventh |Eighth |War |Ninth |Tenth |Eleventh |Twelfth |Thirteenth |Fourteenth |Fifteenth )/,'')[0]?.toUpperCase());if(initials.length===5&&initials.every(x=>x===initials[0]))unlock('alphabet')
+}
+function finishRun(){
+ evaluateTeamAwards();if(run.wins===20)unlock('perfect');if(run.wins>=15&&rerollsUsed===0)unlock('noRerolls');if(run.wins>=15&&run.severePenalty)unlock('survivor');
+ let archive=loadArchive();
+ app.innerHTML=teamHTML()+`<div class="card"><div class="small">FINAL RECORD</div><div class="score">${run.wins}-${run.draws}-${run.losses}</div><div class="small">TEAM VALUE ${slots.filter(s=>team[s]).reduce((n,s)=>n+overall(team[s],s),0)}</div></div>
+ <div class="card"><div class="small">ENCOUNTER RECORD</div>${run.results.map((x,i)=>`<div class="miniRow"><span>${i+1}. ${x.name}<br><span class="small">Form ${formText(x.form)}</span></span><b class="${x.res==='WIN'?'win':x.res==='LOSS'?'loss':'draw'}">${x.res}</b></div>`).join('')}</div>
+ <div class="card"><div class="small">THE BLACK ARCHIVE</div><div class="story">${archive.awards.length} records currently unlocked on this device.</div><button class="secondary" style="margin-top:10px" onclick="showArchive()">OPEN BLACK ARCHIVE</button></div>
+ ${run.wins>=15?multiDoctorPrompt():`<div class="card"><button onclick="startGame()">PLAY AGAIN</button><button class="secondary" style="margin-top:8px" onclick="menu()">MENU</button></div>`}`;scrollTop()
+}
+function multiDoctorPrompt(){return `<div class="card vortex"><div class="small">TIME SCOOP OVERLOAD</div><h2>Another Doctor is breaking through.</h2><p>Fifteen wins has destabilised the timeline. Recruit another incarnation and enter the Bonus Game.</p><button onclick="chooseBonusDoctor()">RECRUIT ANOTHER DOCTOR</button></div>`}
+function chooseBonusDoctor(){
+ let current=team.Doctor.name;let docs=uniqueCharacters(allCharacters().filter(c=>c.type==='Doctor'&&c.name!==current&&doctorNumbers[c.name]>=settings.minDoc&&doctorNumbers[c.name]<=settings.maxDoc));
+ let candidates=shuffle(docs).slice(0,3);eventState={candidates};
+ app.innerHTML=teamHTML()+`<div class="card vortex"><div class="small">TIME SCOOP OVERLOAD</div><h2>Choose another Doctor.</h2><div class="options">${candidates.map((c,i)=>`<div class="pick doctor"><div class="pickTop"><h3>${c.name}</h3><div class="overall">${overall(c)}<small>VALUE</small></div></div><button onclick="startBonus(${i})">RECRUIT</button></div>`).join('')}</div></div>`;scrollTop()
+}
+function startBonus(i){
+ let ally=eventState.candidates[i];bonusRun={ally,index:0,wins:0,draws:0,losses:0,results:[],opponents:buildRunOpponents(bonusOpponents)};showBonusEncounter()
+}
+function bonusMetric(key){
+ let base=teamMetric(key,{}),a=key==='Doctor'?doctorPowerFor(bonusRun.ally):(bonusRun.ally[key]||doctorPowerFor(bonusRun.ally));return(base*5+a)/6
+}
+function doctorPowerFor(d){return d.sci*.3+d.act*.15+d.inf*.25+d.surv*.15+d.pop*.15}
+function showBonusEncounter(){
+ if(bonusRun.index>=bonusRun.opponents.length){finishBonus();return}
+ let o=bonusRun.opponents[bonusRun.index];
+ app.innerHTML=teamHTML()+`<div class="card vortex"><div class="small">BONUS GAME · ${bonusRun.index+1} / ${bonusRun.opponents.length}</div><h2>${o.name}</h2><div class="doctorCrew">${team.Doctor.name} + ${bonusRun.ally.name}</div><div class="form">FORM ${formText(o.form)}</div><button style="margin-top:14px" onclick="resolveBonus()">RUN ENCOUNTER</button></div>`;scrollTop()
+}
+function resolveBonus(){
+ let o=bonusRun.opponents[bonusRun.index],p=(bonusMetric(o.k1)+bonusMetric(o.k2))/2+chemistry()+(Math.random()*10-5),r=p-(o.threat+o.form),res=r>3?'WIN':r<-3?'LOSS':'DRAW';
+ if(res==='WIN')bonusRun.wins++;else if(res==='DRAW')bonusRun.draws++;else bonusRun.losses++;
+ let txt=story(o,res);bonusRun.results.push({...o,res,story:txt});
+ app.innerHTML=teamHTML()+`<div class="card vortex"><div class="small">BONUS GAME · ${o.name}</div><div class="resultWord ${res==='WIN'?'win':res==='LOSS'?'loss':'draw'}">${res}</div><div class="story">${txt}</div><button style="margin-top:14px" onclick="bonusRun.index++;showBonusEncounter()">NEXT</button></div>`;scrollTop()
+}
+function finishBonus(){
+ if(bonusRun.wins===bonusRun.opponents.length)unlock('bonus');
+ app.innerHTML=teamHTML()+`<div class="card vortex"><div class="small">BONUS GAME COMPLETE</div><h2>${bonusRun.wins}-${bonusRun.draws}-${bonusRun.losses}</h2><div class="doctorCrew">${team.Doctor.name} + ${bonusRun.ally.name}</div></div><div class="card">${bonusRun.results.map((x,i)=>`<div class="miniRow"><span>${i+1}. ${x.name}</span><b class="${x.res==='WIN'?'win':x.res==='LOSS'?'loss':'draw'}">${x.res}</b></div>`).join('')}<button style="margin-top:12px" onclick="startGame()">PLAY AGAIN</button><button class="secondary" style="margin-top:8px" onclick="menu()">MENU</button></div>`;scrollTop()
+}
+
 menu();
 </script></body></html>
