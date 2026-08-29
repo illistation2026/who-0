@@ -6,7 +6,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#081018">
-<title>WHO-0 · Version 6</title>
+<title>WHO-0 · Version 7</title>
 <style>
 :root{--bg:#081018;--panel:#101b26;--line:#27445f;--text:#ecf7ff;--muted:#9db5c7;--accent:#7ad9ff;--good:#7fffb2;--bad:#ff7b8b;--gold:#ffd36e;--purple:#c6a8ff}
 *{box-sizing:border-box}html{background:#05090e}body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:radial-gradient(circle at 50% 0%,#17314b 0,#081018 38%,#05090e 100%);color:var(--text);min-height:100vh}
@@ -37,17 +37,17 @@ button.secondary{background:#162838;color:var(--text);border:1px solid var(--lin
 .miniTable{display:grid;gap:7px;margin-top:12px}.miniRow{display:flex;justify-content:space-between;gap:10px;border-bottom:1px solid #1d3347;padding:8px 0}.miniRow:last-child{border:0}.note{font-size:12px;color:var(--muted);line-height:1.45}
 .footer{font-size:11px;color:#6f8799;text-align:center;margin-top:18px}
 </style></head>
-<body><div class="app"><header><div class="brand"><h1>WHO-0</h1><div class="tag">Build a TARDIS team.<br>Save the universe.</div></div></header><main id="app"></main><div class="footer">Version 6 · Fan-made gameplay prototype.</div></div>
+<body><div class="app"><header><div class="brand"><h1>WHO-0</h1><div class="tag">Build a TARDIS team.<br>Save the universe.</div></div></header><main id="app"></main><div class="footer">Version 7 · Fan-made gameplay prototype.</div></div>
 <script>
 const seasons=[
 {n:'Season 2',y:'1964–65',chars:[
-{name:'First Doctor',type:'Doctor',sci:95,act:45,inf:88,surv:92,pop:78,tags:['TARDIS','Off Earth','Daleks']},
+{name:'First Doctor',type:'Doctor',sci:96,act:42,inf:85,surv:82,pop:78,tags:['TARDIS','Off Earth','Daleks']},
 {name:'Ian Chesterton',type:'Companion',sci:72,act:88,inf:76,surv:90,tags:['TARDIS','Off Earth','Daleks']},
 {name:'Barbara Wright',type:'Companion',sci:74,act:58,inf:90,surv:88,tags:['TARDIS','Off Earth','Daleks']},
 {name:'Vicki Pallister',type:'Companion',sci:72,act:54,inf:75,surv:80,tags:['TARDIS','Off Earth','Daleks']},
 {name:'The Monk',type:'Support',sci:91,act:44,inf:81,surv:76,tags:['Time Lord','Off Earth']}]},
 {n:'Season 6',y:'1968–69',chars:[
-{name:'Second Doctor',type:'Doctor',sci:94,act:55,inf:91,surv:94,pop:87,tags:['TARDIS','Off Earth','Daleks','Cybermen']},
+{name:'Second Doctor',type:'Doctor',sci:92,act:50,inf:94,surv:88,pop:87,tags:['TARDIS','Off Earth','Daleks','Cybermen']},
 {name:'Jamie McCrimmon',type:'Companion',sci:35,act:93,inf:78,surv:95,tags:['TARDIS','Off Earth','Cybermen']},
 {name:'Zoe Heriot',type:'Companion',sci:96,act:62,inf:66,surv:85,tags:['TARDIS','Off Earth','Cybermen']},
 {name:'Brigadier Lethbridge-Stewart',type:'Support',sci:63,act:91,inf:96,surv:93,tags:['UNIT','Cybermen']},
@@ -55,7 +55,7 @@ const seasons=[
 {name:'Sergeant Benton',type:'Support',sci:48,act:84,inf:71,surv:87,tags:['UNIT','Earth']},
 {name:'Professor Travers',type:'Support',sci:83,act:38,inf:72,surv:73,tags:['Earth']}]},
 {n:'Season 8',y:'1971',chars:[
-{name:'Third Doctor',type:'Doctor',sci:93,act:88,inf:94,surv:92,pop:89,tags:['TARDIS','UNIT','Master']},
+{name:'Third Doctor',type:'Doctor',sci:90,act:94,inf:88,surv:90,pop:89,tags:['TARDIS','UNIT','Master']},
 {name:'Jo Grant',type:'Companion',sci:53,act:59,inf:84,surv:85,tags:['TARDIS','UNIT','Master']},
 {name:'Brigadier Lethbridge-Stewart',type:'Support',sci:63,act:91,inf:96,surv:93,tags:['UNIT','Master']},
 {name:'Captain Yates',type:'Support',sci:58,act:86,inf:76,surv:84,tags:['UNIT','Master']},
@@ -63,7 +63,7 @@ const seasons=[
 {name:'Sergeant Benton',type:'Support',sci:48,act:84,inf:71,surv:87,tags:['UNIT','Earth']},
 {name:'Dr Elizabeth Shaw',type:'Support',sci:95,act:58,inf:82,surv:84,tags:['UNIT','Earth']}]},
 {n:'Season 14',y:'1976–77',chars:[
-{name:'Fourth Doctor',type:'Doctor',sci:97,act:73,inf:94,surv:97,pop:98,tags:['TARDIS','Off Earth','Davros']},
+{name:'Fourth Doctor',type:'Doctor',sci:95,act:72,inf:96,surv:91,pop:98,tags:['TARDIS','Off Earth','Davros']},
 {name:'Sarah Jane Smith',type:'Companion',sci:76,act:72,inf:91,surv:93,tags:['TARDIS','Off Earth','Davros']},
 {name:'Leela',type:'Companion',sci:42,act:98,inf:64,surv:94,tags:['TARDIS','Off Earth']},
 {name:'K9',type:'Support',sci:96,act:71,inf:48,surv:79,tags:['TARDIS','Off Earth']},
@@ -71,7 +71,7 @@ const seasons=[
 {name:'Professor Litefoot',type:'Support',sci:82,act:52,inf:84,surv:79,tags:['Earth']},
 {name:'Jago',type:'Support',sci:48,act:55,inf:92,surv:76,tags:['Earth']}]},
 {n:'Season 17',y:'1979–80',chars:[
-{name:'Fourth Doctor',type:'Doctor',sci:97,act:73,inf:94,surv:97,pop:98,tags:['TARDIS','Off Earth']},
+{name:'Fourth Doctor',type:'Doctor',sci:95,act:72,inf:96,surv:91,pop:98,tags:['TARDIS','Off Earth']},
 {name:'Romana II',type:'Companion',sci:98,act:60,inf:86,surv:90,tags:['TARDIS','Time Lord','Off Earth']},
 {name:'K9',type:'Support',sci:96,act:71,inf:48,surv:79,tags:['TARDIS','Off Earth']},
 {name:'Professor Chronotis',type:'Support',sci:99,act:20,inf:78,surv:80,tags:['Time Lord','Earth']},
@@ -79,7 +79,7 @@ const seasons=[
 {name:'Duggan',type:'Support',sci:38,act:94,inf:66,surv:86,tags:['Earth']},
 {name:'Lady Adrasta',type:'Support',sci:71,act:65,inf:91,surv:78,tags:['Off Earth']}]},
 {n:'Season 21',y:'1984',chars:[
-{name:'Fifth Doctor',type:'Doctor',sci:93,act:62,inf:89,surv:88,pop:86,tags:['TARDIS','Off Earth','Daleks']},
+{name:'Fifth Doctor',type:'Doctor',sci:89,act:68,inf:90,surv:96,pop:86,tags:['TARDIS','Off Earth','Daleks']},
 {name:'Tegan Jovanka',type:'Companion',sci:47,act:68,inf:82,surv:89,tags:['TARDIS','Off Earth','Daleks']},
 {name:'Turlough',type:'Companion',sci:78,act:63,inf:70,surv:84,tags:['TARDIS','Off Earth']},
 {name:'Peri Brown',type:'Companion',sci:61,act:51,inf:76,surv:81,tags:['TARDIS','Off Earth']},
@@ -87,7 +87,7 @@ const seasons=[
 {name:'Nyssa',type:'Companion',sci:94,act:54,inf:78,surv:83,tags:['TARDIS','Off Earth']},
 {name:'Commander Lytton',type:'Support',sci:72,act:91,inf:82,surv:90,tags:['Daleks','Earth']}]},
 {n:'Season 24',y:'1987',chars:[
-{name:'Seventh Doctor',type:'Doctor',sci:96,act:56,inf:97,surv:95,pop:84,tags:['TARDIS','Off Earth']},
+{name:'Seventh Doctor',type:'Doctor',sci:98,act:48,inf:99,surv:88,pop:84,tags:['TARDIS','Off Earth']},
 {name:'Mel Bush',type:'Companion',sci:92,act:48,inf:72,surv:80,tags:['TARDIS','Off Earth']},
 {name:'Ace',type:'Companion',sci:77,act:92,inf:76,surv:90,tags:['TARDIS','Off Earth','Daleks']},
 {name:'Sab﻿alom Glitz',type:'Support',sci:55,act:72,inf:88,surv:91,tags:['Off Earth']},
@@ -95,7 +95,7 @@ const seasons=[
 {name:'Keff McCulloch',type:'Support',sci:67,act:49,inf:58,surv:72,tags:['Earth']},
 {name:'Ray',type:'Support',sci:55,act:72,inf:81,surv:80,tags:['Earth']}]},
 {n:'TV Movie',y:'1996',chars:[
-{name:'Eighth Doctor',type:'Doctor',sci:95,act:66,inf:92,surv:90,pop:88,tags:['TARDIS','Master']},
+{name:'Eighth Doctor',type:'Doctor',sci:93,act:65,inf:94,surv:90,pop:88,tags:['TARDIS','Master']},
 {name:'Grace Holloway',type:'Companion',sci:93,act:45,inf:84,surv:79,tags:['TARDIS','Earth','Master']},
 {name:'Chang Lee',type:'Companion',sci:48,act:71,inf:62,surv:75,tags:['TARDIS','Earth','Master']},
 {name:'The Master',type:'Support',sci:97,act:81,inf:98,surv:94,tags:['Time Lord','Master']},
@@ -105,33 +105,33 @@ const seasons=[
 {name:'Dr Chang',type:'Support',sci:82,act:37,inf:70,surv:68,tags:['Earth']},
 {name:'Pete',type:'Support',sci:52,act:62,inf:66,surv:71,tags:['Earth']}]},
 {n:'Season 10',y:'1972–73 · The Three Doctors',chars:[
-{name:'First Doctor',type:'Doctor',sci:95,act:45,inf:88,surv:92,pop:78,tags:['TARDIS','Time Lord']},
-{name:'Second Doctor',type:'Doctor',sci:94,act:55,inf:91,surv:94,pop:87,tags:['TARDIS','Time Lord']},
-{name:'Third Doctor',type:'Doctor',sci:93,act:88,inf:94,surv:92,pop:89,tags:['TARDIS','UNIT','Time Lord']},
+{name:'First Doctor',type:'Doctor',sci:96,act:42,inf:85,surv:82,pop:78,tags:['TARDIS','Time Lord']},
+{name:'Second Doctor',type:'Doctor',sci:92,act:50,inf:94,surv:88,pop:87,tags:['TARDIS','Time Lord']},
+{name:'Third Doctor',type:'Doctor',sci:90,act:94,inf:88,surv:90,pop:89,tags:['TARDIS','UNIT','Time Lord']},
 {name:'Jo Grant',type:'Companion',sci:53,act:59,inf:84,surv:85,tags:['TARDIS','UNIT']},
 {name:'Brigadier Lethbridge-Stewart',type:'Support',sci:63,act:91,inf:96,surv:93,tags:['UNIT','Earth']},
 {name:'Sergeant Benton',type:'Support',sci:48,act:84,inf:71,surv:87,tags:['UNIT','Earth']},
 {name:'Omega',type:'Support',sci:99,act:70,inf:98,surv:99,tags:['Time Lord','Off Earth']}]},
 {n:'Season 20',y:'1983 · The Five Doctors',chars:[
-{name:'First Doctor',type:'Doctor',sci:95,act:45,inf:88,surv:92,pop:78,tags:['TARDIS','Time Lord']},
-{name:'Second Doctor',type:'Doctor',sci:94,act:55,inf:91,surv:94,pop:87,tags:['TARDIS','Time Lord']},
-{name:'Third Doctor',type:'Doctor',sci:93,act:88,inf:94,surv:92,pop:89,tags:['TARDIS','UNIT','Time Lord']},
-{name:'Fifth Doctor',type:'Doctor',sci:93,act:62,inf:89,surv:88,pop:86,tags:['TARDIS','Time Lord']},
+{name:'First Doctor',type:'Doctor',sci:96,act:42,inf:85,surv:82,pop:78,tags:['TARDIS','Time Lord']},
+{name:'Second Doctor',type:'Doctor',sci:92,act:50,inf:94,surv:88,pop:87,tags:['TARDIS','Time Lord']},
+{name:'Third Doctor',type:'Doctor',sci:90,act:94,inf:88,surv:90,pop:89,tags:['TARDIS','UNIT','Time Lord']},
+{name:'Fifth Doctor',type:'Doctor',sci:89,act:68,inf:90,surv:96,pop:86,tags:['TARDIS','Time Lord']},
 {name:'Tegan Jovanka',type:'Companion',sci:47,act:68,inf:82,surv:89,tags:['TARDIS','Off Earth']},
 {name:'Turlough',type:'Companion',sci:78,act:63,inf:70,surv:84,tags:['TARDIS','Off Earth']},
 {name:'Sarah Jane Smith',type:'Support',sci:82,act:75,inf:94,surv:92,tags:['TARDIS','Earth']},
 {name:'Brigadier Lethbridge-Stewart',type:'Support',sci:63,act:91,inf:96,surv:93,tags:['UNIT','Earth']},
 {name:'The Master',type:'Support',sci:97,act:81,inf:98,surv:94,tags:['Time Lord','Master']}]},
 {n:'Series 7',y:'2013 · The Day of the Doctor',chars:[
-{name:'War Doctor',type:'Doctor',sci:97,act:92,inf:91,surv:98,pop:93,tags:['TARDIS','Time Lord','Off Earth','Daleks']},
-{name:'Tenth Doctor',type:'Doctor',sci:98,act:80,inf:98,surv:95,pop:99,tags:['TARDIS','Time Lord','Off Earth','Daleks']},
-{name:'Eleventh Doctor',type:'Doctor',sci:98,act:74,inf:97,surv:96,pop:97,tags:['TARDIS','Time Lord','Off Earth','Daleks']},
+{name:'War Doctor',type:'Doctor',sci:91,act:96,inf:78,surv:97,pop:91,tags:['TARDIS','Time Lord','Off Earth','Daleks']},
+{name:'Tenth Doctor',type:'Doctor',sci:95,act:82,inf:99,surv:88,pop:98,tags:['TARDIS','Time Lord','Off Earth','Daleks']},
+{name:'Eleventh Doctor',type:'Doctor',sci:97,act:70,inf:98,surv:90,pop:97,tags:['TARDIS','Time Lord','Off Earth','Daleks']},
 {name:'Clara Oswald',type:'Companion',sci:84,act:85,inf:92,surv:90,tags:['TARDIS','Off Earth','Daleks']},
 {name:'Kate Stewart',type:'Support',sci:81,act:83,inf:96,surv:91,tags:['UNIT','Earth']},
 {name:'Osgood',type:'Support',sci:92,act:56,inf:76,surv:83,tags:['UNIT','Earth']},
 {name:'The Moment',type:'Support',sci:99,act:40,inf:99,surv:99,tags:['Time Lord','Off Earth']}]},
 {n:'Series 1',y:'2005',chars:[
-{name:'Ninth Doctor',type:'Doctor',sci:96,act:82,inf:93,surv:96,pop:91,tags:['TARDIS','Off Earth','Daleks']},
+{name:'Ninth Doctor',type:'Doctor',sci:88,act:91,inf:91,surv:94,pop:92,tags:['TARDIS','Off Earth','Daleks']},
 {name:'Rose Tyler',type:'Companion',sci:61,act:76,inf:90,surv:92,tags:['TARDIS','Off Earth','Daleks']},
 {name:'Captain Jack Harkness',type:'Support',sci:81,act:96,inf:94,surv:99,tags:['TARDIS','Off Earth','Daleks']},
 {name:'Mickey Smith',type:'Support',sci:66,act:67,inf:71,surv:83,tags:['TARDIS','Earth']},
@@ -139,7 +139,7 @@ const seasons=[
 {name:'Jackie Tyler',type:'Support',sci:43,act:49,inf:86,surv:83,tags:['Earth']},
 {name:'Adam Mitchell',type:'Companion',sci:78,act:45,inf:58,surv:60,tags:['TARDIS','Off Earth']}]},
 {n:'Series 4',y:'2008',chars:[
-{name:'Tenth Doctor',type:'Doctor',sci:98,act:80,inf:98,surv:95,pop:99,tags:['TARDIS','Off Earth','Daleks','Davros']},
+{name:'Tenth Doctor',type:'Doctor',sci:95,act:82,inf:99,surv:88,pop:98,tags:['TARDIS','Off Earth','Daleks','Davros']},
 {name:'Donna Noble',type:'Companion',sci:73,act:65,inf:97,surv:91,tags:['TARDIS','Off Earth','Daleks','Davros']},
 {name:'Martha Jones',type:'Companion',sci:93,act:81,inf:89,surv:94,tags:['TARDIS','UNIT','Off Earth','Daleks','Davros']},
 {name:'Captain Jack Harkness',type:'Support',sci:81,act:96,inf:94,surv:99,tags:['TARDIS','Off Earth','Daleks','Davros']},
@@ -147,7 +147,7 @@ const seasons=[
 {name:'Sarah Jane Smith',type:'Support',sci:82,act:75,inf:94,surv:92,tags:['TARDIS','Earth','Daleks','Davros']},
 {name:'Mickey Smith',type:'Support',sci:72,act:79,inf:76,surv:88,tags:['TARDIS','Earth','Daleks','Davros']}]},
 {n:'Series 5',y:'2010',chars:[
-{name:'Eleventh Doctor',type:'Doctor',sci:98,act:74,inf:97,surv:96,pop:97,tags:['TARDIS','Off Earth','Daleks','Angels']},
+{name:'Eleventh Doctor',type:'Doctor',sci:97,act:70,inf:98,surv:90,pop:97,tags:['TARDIS','Off Earth','Daleks','Angels']},
 {name:'Amy Pond',type:'Companion',sci:69,act:84,inf:86,surv:92,tags:['TARDIS','Off Earth','Daleks','Angels']},
 {name:'Rory Williams',type:'Companion',sci:72,act:86,inf:83,surv:97,tags:['TARDIS','Off Earth','Angels']},
 {name:'River Song',type:'Support',sci:93,act:95,inf:95,surv:96,tags:['TARDIS','Off Earth','Angels']},
@@ -155,7 +155,7 @@ const seasons=[
 {name:'Craig Owens',type:'Support',sci:54,act:61,inf:88,surv:84,tags:['Earth']},
 {name:'Vincent van Gogh',type:'Support',sci:57,act:48,inf:96,surv:78,tags:['Earth']}]},
 {n:'Series 9',y:'2015',chars:[
-{name:'Twelfth Doctor',type:'Doctor',sci:99,act:69,inf:96,surv:99,pop:94,tags:['TARDIS','Off Earth','Daleks','Davros']},
+{name:'Twelfth Doctor',type:'Doctor',sci:99,act:76,inf:93,surv:92,pop:94,tags:['TARDIS','Off Earth','Daleks','Davros']},
 {name:'Clara Oswald',type:'Companion',sci:84,act:85,inf:92,surv:90,tags:['TARDIS','Off Earth','Daleks','Davros']},
 {name:'Missy',type:'Support',sci:99,act:90,inf:99,surv:98,tags:['Time Lord','TARDIS','Daleks','Davros']},
 {name:'Kate Stewart',type:'Support',sci:81,act:83,inf:96,surv:91,tags:['UNIT','Earth']},
@@ -163,7 +163,7 @@ const seasons=[
 {name:'Ashildr',type:'Support',sci:78,act:86,inf:91,surv:99,tags:['Off Earth']},
 {name:'Rigsy',type:'Support',sci:63,act:70,inf:79,surv:84,tags:['Earth']}]},
 {n:'Series 11',y:'2018',chars:[
-{name:'Thirteenth Doctor',type:'Doctor',sci:97,act:72,inf:92,surv:94,pop:84,tags:['TARDIS','Off Earth']},
+{name:'Thirteenth Doctor',type:'Doctor',sci:96,act:72,inf:92,surv:91,pop:89,tags:['TARDIS','Off Earth']},
 {name:'Yasmin Khan',type:'Companion',sci:74,act:82,inf:84,surv:89,tags:['TARDIS','Off Earth']},
 {name:'Ryan Sinclair',type:'Companion',sci:56,act:79,inf:73,surv:84,tags:['TARDIS','Off Earth']},
 {name:'Graham O’Brien',type:'Support',sci:62,act:67,inf:93,surv:90,tags:['TARDIS','Off Earth']},
@@ -171,7 +171,7 @@ const seasons=[
 {name:'Grace O’Brien',type:'Support',sci:61,act:70,inf:91,surv:70,tags:['Earth']},
 {name:'King James I',type:'Support',sci:49,act:57,inf:95,surv:76,tags:['Earth']}]},
 {n:'Series 14',y:'2024',chars:[
-{name:'Fifteenth Doctor',type:'Doctor',sci:97,act:84,inf:96,surv:93,pop:92,tags:['TARDIS','Off Earth']},
+{name:'Fifteenth Doctor',type:'Doctor',sci:91,act:86,inf:97,surv:92,pop:93,tags:['TARDIS','Off Earth']},
 {name:'Ruby Sunday',type:'Companion',sci:68,act:82,inf:90,surv:91,tags:['TARDIS','Off Earth']},
 {name:'Mel Bush',type:'Support',sci:92,act:48,inf:72,surv:80,tags:['TARDIS','UNIT']},
 {name:'Kate Stewart',type:'Support',sci:81,act:83,inf:96,surv:91,tags:['UNIT','Earth']},
@@ -232,7 +232,10 @@ const awardDefs=[
 {id:'noRerolls',name:'AGAINST ALL ODDS',desc:'Reach 15 wins without using a re-roll.'},
 {id:'bonus',name:'TIME LORD VICTORIOUS',desc:'Complete the Bonus Game.'},
 {id:'artefacts',name:'CABINET OF CURIOSITIES',desc:'Encounter every rare event at least once.'},
-{id:'survivor',name:'THERE’S ALWAYS A WAY',desc:'Reach 15 wins after suffering a severe rare-event penalty.'}
+{id:'survivor',name:'THERE’S ALWAYS A WAY',desc:'Reach 15 wins after suffering a severe rare-event penalty.'},
+{id:'doomed',name:'THE UNIVERSE IS DOOMED',desc:'Finish a regular game with 5 wins or fewer.'},
+{id:'catastrophe',name:'ABSOLUTE CATASTROPHE',desc:'Finish a regular game with 2 wins or fewer.'},
+{id:'zero',name:'ZERO HOUR',desc:'Finish a regular game with 0 wins.'}
 ];
 
 let settings={rerolls:1,minDoc:1,maxDoc:15};
@@ -262,7 +265,8 @@ function scrollTop(){window.scrollTo({top:0,behavior:'smooth'})}
 function roleClass(slotOrType){let s=slotOrType;return s==='Doctor'?'doctor':(s==='Companion'||String(s).startsWith('Companion'))?'companion':'teamup'}
 function roleLabel(c){return c.type==='Support'?'Team-up':c.type}
 function saveArchive(obj){localStorage.setItem('who0_black_archive_v5',JSON.stringify(obj))}
-function loadArchive(){try{return JSON.parse(localStorage.getItem('who0_black_archive_v5'))||{awards:[],events:[]}}catch(e){return{awards:[],events:[]}}}
+function loadArchive(){try{let a=JSON.parse(localStorage.getItem('who0_black_archive_v5'))||{};return{awards:a.awards||[],events:a.events||[],best:Number.isFinite(a.best)?a.best:null,worst:Number.isFinite(a.worst)?a.worst:null}}catch(e){return{awards:[],events:[],best:null,worst:null}}}
+function recordTimeline(wins){let a=loadArchive();a.best=a.best===null?wins:Math.max(a.best,wins);a.worst=a.worst===null?wins:Math.min(a.worst,wins);saveArchive(a)}
 function unlock(id){let a=loadArchive();if(!a.awards.includes(id)){a.awards.push(id);saveArchive(a)}}
 function recordEvent(id){let a=loadArchive();if(!a.events.includes(id)){a.events.push(id);saveArchive(a)}if(a.events.length>=rareEvents.length)unlock('artefacts')}
 
@@ -277,7 +281,7 @@ function menu(){
 }
 function showArchive(){
  let archive=loadArchive();
- app.innerHTML=`<div class="card"><div class="archiveTitle"><div><div class="small">THE BLACK ARCHIVE</div><h2>${archive.awards.length} RECORDS UNLOCKED</h2></div></div>${awardDefs.map(a=>archive.awards.includes(a.id)?`<div class="ach">🔓 <b>${a.name}</b><div class="small">${a.desc}</div></div>`:`<div class="ach locked classified">▰ CLASSIFIED</div>`).join('')}<button class="secondary" style="margin-top:10px" onclick="menu()">BACK</button></div>`;scrollTop()
+ app.innerHTML=`<div class="card"><div class="archiveTitle"><div><div class="small">THE BLACK ARCHIVE</div><h2>${archive.awards.length} RECORDS UNLOCKED</h2></div></div><div class="miniTable"><div class="miniRow"><span>BEST TIMELINE</span><b>${archive.best===null?'—':archive.best+' WINS'}</b></div><div class="miniRow"><span>DARKEST TIMELINE</span><b>${archive.worst===null?'—':archive.worst+' WINS'}</b></div></div>${awardDefs.map(a=>archive.awards.includes(a.id)?`<div class="ach">🔓 <b>${a.name}</b><div class="small">${a.desc}</div></div>`:`<div class="ach locked classified">▰ CLASSIFIED</div>`).join('')}<button class="secondary" style="margin-top:10px" onclick="menu()">BACK</button></div>`;scrollTop()
 }
 function startGame(){
  team={};current=null;currentOffer=[];rerollsLeft=settings.rerolls;rerollsUsed=0;run=null;eventState=null;halfwayDone=false;bonusRun=null;
@@ -300,7 +304,7 @@ function offerForCurrent(){
    let docs=eligible.filter(c=>role(c,'Doctor'));
    if(docs.length&&!mixed.some(c=>c.type==='Doctor')){if(mixed.length)mixed[mixed.length-1]=rand(docs);else mixed=[rand(docs)]}
  }
- currentOffer=uniqueCharacters(mixed)
+ currentOffer=uniqueCharacters(mixed).sort((a,b)=>overall(b)-overall(a))
 }
 function drawSeason(){chooseSeason();offerForCurrent();draft()}
 function reroll(){
@@ -554,6 +558,8 @@ function evaluateTeamAwards(){
 }
 function finishRun(){
  evaluateTeamAwards();if(run.wins===20)unlock('perfect');if(run.wins>=15&&rerollsUsed===0)unlock('noRerolls');if(run.wins>=15&&run.severePenalty)unlock('survivor');
+ if(run.wins<=5)unlock('doomed');if(run.wins<=2)unlock('catastrophe');if(run.wins===0)unlock('zero');
+ recordTimeline(run.wins);
  let archive=loadArchive();
  app.innerHTML=teamHTML()+`<div class="card"><div class="small">FINAL RECORD</div><div class="score">${run.wins}-${run.draws}-${run.losses}</div><div class="small">TEAM VALUE ${slots.filter(s=>team[s]).reduce((n,s)=>n+overall(team[s],s),0)}</div></div>
  <div class="card"><div class="small">ENCOUNTER RECORD</div>${run.results.map((x,i)=>`<div class="miniRow"><span>${i+1}. ${x.name}<br><span class="small">Form ${formText(x.form)}</span></span><b class="${x.res==='WIN'?'win':x.res==='LOSS'?'loss':'draw'}">${x.res}</b></div>`).join('')}</div>
@@ -563,20 +569,22 @@ function finishRun(){
 function multiDoctorPrompt(){return `<div class="card vortex"><div class="small">TIME SCOOP OVERLOAD</div><h2>Another Doctor is breaking through.</h2><p>Fifteen wins has destabilised the timeline. Recruit another incarnation and enter the Bonus Game.</p><button onclick="chooseBonusDoctor()">RECRUIT ANOTHER DOCTOR</button></div>`}
 function chooseBonusDoctor(){
  let current=team.Doctor.name;let docs=uniqueCharacters(allCharacters().filter(c=>c.type==='Doctor'&&c.name!==current&&doctorNumbers[c.name]>=settings.minDoc&&doctorNumbers[c.name]<=settings.maxDoc));
- let candidates=shuffle(docs).slice(0,3);eventState={candidates};
- app.innerHTML=teamHTML()+`<div class="card vortex"><div class="small">TIME SCOOP OVERLOAD</div><h2>Choose another Doctor.</h2><div class="options">${candidates.map((c,i)=>`<div class="pick doctor"><div class="pickTop"><h3>${c.name}</h3><div class="overall">${overall(c)}<small>VALUE</small></div></div><button onclick="startBonus(${i})">RECRUIT</button></div>`).join('')}</div></div>`;scrollTop()
+ let candidates=shuffle(docs).slice(0,3).sort((a,b)=>overall(b)-overall(a));eventState={candidates};
+ app.innerHTML=teamHTML()+`<div class="card vortex"><div class="small">TIME SCOOP OVERLOAD</div><h2>Choose another Doctor.</h2><div class="options">${candidates.map((c,i)=>`<div class="pick doctor"><div class="pickTop"><h3>${c.name}</h3><div class="overall">${overall(c)}<small>VALUE</small></div></div><div class="stats">Science ${c.sci} · Action ${c.act} · Influence ${c.inf} · Survival ${c.surv}</div><button onclick="startBonus(${i})">RECRUIT</button></div>`).join('')}</div></div>`;scrollTop()
 }
 function startBonus(i){
- let ally=eventState.candidates[i];bonusRun={ally,index:0,wins:0,draws:0,losses:0,results:[],opponents:buildRunOpponents(bonusOpponents)};showBonusEncounter()
+ let ally=eventState.candidates[i];bonusRun={ally,index:0,wins:0,draws:0,losses:0,results:[],opponents:shuffle(bonusOpponents).map(o=>({...o,form:Math.floor(Math.random()*21)-15}))};showBonusEncounter()
 }
 function bonusMetric(key){
- let base=teamMetric(key,{}),a=key==='Doctor'?doctorPowerFor(bonusRun.ally):(bonusRun.ally[key]||doctorPowerFor(bonusRun.ally));return(base*5+a)/6
+ let base=teamMetric(key,{});
+ let ally=key==='Doctor'?doctorPowerFor(bonusRun.ally):(bonusRun.ally[key]||doctorPowerFor(bonusRun.ally));
+ return base+(ally*.18)
 }
 function doctorPowerFor(d){return d.sci*.3+d.act*.15+d.inf*.25+d.surv*.15+d.pop*.15}
 function showBonusEncounter(){
  if(bonusRun.index>=bonusRun.opponents.length){finishBonus();return}
  let o=bonusRun.opponents[bonusRun.index];
- app.innerHTML=teamHTML()+`<div class="card vortex"><div class="small">BONUS GAME · ${bonusRun.index+1} / ${bonusRun.opponents.length}</div><h2>${o.name}</h2><div class="doctorCrew">${team.Doctor.name} + ${bonusRun.ally.name}</div><div class="form">FORM ${formText(o.form)}</div><button style="margin-top:14px" onclick="resolveBonus()">RUN ENCOUNTER</button></div>`;scrollTop()
+ app.innerHTML=teamHTML()+`<div class="card vortex"><div class="small">BONUS GAME · ${bonusRun.index+1} / ${bonusRun.opponents.length}</div><h2>${o.name}</h2><div class="doctorCrew">${team.Doctor.name} + ${bonusRun.ally.name}</div><div class="note">SECOND DOCTOR CONTRIBUTION · 18%</div><div class="stats" style="margin:10px 0">Science ${Math.round(bonusMetric('sci'))} · Action ${Math.round(bonusMetric('act'))} · Influence ${Math.round(bonusMetric('inf'))} · Survival ${Math.round(bonusMetric('surv'))}</div><div class="form">FORM ${formText(o.form)}</div><button style="margin-top:14px" onclick="resolveBonus()">RUN ENCOUNTER</button></div>`;scrollTop()
 }
 function resolveBonus(){
  let o=bonusRun.opponents[bonusRun.index],p=(bonusMetric(o.k1)+bonusMetric(o.k2))/2+chemistry()+(Math.random()*10-5),r=p-(o.threat+o.form),res=r>3?'WIN':r<-3?'LOSS':'DRAW';
