@@ -6,7 +6,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#081018">
-<title>WHO-0 · Version 8</title>
+<title>WHO-0 · Version 8.1.1</title>
 <style>
 :root{--bg:#081018;--panel:#101b26;--line:#27445f;--text:#ecf7ff;--muted:#9db5c7;--accent:#7ad9ff;--good:#7fffb2;--bad:#ff7b8b;--gold:#ffd36e;--purple:#c6a8ff}
 *{box-sizing:border-box}html{background:#05090e}body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:radial-gradient(circle at 50% 0%,#17314b 0,#081018 38%,#05090e 100%);color:var(--text);min-height:100vh}
@@ -37,7 +37,7 @@ button.secondary{background:#162838;color:var(--text);border:1px solid var(--lin
 .miniTable{display:grid;gap:7px;margin-top:12px}.miniRow{display:flex;justify-content:space-between;gap:10px;border-bottom:1px solid #1d3347;padding:8px 0}.miniRow:last-child{border:0}.note{font-size:12px;color:var(--muted);line-height:1.45}
 .footer{font-size:11px;color:#6f8799;text-align:center;margin-top:18px}
 </style></head>
-<body><div class="app"><header><div class="brand"><h1>WHO-0</h1><div class="tag">Build a TARDIS team.<br>Save the universe.</div></div></header><main id="app"></main><div class="footer">Version 8 · Fan-made gameplay prototype.</div></div>
+<body><div class="app"><header><div class="brand"><h1>WHO-0</h1><div class="tag">Build a TARDIS team.<br>Save the universe.</div></div></header><main id="app"></main><div class="footer">Version 8.1 · Fan-made gameplay prototype.</div></div>
 <script>
 const seasons=[
 {n:'Season 2',y:'1964–65',chars:[
@@ -607,12 +607,22 @@ function endingScreen(c,w,d,l,label,fn,note=''){
  app.innerHTML=`<div class="card vortex"><div class="small">THE FINAL VERDICT</div><h1>${c.title}</h1><div class="story" style="font-size:17px;line-height:1.55">${c.text}</div><div class="score" style="margin:18px 0">${w} WON · ${d} DRAWN · ${l} LOST</div><div class="small">BALANCE ${c.balance>0?'+':''}${c.balance}</div>${note?`<div class="ach" style="margin-top:16px">${note}</div>`:''}<button style="margin-top:18px" onclick="${fn}">${label}</button></div>`;scrollTop()
 }
 function finishRun(){
- let a=loadArchive(),note=[];if(a.best===null||run.wins>a.best)note.push('NEW BEST TIMELINE');if(a.worst===null||run.wins<a.worst)note.push('NEW DARKEST TIMELINE');let c=endingCopy(run.wins,run.draws,run.losses,false);endingScreen(c,run.wins,run.draws,run.losses,'VIEW ENCOUNTER RECORD','showNormalResults()',note.join(' · '))
+ evaluateTeamAwards();
+ if(run.wins===20)unlock('perfect');
+ if(run.wins>=15&&rerollsUsed===0)unlock('noRerolls');
+ if(run.wins>=15&&run.severePenalty)unlock('survivor');
+ if(run.wins<=5)unlock('doomed');
+ if(run.wins<=2)unlock('catastrophe');
+ if(run.wins===0)unlock('zero');
+ let before=loadArchive(),note=[];
+ if(before.best===null||run.wins>before.best)note.push('NEW BEST TIMELINE');
+ if(before.worst===null||run.wins<before.worst)note.push('NEW DARKEST TIMELINE');
+ recordTimeline(run.wins);
+ let c=endingCopy(run.wins,run.draws,run.losses,false);
+ app.innerHTML=`<div class="card vortex"><div class="small">THE FINAL VERDICT</div><h1>${c.title}</h1><div class="story" style="font-size:17px;line-height:1.55">${c.text}</div><div class="score" style="margin:18px 0">${run.wins} WON · ${run.draws} DRAWN · ${run.losses} LOST</div><div class="small">BALANCE ${c.balance>0?'+':''}${c.balance}</div>${note.length?`<div class="ach" style="margin-top:16px">${note.join(' · ')}</div>`:''}<button style="margin-top:18px" onclick="showNormalResults()">VIEW ENCOUNTER RECORD</button></div>`;
+ scrollTop()
 }
 function showNormalResults(){
- evaluateTeamAwards();if(run.wins===20)unlock('perfect');if(run.wins>=15&&rerollsUsed===0)unlock('noRerolls');if(run.wins>=15&&run.severePenalty)unlock('survivor');
- if(run.wins<=5)unlock('doomed');if(run.wins<=2)unlock('catastrophe');if(run.wins===0)unlock('zero');
- recordTimeline(run.wins);
  let archive=loadArchive();
  app.innerHTML=teamHTML()+`<div class="card"><div class="small">FINAL RECORD</div><div class="score">${run.wins}-${run.draws}-${run.losses}</div><div class="small">TEAM VALUE ${slots.filter(s=>team[s]).reduce((n,s)=>n+overall(team[s],s),0)}</div></div>
  <div class="card"><div class="small">ENCOUNTER RECORD</div>${run.results.map((x,i)=>`<div class="miniRow"><span>${i+1}. ${x.name}<br><span class="small">Form ${formText(x.form)}</span></span><b class="${x.res==='WIN'?'win':x.res==='LOSS'?'loss':'draw'}">${x.res}</b></div>`).join('')}</div>
@@ -646,7 +656,10 @@ function resolveBonus(){
  app.innerHTML=teamHTML()+`<div class="card vortex"><div class="small">BONUS GAME · ${o.name}</div><div class="resultWord ${res==='WIN'?'win':res==='LOSS'?'loss':'draw'}">${res}</div><div class="story">${txt}</div><button style="margin-top:14px" onclick="bonusRun.index++;showBonusEncounter()">NEXT</button></div>`;scrollTop()
 }
 function finishBonus(){
- let c=endingCopy(bonusRun.wins,bonusRun.draws,bonusRun.losses,true);endingScreen(c,bonusRun.wins,bonusRun.draws,bonusRun.losses,'VIEW BONUS RECORD','showBonusResults()')
+ if(bonusRun.wins===10)unlock('victorious');
+ let c=endingCopy(bonusRun.wins,bonusRun.draws,bonusRun.losses,true);
+ app.innerHTML=`<div class="card vortex"><div class="small">MULTI-DOCTOR FINAL VERDICT</div><h1>${c.title}</h1><div class="story" style="font-size:17px;line-height:1.55">${c.text}</div><div class="score" style="margin:18px 0">${bonusRun.wins} WON · ${bonusRun.draws} DRAWN · ${bonusRun.losses} LOST</div><div class="small">BALANCE ${c.balance>0?'+':''}${c.balance}</div><button style="margin-top:18px" onclick="showBonusResults()">VIEW BONUS RECORD</button></div>`;
+ scrollTop()
 }
 function showBonusResults(){
  if(bonusRun.wins===bonusRun.opponents.length)unlock('bonus');
