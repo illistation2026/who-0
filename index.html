@@ -32,7 +32,7 @@ button{appearance:none;min-height:48px;-webkit-tap-highlight-color:transparent;t
 .vortex{border-color:#7655c7;background:radial-gradient(circle at 50% 20%,#342266,#111725 60%);text-align:center}.vortex h2{font-size:30px;margin:8px}.doctorCrew{font-weight:900;color:#d9c9ff;margin:12px 0}
 .footer{font-size:11px;color:#6f8799;text-align:center;margin-top:18px}
 </style></head>
-<body><div class="app"><header><div class="brand"><h1>WHO-0</h1><div class="tag">Build a TARDIS five.<br>Survive 20 adversaries.</div></div></header><main id="app"></main><div class="footer">Fan-made gameplay prototype.</div></div>
+<body><div class="app"><header><div class="brand"><h1>WHO-0</h1><div class="tag">Build a TARDIS team.<br>Save the universe.</div></div></header><main id="app"></main><div class="footer">Fan-made gameplay prototype.</div></div>
 <script>
 const seasons=[
 {n:'Season 2',y:'1964–65',chars:[
@@ -199,9 +199,23 @@ function role(c,slot){
 }
 function overall(c,slot=''){let base=(c.sci+c.act+c.inf+c.surv)/4;if(c.type==='Doctor')base=base*.82+(c.pop||80)*.18;if(slot==='Companion 1')base=base*.72+c.sci*.28;if(slot==='Companion 2')base=base*.72+c.act*.28;return Math.round(base)}
 function menu(){
- app.innerHTML=`<div class="card hero"><div class="small">THE UNIVERSE NEEDS A TEAM</div><h2>Choose wisely.<br>Then survive.</h2><p>Draw a Doctor Who television season and recruit one character at a time. Build a Doctor, two Companions and two Team-ups, then face 20 classic adversaries.</p><p>Your choices have different strengths. Chemistry matters. Exceptional runs may disturb the fabric of time.</p><button onclick="startGame()">START GAME</button></div>
- <div class="card"><b>Re-rolls</b><div class="small">Change how forgiving the draft is.</div><div class="segment">${[0,1,3].map(n=>`<button class="${settings.rerolls===n?'on':''}" onclick="setRerolls(${n})">${n}<br><span class="small">${n===0?'Hard':n===1?'Normal':'Easy'}</span></button>`).join('')}</div></div>
- <div class="card"><b>Doctor era</b><div class="small">Only seasons featuring Doctors inside this range enter the draw.</div><div class="rangeRow"><select id="minD" onchange="rangeChanged()">${doctorOpts(settings.minDoc)}</select><span>to</span><select id="maxD" onchange="rangeChanged()">${doctorOpts(settings.maxDoc)}</select></div><div class="rangePreview">${Array.from({length:15},(_,i)=>`<div class="docDot ${i+1>=settings.minDoc&&i+1<=settings.maxDoc?'on':''}">${i+1}</div>`).join('')}</div></div>`;
+ app.innerHTML=`<div class="card hero">
+ <div class="small">THE UNIVERSE IS IN CHAOS</div>
+ <h2>Time and space are out of control.</h2>
+ <p>The cosmos is teetering on the edge of destruction.</p>
+ <p><b>You’re our last hope.</b></p>
+ <p>Use the Time Scoop to assemble a TARDIS team capable of putting the universe back together.</p>
+ <div style="margin:18px 0 16px;padding:14px;border:1px solid var(--line);border-radius:14px;background:#0b151f">
+   <div class="small" style="margin-bottom:10px">BUILD YOUR TARDIS TEAM</div>
+   <div class="slots">
+     <div class="slot doctor"><div><b>Doctor × 1</b><span class="roleDoctor"><span class="roleDot"></span>TARDIS blue</span></div></div>
+     <div class="slot companion"><div><b>Companions × 2</b><span class="roleCompanion"><span class="roleDot"></span>Gold</span></div></div>
+     <div class="slot teamup"><div><b>Team-ups × 2</b><span class="roleTeamup"><span class="roleDot"></span>Green</span></div></div>
+   </div>
+ </div>
+ <button onclick="startGame()">START GAME</button></div>
+ <div class="card"><b>Re-rolls</b><div class="small">Change how forgiving the Time Scoop is.</div><div class="segment">${[0,1,3].map(n=>`<button class="${settings.rerolls===n?'on':''}" onclick="setRerolls(${n})">${n}<br><span class="small">${n===0?'Hard':n===1?'Normal':'Easy'}</span></button>`).join('')}</div></div>
+ <div class="card"><b>Doctor era</b><div class="small">Only seasons featuring Doctors inside this range can be pulled in by the Time Scoop.</div><div class="rangeRow"><select id="minD" onchange="rangeChanged()">${doctorOpts(settings.minDoc)}</select><span>to</span><select id="maxD" onchange="rangeChanged()">${doctorOpts(settings.maxDoc)}</select></div><div class="rangePreview">${Array.from({length:15},(_,i)=>`<div class="docDot ${i+1>=settings.minDoc&&i+1<=settings.maxDoc?'on':''}">${i+1}</div>`).join('')}</div></div>`;
 }
 function doctorOpts(sel){return Array.from({length:15},(_,i)=>`<option value="${i+1}" ${i+1===sel?'selected':''}>${i+1}</option>`).join('')}
 function setRerolls(n){settings.rerolls=n;menu()}
@@ -213,7 +227,7 @@ function teamHTML(){return `<div class="card"><div class="small">YOUR TARDIS FIV
 function draft(){
  if(Object.keys(team).length===5){app.innerHTML=teamHTML()+`<div class="card"><button onclick="simulate()">RUN THE 20 ENCOUNTERS</button><button class="secondary" style="margin-top:8px" onclick="menu()">Back to menu</button></div>`;return}
  let empty=slots.filter(s=>!team[s]);
- app.innerHTML=teamHTML()+`<div class="card"><div class="small">CURRENT DRAW</div><div class="season">${current.n}</div><div class="small">${current.y}</div><div class="counter">RE-ROLLS REMAINING: ${rerollsLeft}</div><div class="options">${current.chars.map((c,i)=>`<div class="pick ${c.type==='Doctor'?'doctor':c.type==='Companion'?'companion':'teamup'}"><div class="pickTop"><div><h3>${c.name}</h3><div class="meta"><span class="${c.type==='Doctor'?'roleDoctor':c.type==='Companion'?'roleCompanion':'roleTeamup'}"><span class="roleDot"></span>${c.type==='Support'?'Team-up':c.type}</span>${c.tags.slice(0,3).map(t=>`<span class="pill">${t}</span>`).join('')}</div></div><div class="overall">${overall(c)}<small>VALUE</small></div></div><div class="stats">Science ${c.sci} · Action ${c.act} · Influence ${c.inf} · Survival ${c.surv}${c.pop?` · Popularity ${c.pop}`:''}</div>${empty.filter(s=>role(c,s)).map(s=>`<button onclick="pick(${i},'${s}')">Choose as ${s} · ${overall(c,s)}</button>`).join('')}</div>`).join('')}</div><div class="toolbar"><button class="secondary" onclick="drawSeason()">SKIP</button><button class="secondary" ${rerollsLeft<1?'disabled':''} onclick="reroll()">RE-ROLL (${rerollsLeft})</button></div></div>`;
+ app.innerHTML=teamHTML()+`<div class="card"><div class="small">TIME SCOOP LOCKED ON</div><div class="season">${current.n}</div><div class="small">${current.y}</div><div class="counter">TIME SCOOP RE-ROLLS: ${rerollsLeft}</div><div class="options">${current.chars.map((c,i)=>`<div class="pick ${c.type==='Doctor'?'doctor':c.type==='Companion'?'companion':'teamup'}"><div class="pickTop"><div><h3>${c.name}</h3><div class="meta"><span class="${c.type==='Doctor'?'roleDoctor':c.type==='Companion'?'roleCompanion':'roleTeamup'}"><span class="roleDot"></span>${c.type==='Support'?'Team-up':c.type}</span>${c.tags.slice(0,3).map(t=>`<span class="pill">${t}</span>`).join('')}</div></div><div class="overall">${overall(c)}<small>VALUE</small></div></div><div class="stats">Science ${c.sci} · Action ${c.act} · Influence ${c.inf} · Survival ${c.surv}${c.pop?` · Popularity ${c.pop}`:''}</div>${empty.filter(s=>role(c,s)).map(s=>`<button onclick="pick(${i},'${s}')">Choose as ${s} · ${overall(c,s)}</button>`).join('')}</div>`).join('')}</div><div class="toolbar"><button class="secondary" onclick="drawSeason()">ACTIVATE TIME SCOOP</button><button class="secondary" ${rerollsLeft<1?'disabled':''} onclick="reroll()">RE-ROLL (${rerollsLeft})</button></div></div>`;
  window.scrollTo({top:0,behavior:'smooth'})
 }
 function pick(i,slot){team[slot]={...current.chars[i],season:current.n};current=null;if(Object.keys(team).length<5)drawSeason();else draft()}
