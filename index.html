@@ -6,7 +6,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#081018">
-<title>WHO-0 · Version 11</title>
+<title>WHO-0 · Version 12</title>
 <style>
 :root{--bg:#081018;--panel:#101b26;--line:#27445f;--text:#ecf7ff;--muted:#9db5c7;--accent:#7ad9ff;--good:#7fffb2;--bad:#ff7b8b;--gold:#ffd36e;--purple:#c6a8ff}
 *{box-sizing:border-box}html{background:#05090e}body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:radial-gradient(circle at 50% 0%,#17314b 0,#081018 38%,#05090e 100%);color:var(--text);min-height:100vh}
@@ -51,8 +51,12 @@ button.secondary{background:#162838;color:var(--text);border:1px solid var(--lin
 .scar{font-size:10px;color:#ffb4bf;border:1px solid #6a303b;border-radius:999px;padding:3px 6px;margin-left:5px}.memoryGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:12px 0}.memoryGrid div{border:1px solid var(--line);border-radius:12px;background:#0b151f;padding:10px}.memoryGrid b{display:block;font-size:22px}.secretEnding{border-color:#a7884a;background:radial-gradient(circle at 50% 0%,#463715,#131913 62%)}
 .regenOverlay{position:fixed;inset:0;z-index:60;display:flex;align-items:center;justify-content:center;text-align:center;background:radial-gradient(circle,#fff 0,#ffe58a 5%,#ff9f43 15%,#17233a 43%,#03070c 72%);animation:regenFade 1.8s ease both}.regenOverlay .inner{position:relative;z-index:2;padding:20px}.regenOverlay h1{font-size:38px;line-height:1;margin:6px}.regenOverlay:before,.regenOverlay:after{content:"";position:absolute;width:140%;height:12px;background:#fff5ba;box-shadow:0 0 30px #ffd25a;transform:rotate(24deg);animation:regenBeam .55s ease-in-out infinite alternate}.regenOverlay:after{transform:rotate(-24deg)}
 @keyframes battleSpin{to{transform:rotate(60deg)}}@keyframes battlePulse{0%{transform:scale(.7);opacity:.45;box-shadow:0 0 0 0 #7ad9ff66}70%{transform:scale(1.1);opacity:1;box-shadow:0 0 0 38px #7ad9ff00}100%{transform:scale(.8);opacity:.4}}@keyframes battleFlash{50%{filter:brightness(1.8)}}@keyframes regenBeam{to{transform:rotate(24deg) scaleX(.78);opacity:.45}}@keyframes regenFade{0%{opacity:0}15%{opacity:1}80%{opacity:1}100%{opacity:0}}
-</style></head>
-<body><div class="app"><header><div class="brand"><h1>WHO-0</h1><div class="tag">Build a TARDIS team.<br>Save the universe.</div></div></header><main id="app"></main><div class="footer">Version 11 · Fan-made gameplay prototype.</div></div>
+</style>
+<style>
+.liveMod{display:inline-block;margin:3px 4px 0 0;padding:2px 5px;border-radius:5px;font-size:9px;font-weight:900;letter-spacing:.04em}.liveMod.pos{background:#143c2b;color:#79f0a8}.liveMod.neg{background:#421c2b;color:#ff8caf}.posText{color:#79f0a8;font-style:normal}.negText{color:#ff8caf;font-style:normal}.compareGrid{margin-top:14px;border:1px solid var(--line);border-radius:12px;overflow:hidden}.compareRow{display:grid;grid-template-columns:1.3fr .7fr .35fr .7fr .7fr;gap:6px;padding:9px 10px;border-bottom:1px solid var(--line);align-items:center}.compareRow:last-child{border-bottom:0}.heroFlash{margin:12px 0;padding:8px 10px;border:1px solid #735f22;border-radius:9px;background:#241f0e;color:#ffe17b;font-weight:900;letter-spacing:.08em}.heroWinner{font-size:22px;font-weight:900;padding:14px;border:1px solid #735f22;border-radius:12px;background:#17170d}.heroWinner span{display:block;font-size:11px;margin-top:4px;color:var(--muted);letter-spacing:.08em}.retro{font-family:"Courier New",monospace;image-rendering:pixelated;border-radius:3px;box-shadow:inset 0 0 0 3px #182a36}.retro h1,.retro h2{font-family:"Courier New",monospace;text-transform:uppercase}.playroom{background:#081628}.deathZone{background:#061424}.toyCard{width:138px;margin:8px auto 18px;padding:10px;border:4px double #e7d17b;background:#6c1720;color:#fff;text-align:center;box-shadow:6px 6px 0 #02070b}.toyFace{font-size:68px;line-height:1;background:#d7b847;color:#4d1018;padding:10px;margin-bottom:8px}.pixelTower{width:120px;height:115px;margin:8px auto 18px;position:relative;filter:drop-shadow(0 0 8px #6bc5ff)}.towerBody{position:absolute;bottom:0;left:29px;width:62px;height:76px;background:repeating-linear-gradient(90deg,#527d9b 0 8px,#1b3449 8px 16px);clip-path:polygon(18% 0,82% 0,100% 100%,0 100%)}.towerTop{position:absolute;top:7px;left:21px;width:78px;height:42px;background:#7299b1;clip-path:polygon(50% 0,100% 100%,0 100%)}.smallTower{transform:scale(.72);margin-top:-8px;margin-bottom:-8px}.pulseTower{animation:pixelPulse .45s steps(2) infinite}.deathProgress{text-align:center;letter-spacing:6px;color:#6bc5ff;margin:8px}.trumpMode{font-size:20px;font-weight:900;text-align:center;padding:10px;border:2px solid #d7b847;margin:10px 0 16px}.playColumns{display:grid;grid-template-columns:1fr 1fr;gap:10px}.cardName{display:block;width:100%;min-height:42px;margin:7px 0;padding:8px;background:#10253c;border:1px solid #6384a0;border-radius:2px;color:#fff;text-align:left;font:700 12px "Courier New",monospace}.button.cardName{cursor:pointer}.cardName.used{opacity:.28;text-decoration:line-through}.trumpReveal{display:grid;grid-template-columns:1fr auto 1fr;gap:10px;align-items:center;margin:18px 0}.trumpReveal>div:not(.versus){padding:16px 8px;border:2px solid #d7b847;background:#10253c;text-align:center}.trumpReveal strong{display:block;font-size:38px;margin-top:8px}.versus{font-weight:900}@keyframes pixelPulse{50%{filter:drop-shadow(0 0 16px #fff);transform:scale(1.04)}}
+</style>
+</head>
+<body><div class="app"><header><div class="brand"><h1>WHO-0</h1><div class="tag">Build a TARDIS team.<br>Save the universe.</div></div></header><main id="app"></main><div class="footer">Version 12 · Fan-made gameplay prototype.</div></div>
 <script>
 const seasons=[
 {n:'Season 2',y:'1964–65',chars:[
@@ -919,6 +923,194 @@ function showBonusEncounter(){
 function battleBonus(autoAdvance){let o=bonusRun.opponents[bonusRun.index];app.innerHTML=teamHTML()+`<div class="card battleStage"><div class="battleCore"><div class="small">MULTI-DOCTOR ENCOUNTER ${bonusRun.index+1} / 10</div><div class="battleEnemy">${o.name}</div><div class="battlePulse"></div><div class="battleMetrics">${team.Doctor.name} + ${bonusRun.ally.name}</div><div class="small" style="margin-top:12px">TWO TIMELINES COLLIDE…</div></div></div>`;scrollTop();setTimeout(()=>resolveBonusV11(autoAdvance),1000)}
 function resolveBonusV11(autoAdvance=false){let o=bonusRun.opponents[bonusRun.index],p=(bonusMetric(o.k1)+bonusMetric(o.k2))/2+chemistry()+(Math.random()*10-5),r=p-(o.threat+o.form),res=r>3?'WIN':r<-3?'LOSS':'DRAW';if(res==='WIN')bonusRun.wins++;else if(res==='DRAW')bonusRun.draws++;else bonusRun.losses++;let txt=story(o,res);bonusRun.results.push({...o,res,story:txt});remember('enemies',o.name);app.innerHTML=teamHTML()+`<div class="card vortex"><div class="small">BONUS GAME · ${o.name}</div><div class="resultWord ${res==='WIN'?'win':res==='LOSS'?'loss':'draw'}">${res}</div><div class="story">${txt}</div>${autoAdvance?'':`<button style="margin-top:14px" onclick="bonusRun.index++;showBonusEncounter()">NEXT</button>`}</div>`;scrollTop();if(autoAdvance)setTimeout(()=>{bonusRun.index++;showBonusEncounter()},1150)}
 function resolveBonus(){battleBonus(false)}
+
+
+/* =========================
+   V12 — TOURNAMENTS & HEROES
+   ========================= */
+
+// Expanded normal opposition. A run draws 20 unique opponents, with no more than
+// three whose base threat is above 80.
+normalOpponents.push(
+ {name:'The Rani',threat:75,k1:'sci',k2:'Doctor',timeLord:true},
+ {name:"Kettlewell’s Robot",threat:55,k1:'sci',k2:'act'},
+ {name:'Metebelis Spiders',threat:50,k1:'surv',k2:'inf'},
+ {name:'The Krynoids',threat:75,k1:'surv',k2:'sci'},
+ {name:'Kraals',threat:55,k1:'sci',k2:'act'},
+ {name:'Zarbi',threat:30,k1:'surv',k2:'inf'},
+ {name:'Krotons',threat:45,k1:'sci',k2:'act'},
+ {name:'The Dominators',threat:50,k1:'act',k2:'surv'},
+ {name:'Beep the Meep',threat:50,k1:'inf',k2:'surv'},
+ {name:'Abzorbaloff',threat:55,k1:'surv',k2:'act'},
+ {name:'Azal and Bok',threat:60,k1:'Doctor',k2:'surv'},
+ {name:'Voord',threat:50,k1:'act',k2:'surv'},
+ {name:'The Rutans',threat:80,k1:'sci',k2:'act'},
+ {name:'The Maestro',threat:75,k1:'inf',k2:'Doctor'},
+ {name:'The Macra',threat:60,k1:'surv',k2:'sci'},
+ {name:'Vampires',threat:70,k1:'surv',k2:'act'},
+ {name:'The Mara',threat:60,k1:'inf',k2:'surv'}
+);
+
+// Death Zone pool: five are drawn for each qualifying run.
+bonusOpponents.push(
+ {name:'Raston Warrior Robot',threat:92,k1:'act',k2:'surv'},
+ {name:'The Great Vampire',threat:94,k1:'surv',k2:'Doctor'},
+ {name:'Morgaine & the Destroyer',threat:90,k1:'inf',k2:'Doctor'}
+);
+let bonusAward=awardDefs.find(a=>a.id==='bonus');if(bonusAward)bonusAward.desc='Win all 5 encounters in the Death Zone.';
+awardDefs.push(
+ {id:'playroomSweep',name:'THE GAME IS MINE',desc:'Defeat the Toymaker 5–0 in the Celestial Playroom.'},
+ {id:'timelineHero',name:'HERO OF THE TIMELINE',desc:'Have one character dominate a timeline with five or more heroic encounters.'}
+);
+
+rareEvents.push(
+ {id:'spectrox',name:'SPECTROX TOXAEMIA',icon:'☠️',intro:'The Doctor and one Companion are poisoned. There is only enough antidote for one.'},
+ {id:'metebelis',name:'THE METEBELIS III CRYSTAL',icon:'◆',intro:'The Great Crystal hums in the Doctor’s hand. It could unlock the mind — or unleash chaos.'}
+);
+
+function setAutoMenu(v){settings.autoRun=!!v;menu()}
+function autoControls(){return ''}
+
+function menu(){
+ let archive=loadArchive();
+ app.innerHTML=`<div class="card hero"><div class="small">THE UNIVERSE IS IN CHAOS</div><h2>Time and space are out of control.</h2><p>The cosmos is teetering on the edge of destruction.</p><p><b>You’re our last hope.</b></p><p>Use the Time Scoop to assemble a TARDIS team capable of putting the universe back together.</p>
+ <div style="margin:18px 0 16px;padding:14px;border:1px solid var(--line);border-radius:14px;background:#0b151f"><div class="small" style="margin-bottom:10px">BUILD YOUR TARDIS TEAM</div><div class="slots"><div class="slot doctor"><div><b>Doctor × 1</b><span class="roleDoctor"><span class="roleDot"></span>TARDIS blue</span></div></div><div class="slot companion"><div><b>Companions × 2</b><span class="roleCompanion"><span class="roleDot"></span>Gold</span></div></div><div class="slot teamup"><div><b>Team-ups × 2</b><span class="roleTeamup"><span class="roleDot"></span>Green</span></div></div></div></div>
+ <button onclick="startGame()">START GAME</button></div>
+ <div class="card"><b>Auto-play encounters</b><div class="small">When on, battles animate for about a second and move on automatically. Decisions still pause the game.</div><div class="segment"><button class="${!settings.autoRun?'on':''}" onclick="setAutoMenu(false)">OFF</button><button class="${settings.autoRun?'on':''}" onclick="setAutoMenu(true)">ON</button></div></div>
+ <div class="card"><b>Re-rolls</b><div class="small">Reactivate the Time Scoop and pull in a different season.</div><div class="segment">${[0,1,3].map(n=>`<button class="${settings.rerolls===n?'on':''}" onclick="setRerolls(${n})">${n}<br><span class="small">${n===0?'Hard':n===1?'Normal':'Easy'}</span></button>`).join('')}</div></div>
+ <div class="card"><b>Doctor era</b><div class="small">Only seasons featuring Doctors inside this range can be pulled in by the Time Scoop.</div><div class="rangeRow"><select id="minD" onchange="rangeChanged()">${doctorOpts(settings.minDoc)}</select><span>to</span><select id="maxD" onchange="rangeChanged()">${doctorOpts(settings.maxDoc)}</select></div><div class="rangePreview">${Array.from({length:15},(_,i)=>`<div class="docDot ${i+1>=settings.minDoc&&i+1<=settings.maxDoc?'on':''}">${i+1}</div>`).join('')}</div></div>
+ <div class="card" onclick="showArchive()" style="cursor:pointer"><div class="archiveTitle"><div><div class="small">THE BLACK ARCHIVE</div><h2>${archive.awards.length} / ??</h2></div><button style="width:auto;padding:10px 14px;min-height:40px" onclick="event.stopPropagation();showArchive()">OPEN</button></div><div class="small">Records persist on this device.</div></div>`;
+}
+
+function buildRunOpponents(list){
+ const unique=[...new Map(list.map(o=>[o.name,o])).values()];
+ const high=shuffle(unique.filter(o=>o.threat>80));
+ const low=shuffle(unique.filter(o=>o.threat<=80));
+ const highCount=Math.min(3,high.length,Math.floor(Math.random()*4));
+ let chosen=high.slice(0,highCount).concat(low.slice(0,20-highCount));
+ if(chosen.length<20)chosen=chosen.concat(high.slice(highCount,highCount+(20-chosen.length)));
+ return shuffle(chosen.slice(0,20)).map(o=>({...o,form:Math.floor(Math.random()*11)-5}));
+}
+
+function v12ModLabels(slot,c){
+ let labels=[];
+ if(c._mods)Object.entries(c._mods).forEach(([k,v])=>{if(v)labels.push(`<span class="liveMod ${v>0?'pos':'neg'}">${v>0?'+':''}${v} ${k.toUpperCase()}</span>`)});
+ if(run&&run.scars)run.scars.filter(x=>x.slot===slot&&run.index<x.until).forEach(x=>labels.push(`<span class="liveMod neg">−${x.amount} ${x.key.toUpperCase()} · ${Math.max(1,x.until-run.index)} LEFT</span>`));
+ return labels.join('');
+}
+function teamHTML(){
+ return `<div class="card teamCard"><div class="small">TARDIS TEAM</div><div class="slots">${slots.map(s=>{let c=team[s];let base=c?overall(c,s):0;return `<div class="slot ${roleClass(s)}"><div><b>${s==='Companion 1'?'C1':s==='Companion 2'?'C2':s==='Team-up 1'?'T1':s==='Team-up 2'?'T2':'DOCTOR'}</b><span class="${c?'teamName':'empty'}">${c?c.name:'Empty'}</span>${c?v12ModLabels(s,c):''}</div>${c?`<span class="pill teamMeta">${(c.season||'').replace('Season ','S').replace('Series ','S')} · ${base}</span>`:''}</div>`}).join('')}</div></div>`
+}
+
+// Rare choices added in V12.
+const rareChoiceV11=rareChoice;
+function triggerRareEvent(number){
+ let available=rareEvents.filter(e=>!run.eventIds.includes(e.id));let ev=rand(available.length?available:rareEvents);run.eventTriggered.push(number);run.eventIds.push(ev.id);eventState=ev;recordEvent(ev.id);
+ if(ev.id==='spectrox')return eventCard(ev,`<button onclick="rareChoice('spectrox_self')">SAVE YOURSELF</button><div class="small">The Companion is lost. Bad vibes.</div><button class="secondary" onclick="rareChoice('spectrox_companion')">SAVE YOUR COMPANION</button><div class="small">The Doctor must change.</div>`);
+ if(ev.id==='metebelis')return eventCard(ev,`<button onclick="rareChoice('metebelis_take')">TAKE THE CRYSTAL</button><button class="secondary" onclick="rareChoice('decline')">LEAVE IT</button>`);
+ if(ev.id==='sonic')return eventCard(ev,`<button onclick="rareChoice('sonic_try')">TRY THE SONIC</button><button class="secondary" onclick="rareChoice('decline')">LEAVE IT</button>`);
+ if(ev.id==='acebat')return eventCard(ev,`<button onclick="rareChoice('bat_hand')">HAND-POWERED</button><button class="secondary" onclick="rareChoice('bat_omega')">HAND OF OMEGA-POWERED</button>`);
+ if(ev.id==='summit')return eventCard(ev,`<button onclick="rareChoice('summit_chair')">CHAIR THE SUMMIT</button><button class="secondary" onclick="rareChoice('decline')">KEEP A LOW PROFILE</button>`);
+ if(ev.id==='spoilers')return eventCard(ev,`<button onclick="rareChoice('spoilers_read')">READ IT</button><button class="secondary" onclick="rareChoice('decline')">DESTROY IT</button>`);
+ if(ev.id==='psychic')return eventCard(ev,`<button onclick="rareChoice('paper_show')">SHOW THE PAPER</button><button class="secondary" onclick="rareChoice('decline')">DON’T RISK IT</button>`);
+ if(ev.id==='vortex')return eventCard(ev,`<button onclick="rareChoice('vortex_jump')">JUMP</button><button class="secondary" onclick="rareChoice('decline')">STAY PUT</button>`)
+}
+function rareChoice(choice){
+ if(choice==='spectrox_self'){
+  run.morality.ruthless++;recordMoral('ruthless');remember('decisions','Spectrox poisoning: saved the Doctor');
+  let slot=rand(['Companion 1','Companion 2'].filter(s=>team[s])),old=team[slot].name;delete team[slot];eventState={...eventState,slot,old};return chooseReplacement(slot,replacementCandidates(slot,3),`${old.toUpperCase()} CANNOT BE SAVED`,false,"showEncounter()")
+ }
+ if(choice==='spectrox_companion'){
+  run.morality.compassionate++;recordMoral('compassionate');remember('decisions','Spectrox poisoning: saved the Companion');
+  let slot=rand(['Companion 1','Companion 2'].filter(s=>team[s])),c=team[slot];['sci','act','inf','surv'].forEach(k=>c[k]=clamp(c[k]+5,0,110));c._mods=c._mods||{};c._mods.all=(c._mods.all||0)+5;
+  eventState={...eventState,saved:c.name};return v12ForceDoctorChange(`The antidote saves ${c.name}. <b>+5 to all four attributes.</b> The Doctor has no antidote left.`)
+ }
+ if(choice==='metebelis_take'){
+  remember('decisions','Took the Metebelis III Crystal');
+  if(Math.random()<.5){let d=team.Doctor;['sci','act','inf','surv'].forEach(k=>d[k]=clamp(d[k]+8,0,115));d._mods=d._mods||{};d._mods.mind=(d._mods.mind||0)+8;return rareResult('YOUR MIND IS OPEN',`${d.name} sees the universe differently. <b>+8 to all four Doctor attributes.</b>`)}
+  Object.values(team).forEach(c=>{['sci','act','inf','surv'].forEach(k=>c[k]=clamp(c[k]-3,0,110));c._mods=c._mods||{};c._mods.chaos=(c._mods.chaos||0)-3});run.severePenalty=true;return rareResult('THE CRYSTAL UNLEASHES CHAOS','The psychic backlash tears through the TARDIS team. <b>−3 to all four attributes for everyone.</b>')
+ }
+ return rareChoiceV11(choice)
+}
+function v12ForceDoctorChange(text){
+ let old=team.Doctor,candidates=replacementCandidates('Doctor',3,false);eventState={...eventState,slot:'Doctor',candidates,oldDoctor:old,after:'showEncounter()'};
+ app.innerHTML=teamHTML()+`<div class="card halfway"><div class="small">SPECTROX TOXAEMIA</div><h2>THE MOMENT HAS BEEN PREPARED FOR</h2><div class="story">${text}</div><div class="options">${candidates.map((c,i)=>`<div class="pick doctor"><h3>${c.name}</h3><div class="stats">Science ${c.sci} · Action ${c.act} · Influence ${c.inf} · Survival ${c.surv}</div><button onclick="v12ChooseRegeneration(${i})">REGENERATE</button></div>`).join('')}</div></div>`;scrollTop()
+}
+function v12ChooseRegeneration(i){let old=team.Doctor,next=eventState.candidates[i];team.Doctor={...next};run.regenerated=true;remember('regenerations',1);remember('people',next.name);v12ChangeReveal('Doctor',old,next,'“You’ve redecorated, haven’t you… I don’t like it.”','showEncounter()')}
+
+// Optional redecorating, with a before/after reveal.
+const applyHalfwayV11=applyHalfway;
+function applyHalfway(id){
+ if(id!=='redecorate')return applyHalfwayV11(id);
+ let candidates=slots.map(slot=>({slot,c:rand(replacementCandidates(slot,7))})).filter(x=>x.c);eventState={...eventState,swapOptions:candidates};
+ app.innerHTML=teamHTML()+`<div class="card halfway"><div class="small">THE CLOISTER BELL IS RINGING…</div><h2>Do you want to change your team?</h2><div class="story">Something in the timeline has shifted. You can answer the warning — or leave the TARDIS team exactly as it is.</div><div class="options">${candidates.map((x,i)=>`<div class="pick ${roleClass(x.c.type)}"><h3>${x.c.name}</h3><div class="small">Replace ${x.slot}: ${team[x.slot].name}</div><button onclick="redecorateSwap(${i})">MAKE THIS CHANGE</button></div>`).join('')}</div><button class="secondary" onclick="showEncounter()">IGNORE THE WARNING</button></div>`;scrollTop()
+}
+function v12ChangeReveal(slot,oldc,newc,quote,next='showEncounter()'){
+ let attrs=[['SCI','sci'],['ACT','act'],['INF','inf'],['SURV','surv'],['OVERALL',null]];
+ let rows=attrs.map(([lab,k])=>{let a=k?oldc[k]:overall(oldc,slot),b=k?newc[k]:overall(newc,slot),d=b-a;return `<div class="compareRow"><span>${lab}</span><b>${a}</b><span>→</span><b>${b}</b><em class="${d>=0?'posText':'negText'}">${d>=0?'+':''}${d}</em></div>`}).join('');
+ app.innerHTML=teamHTML()+`<div class="card halfway"><div class="small">THE TIMELINE SHIFTS</div><h2>${oldc.name} → ${newc.name}</h2><div class="compareGrid">${rows}</div><div class="speaker" style="margin-top:16px">${quote}</div><button style="margin-top:14px" onclick="${next}">CONTINUE</button></div>`;scrollTop()
+}
+function redecorateSwap(i){let x=eventState.swapOptions[i],old={...team[x.slot]},next={...x.c};team[x.slot]=next;remember('people',next.name);let q=x.slot==='Doctor'?'“You’ve redecorated, haven’t you… I don’t like it.”':x.slot.startsWith('Companion')?'“Here we go again.”':'“A cosmos without the Doctor scarcely bears thinking about.”';v12ChangeReveal(x.slot,old,next,q)}
+
+// Hero tracking: the strongest individual contribution to each encounter earns a hero mark.
+function v12HeroFor(o){
+ if(!run)return null;run.heroPoints=run.heroPoints||{};run.heroStats=run.heroStats||{};
+ let ranked=slots.filter(s=>team[s]).map(s=>{let c=team[s],v=((o.k1==='Doctor'?doctorPowerFor(c):(c[o.k1]||overall(c,s)))+(o.k2==='Doctor'?doctorPowerFor(c):(c[o.k2]||overall(c,s))))/2;return {s,c,v}}).sort((a,b)=>b.v-a.v);let h=ranked[0];if(!h)return null;
+ run.heroPoints[h.c.name]=(run.heroPoints[h.c.name]||0)+1;[o.k1,o.k2].filter(k=>['sci','act','inf','surv'].includes(k)).forEach(k=>{run.heroStats[k]=run.heroStats[k]||{};run.heroStats[k][h.c.name]=(run.heroStats[k][h.c.name]||0)+1});return h.c.name
+}
+const resolveEncounterV11Base=resolveEncounterV11;
+function resolveEncounterV11(autoAdvance=false){
+ let before=run&&run.results?run.results.length:0,o=run&&currentOpponent();resolveEncounterV11Base(autoAdvance);if(run&&run.results.length>before&&o){let hero=v12HeroFor(o);let row=run.results[run.results.length-1];row.hero=hero;let card=document.querySelector('.encounterHero');if(card&&hero)card.querySelector('.story')?.insertAdjacentHTML('afterend',`<div class="heroFlash">★ HERO · ${hero}</div>`)}
+}
+function v12HeroAwards(){
+ if(!run||!run.heroPoints)return '';let sorted=Object.entries(run.heroPoints).sort((a,b)=>b[1]-a[1]);if(!sorted.length)return '';let top=sorted[0];if(top[1]>=5)unlock('timelineHero');let statName=k=>{let x=Object.entries(run.heroStats?.[k]||{}).sort((a,b)=>b[1]-a[1])[0];return x?x[0]:'—'};
+ return `<div class="card"><div class="small">YOUR TEAM’S HEROES</div><h2>HERO OF THE TIMELINE</h2><div class="heroWinner">★ ${top[0]}<span>${top[1]} heroic encounter${top[1]===1?'':'s'}</span></div><div class="miniTable"><div class="miniRow"><span>BRAINS OF THE OPERATION</span><b>${statName('sci')}</b></div><div class="miniRow"><span>ACTION HERO</span><b>${statName('act')}</b></div><div class="miniRow"><span>VOICE OF REASON</span><b>${statName('inf')}</b></div><div class="miniRow"><span>LAST ONE STANDING</span><b>${statName('surv')}</b></div></div></div>`
+}
+
+// Results route into one of two bonus games.
+function showNormalResults(){
+ let archive=loadArchive();app.innerHTML=teamHTML()+`<div class="card"><div class="small">FINAL RECORD</div><div class="verdictScore"><div><b>${run.wins}</b><span>WON</span></div><div><b>${run.draws}</b><span>DRAWN</span></div><div><b>${run.losses}</b><span>LOST</span></div></div><div class="small">TEAM VALUE ${slots.filter(s=>team[s]).reduce((n,s)=>n+overall(team[s],s),0)}</div></div>${v12HeroAwards()}
+ <div class="card"><div class="small">ENCOUNTER RECORD</div>${run.results.map((x,i)=>`<div class="miniRow"><span>${i+1}. ${x.name}${x.hero?`<br><span class="small">★ ${x.hero}</span>`:''}</span><b class="${x.res==='WIN'?'win':x.res==='LOSS'?'loss':'draw'}">${x.res}</b></div>`).join('')}</div>
+ <div class="card"><div class="small">THE BLACK ARCHIVE</div><div class="story">${archive.awards.length} records currently unlocked on this device.</div><button class="secondary" style="margin-top:10px" onclick="showArchive()">OPEN BLACK ARCHIVE</button></div>
+ ${run.wins>=15?deathZonePrompt():run.wins>=10?celestialPrompt():`<div class="card"><button onclick="startGame()">PLAY AGAIN</button><button class="secondary" style="margin-top:8px" onclick="menu()">MENU</button></div>`}`;scrollTop()
+}
+function deathZonePrompt(){return `<div class="card retro deathZone"><div class="pixelTower"><div class="towerTop"></div><div class="towerBody"></div></div><div class="small">BONUS GAME UNLOCKED</div><h2>ENTER THE DEATH ZONE</h2><p>Five threats stand between your TARDIS team and the Tomb of Rassilon. Another Doctor is breaking through.</p><button onclick="chooseBonusDoctor()">ENTER THE DEATH ZONE</button></div>`}
+function multiDoctorPrompt(){return deathZonePrompt()}
+function celestialPrompt(){return `<div class="card retro playroom"><div class="small">BONUS GAME UNLOCKED</div><div class="toyCard"><div class="toyFace">♛</div><b>THE TOYMAKER</b></div><h2>THE CELESTIAL PLAYROOM</h2><p>The Toymaker has a new game for you.</p><button onclick="startCelestialIntro()">ACCEPT THE CHALLENGE</button></div>`}
+
+function startBonus(i){let ally=eventState.candidates[i];bonusRun={ally,index:0,wins:0,draws:0,losses:0,results:[],opponents:shuffle([...new Map(bonusOpponents.map(o=>[o.name,o])).values()]).slice(0,5).map(o=>({...o,form:Math.floor(Math.random()*21)-15}))};showBonusEncounter()}
+function showBonusEncounter(){
+ if(bonusRun.index>=bonusRun.opponents.length){finishBonus();return}let o=bonusRun.opponents[bonusRun.index],progress='▰'.repeat(bonusRun.index)+'▱'.repeat(5-bonusRun.index);
+ app.innerHTML=`<div class="card retro deathZone"><div class="pixelTower smallTower"><div class="towerTop"></div><div class="towerBody"></div></div><div class="small">ENTER THE DEATH ZONE · ${bonusRun.index+1} / 5</div><div class="deathProgress">${progress}</div><h2>${o.name}</h2><div class="doctorCrew">${team.Doctor.name} + ${bonusRun.ally.name}</div><div class="form">FORM ${formText(o.form)}</div>${settings.autoRun?'':`<button style="margin-top:14px" onclick="battleBonus(false)">FACE THE THREAT</button>`}</div>`;scrollTop();if(settings.autoRun)setTimeout(()=>battleBonus(true),350)
+}
+function battleBonus(autoAdvance){let o=bonusRun.opponents[bonusRun.index];app.innerHTML=`<div class="card retro deathZone battleStage"><div class="small">DEATH ZONE ${bonusRun.index+1} / 5</div><div class="pixelTower pulseTower"><div class="towerTop"></div><div class="towerBody"></div></div><div class="battleEnemy">${o.name}</div><div class="battlePulse"></div><div class="small">CALCULATING SURVIVAL PROBABILITY…</div></div>`;scrollTop();setTimeout(()=>resolveBonusV11(autoAdvance),1000)}
+function finishBonus(){
+ if(bonusRun.wins===5)unlock('bonus');let show=()=>{let c=endingCopy(bonusRun.wins,bonusRun.draws,bonusRun.losses,true),ach=newUnlockHTML();app.innerHTML=`<div class="card retro deathZone"><div class="small">THE TOMB OF RASSILON</div><h1>${bonusRun.wins===5?'TIME LORD VICTORIOUS':c.title}</h1><div class="verdictScore"><div><b>${bonusRun.wins}</b><span>WON</span></div><div><b>${bonusRun.draws}</b><span>DRAWN</span></div><div><b>${bonusRun.losses}</b><span>LOST</span></div></div>${ach}<button style="margin-top:18px" onclick="showBonusResults()">VIEW DEATH ZONE RECORD</button></div>`;scrollTop()};if(bonusRun.wins>=4)runCelebration(bonusRun.wins===5?'TIME LORD VICTORIOUS':'THE TOMB IS WITHIN REACH',`${bonusRun.wins}/5`,show,bonusRun.wins===5);else show()
+}
+function resolveBonusV11(autoAdvance=false){let o=bonusRun.opponents[bonusRun.index],p=(bonusMetric(o.k1)+bonusMetric(o.k2))/2+chemistry()+(Math.random()*10-5),r=p-(o.threat+o.form),res=r>3?'WIN':r<-3?'LOSS':'DRAW';if(res==='WIN')bonusRun.wins++;else if(res==='DRAW')bonusRun.draws++;else bonusRun.losses++;let txt=story(o,res);bonusRun.results.push({...o,res,story:txt});remember('enemies',o.name);app.innerHTML=`<div class="card retro deathZone"><div class="small">DEATH ZONE · ${o.name}</div><div class="resultWord ${res==='WIN'?'win':res==='LOSS'?'loss':'draw'}">${res}</div><div class="story">${txt}</div>${autoAdvance?'':`<button style="margin-top:14px" onclick="bonusRun.index++;showBonusEncounter()">CONTINUE TOWARDS THE TOWER</button>`}</div>`;scrollTop();if(autoAdvance)setTimeout(()=>{bonusRun.index++;showBonusEncounter()},1150)}
+
+// Celestial Playroom — a five-card hidden-stat Top Trumps game.
+const toyTaunts={win:['“Zerry gut, Herr Doctor… but not gut enough.”','“Oh dear. I thought you were supposed to be clever.”','“The game proceeds. Do try to keep up.”'],lose:['“A point to you. How tiresome.”','“Bravo! Bravo! Enjoy it while it lasts.”','“Oh! You deliberately did that. I like you.”'],tie:['“A draw? How untidy. Still, the game must go on.”'],final:['“Ahhh. And now there is no choice at all.”','“No more choices. No more tricks. Just you… and me.”']};
+function toymakerPool(){return uniqueCharacters(allCharacters()).filter(c=>c&&c.name&&!Object.values(team).some(x=>x.name===c.name))}
+function startCelestialIntro(){
+ let pool=shuffle(toymakerPool()),doc=pool.find(c=>c.type==='Doctor')||pool[0],comps=pool.filter(c=>c.type==='Companion'&&c!==doc).slice(0,2),ups=pool.filter(c=>c.type==='Support'&&c!==doc).slice(0,2),toy=[doc,...comps,...ups];while(toy.length<5){let c=pool.find(x=>!toy.includes(x));if(!c)break;toy.push(c)}
+ let attrs=shuffle(['sci','act','inf','surv']);let modes=shuffle(['HIGH','HIGH','LOW','LOW']);celestial={round:0,wins:0,losses:0,draws:0,player:slots.map(s=>({slot:s,c:team[s],used:false})),toy:toy.slice(0,5).map(c=>({c,used:false})),rounds:attrs.map((a,i)=>({attr:a,mode:modes[i]})).concat([{attr:'overall',mode:Math.random()<.5?'HIGH':'LOW'}])};
+ app.innerHTML=`<div class="card retro playroom"><div class="toyCard"><div class="toyFace">♛</div><b>THE TOYMAKER</b></div><h2>THE CELESTIAL PLAYROOM</h2><div class="speaker">“Five players. Five games. Every card may be played only once. Sometimes the greatest wins. Sometimes the least. The rules are mine, Doctor… <b>choose carefully.</b>”</div><button style="margin-top:16px" onclick="showCelestialRound()">PLAY</button></div>`;scrollTop()
+}
+function celestialVal(c,a,slot=''){return a==='overall'?overall(c,slot):(c[a]||0)}
+function showCelestialRound(){
+ if(celestial.round>=5)return finishCelestial();let r=celestial.round,rule=celestial.rounds[r],last=r===4,avail=celestial.player.filter(x=>!x.used);
+ app.innerHTML=`<div class="card retro playroom"><div class="small">${last?'THE FINAL GAME':`ROUND ${r+1} / 5`}</div><h1>${rule.attr.toUpperCase()}</h1><div class="trumpMode">${rule.mode==='HIGH'?'▲ HIGHEST WINS':'▼ LOWEST WINS'}</div>${last?`<div class="speaker">${rand(toyTaunts.final)}</div>`:'<div class="small">CHOOSE ONE CARD</div>'}<div class="playColumns"><div><b>YOUR TEAM</b>${celestial.player.map((x,i)=>`<button class="cardName ${x.used?'used':''}" ${x.used||last?'disabled':''} onclick="celestialPick(${i})">${x.c.name}</button>`).join('')}</div><div><b>THE TOYMAKER</b>${celestial.toy.map(x=>`<div class="cardName ${x.used?'used':''}">${x.c.name}</div>`).join('')}</div></div>${last?'<button style="margin-top:16px" onclick="celestialFinal()">REVEAL THE FINAL CARDS</button>':''}<div class="small" style="margin-top:12px">YOU ${celestial.wins} · ${celestial.losses} TOYMAKER</div></div>`;scrollTop()
+}
+function celestialPick(i){let p=celestial.player[i];if(!p||p.used)return;celestialResolve(p)}
+function celestialFinal(){let p=celestial.player.find(x=>!x.used);celestialResolve(p)}
+function celestialResolve(p){
+ let rule=celestial.rounds[celestial.round],available=celestial.toy.filter(x=>!x.used),scored=available.map(x=>({x,v:celestialVal(x.c,rule.attr)}));scored.sort((a,b)=>rule.mode==='HIGH'?b.v-a.v:a.v-b.v);let pick=Math.random()<.72?scored[0]:rand(scored),t=pick.x;p.used=true;t.used=true;let pv=celestialVal(p.c,rule.attr,p.slot),tv=celestialVal(t.c,rule.attr),out=pv===tv?'DRAW':(rule.mode==='HIGH'?(pv>tv):(pv<tv))?'WIN':'LOSS';if(out==='WIN')celestial.wins++;else if(out==='LOSS')celestial.losses++;else celestial.draws++;
+ let taunt=out==='WIN'?rand(toyTaunts.lose):out==='LOSS'?rand(toyTaunts.win):rand(toyTaunts.tie);app.innerHTML=`<div class="card retro playroom"><div class="small">${rule.attr.toUpperCase()} · ${rule.mode} WINS</div><div class="trumpReveal"><div><b>${p.c.name}</b><strong>${pv}</strong></div><div class="versus">VS</div><div><b>${t.c.name}</b><strong>${tv}</strong></div></div><div class="resultWord ${out==='WIN'?'win':out==='LOSS'?'loss':'draw'}">${out}</div><div class="speaker">${taunt}</div><button style="margin-top:14px" onclick="celestial.round++;showCelestialRound()">${celestial.round===4?'SEE THE RESULT':'NEXT GAME'}</button></div>`;scrollTop()
+}
+function finishCelestial(){
+ if(celestial.wins===5)unlock('playroomSweep');let title=celestial.wins===5?'YOU BEAT THE TOYMAKER AT HIS OWN GAME':celestial.wins===4?'A MOST IMPRESSIVE VICTORY':celestial.wins===3?'THE GAME IS YOURS':celestial.wins===2?'SO CLOSE…':celestial.wins===1?'THE TOYMAKER LAUGHS':'PLAYTHING OF THE TOYMAKER';let ach=newUnlockHTML();app.innerHTML=`<div class="card retro playroom"><div class="toyCard"><div class="toyFace">♛</div><b>THE TOYMAKER</b></div><div class="small">THE CELESTIAL PLAYROOM</div><h1>${title}</h1><div class="verdictScore"><div><b>${celestial.wins}</b><span>YOU</span></div><div><b>${celestial.draws}</b><span>DRAWN</span></div><div><b>${celestial.losses}</b><span>TOYMAKER</span></div></div>${ach}<div class="speaker">${celestial.wins>=3?'“Very well, Doctor. You may leave my playroom… this time.”':'“Another game? Oh, I think you owe me one.”'}</div><button style="margin-top:16px" onclick="menu()">RETURN TO WHO-0</button></div>`;scrollTop()
+}
 
 menu();
 </script></body></html>
