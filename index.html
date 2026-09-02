@@ -1368,17 +1368,12 @@ const V20_CELLS=v20Cells();
 function v20At(x,y){return V20_CELLS.find(c=>c.x===x&&Math.abs(c.y-y)<.01)}
 function v20ById(id){return V20_CELLS.find(c=>c.id===id)}
 function v20Neighbours(p){
- const out=[];
- // vertical movement within a column
- V20_CELLS.filter(c=>c.x===p.x&&Math.abs(c.y-p.y)===1).forEach(c=>out.push(c));
- // one diagonal option into each adjacent column, keeping degree to four or fewer
- for(const dx of [-1,1]){
-  const col=V20_CELLS.filter(c=>c.x===p.x+dx);
-  if(!col.length)continue;
-  const ranked=col.map(c=>({c,d:Math.abs(c.y-p.y)})).sort((a,b)=>a.d-b.d||a.c.y-b.c.y);
-  if(ranked.length&&ranked[0].d<=.51)out.push(ranked[0].c);
- }
- return [...new Map(out.map(c=>[c.id,c])).values()]
+ // Paradigm movement is diagonal only. From any node, pieces may move
+ // to the upper-left, lower-left, upper-right or lower-right connected node.
+ // There is no movement vertically within a column.
+ return V20_CELLS.filter(c=>
+  Math.abs(c.x-p.x)===1 && Math.abs(Math.abs(c.y-p.y)-0.5)<0.01
+ );
 }
 function v20Dist(a,b){
  // graph distance gives the AI the same left-to-right routes the player sees
@@ -1430,7 +1425,7 @@ function v21ParadigmPrompt(){
  return `<div class="card v21Paradigm"><div class="small">BONUS GAME UNLOCKED · 12–15 WINS</div><h2>PARADIGM OF THE DALEKS</h2><div class="story">Cross the network from left to right and reach the exit. One of the five Paradigm Daleks will oppose you. Each colour thinks differently.</div>${v20Key()}<button style="margin-top:16px" onclick="v21ParadigmIntro()">FACE THE PARADIGM</button></div>`
 }
 function v21ParadigmIntro(){
- app.innerHTML=`<div class="card v20Vortex v20VortexIntro"><div class="small">BONUS GAME · 12–15 WINS</div><h2>PARADIGM OF THE DALEKS</h2><div class="story">Cross the network from left to right. Move between connected nodes. The Doctor moves first. The Dalek responds.</div>${v20Key()}<div style="margin:18px auto;width:58px;height:58px;background:#0c4b73;position:relative"><span style="position:absolute;width:18px;height:18px;border-radius:50%;background:white;left:20px;top:20px"></span></div><div class="small">BLUE SQUARE + WHITE DOT = THE DOCTOR</div><button style="margin-top:18px" onclick="v20Start()">BEGIN</button><button class="ghost" style="margin-top:8px" onclick="showNormalResults()">BACK TO RESULTS</button></div>`;scrollTop()
+ app.innerHTML=`<div class="card v20Vortex v20VortexIntro"><div class="small">BONUS GAME · 12–15 WINS</div><h2>PARADIGM OF THE DALEKS</h2><div class="story">Cross the network from left to right. Move diagonally between connected nodes. The Doctor moves first. The Dalek responds.</div>${v20Key()}<div style="margin:18px auto;width:58px;height:58px;background:#0c4b73;position:relative"><span style="position:absolute;width:18px;height:18px;border-radius:50%;background:white;left:20px;top:20px"></span></div><div class="small">BLUE SQUARE + WHITE DOT = THE DOCTOR</div><button style="margin-top:18px" onclick="v20Start()">BEGIN</button><button class="ghost" style="margin-top:8px" onclick="showNormalResults()">BACK TO RESULTS</button></div>`;scrollTop()
 }
 // Bonus thresholds for V21: 9–11 Toyroom, 12–15 Paradigm, 16–20 Death Zone.
 showNormalResults=function(){
