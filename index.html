@@ -1896,4 +1896,337 @@ if(v24Footer)v24Footer.textContent='Version 24 · Paradigm runtime fix · Fan-ma
 menu();
 </script>
 
+
+<style id="v25-paradigm-style">
+.v25Board{position:relative;width:100%;aspect-ratio:1.15;margin:14px 0 18px;border:1px solid #31506a;border-radius:16px;background:#061019;overflow:hidden}
+.v25Board svg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.v25Edge{stroke:#315b78;stroke-width:1.4;vector-effect:non-scaling-stroke;opacity:.88}
+.v25Node{position:absolute;width:34px;height:34px;transform:translate(-50%,-50%);border-radius:50%;border:2px solid #3b6d8f;background:#0b151f;padding:0;min-height:0;z-index:2;box-shadow:0 0 0 3px #081018}
+.v25Node.move{border-color:#7ad9ff;box-shadow:0 0 0 3px #081018,0 0 16px #7ad9ff77}
+.v25Node.exit{border-color:#7fffb2}
+.v25Node.special{border-color:#ffd36e}
+.v25Node.blocked{opacity:.28}
+.v25Piece{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:22px;height:22px;z-index:4;pointer-events:none}
+.v25Doctor{background:#0c4b73;border-radius:3px}.v25Doctor:after{content:"";position:absolute;width:7px;height:7px;border-radius:50%;background:white;left:50%;top:50%;transform:translate(-50%,-50%)}
+.v25Dalek{border-radius:50%;border:1px solid #ffffff66}
+.v25Hazard{position:absolute;inset:4px;border-radius:50%;background:#ff5c70;opacity:.7}
+.v25MapName{text-align:center;font-size:31px;margin:6px 0}
+.v25Meta{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin:8px 0}.v25Meta span{font-size:10px;letter-spacing:.1em;border:1px solid #3b5367;border-radius:999px;padding:5px 8px;color:#b8c8d5}
+.v25Rule{text-align:center;color:#d6bf68;font-size:11px;letter-spacing:.06em;line-height:1.4;margin:7px 0 10px}
+.v25Status{padding:8px 10px;border:1px solid #5c5127;border-radius:10px;margin:8px 0;color:#ffe17b;font-size:11px}
+.v25Board.kembel{background:radial-gradient(circle at 18% 20%,#173c2b 0 10%,transparent 11%),radial-gradient(circle at 75% 34%,#123524 0 14%,transparent 15%),radial-gradient(circle at 38% 76%,#153a27 0 16%,transparent 17%),#06150d}
+.v25Board.bedford{background:radial-gradient(circle at 50% 50%,#211910,#070b0e 72%)}
+.v25Board.spiridon{background:radial-gradient(circle at 50% 45%,#17364a,#071018 72%)}
+.v25Board.canary{background:linear-gradient(180deg,#142b3c,#071018)}
+.v25Board.inside{background:radial-gradient(circle at 50% 50%,#31111a,#08090c 72%)}
+</style>
+<script id="v25-paradigm-rebuild">
+/* ========================= WHO-0 VERSION 25 · PARADIGM REBUILT =========================
+   This is a fresh, isolated Paradigm engine. It does not call the old V20/V22
+   movement, distance, AI, message or delayed-turn functions.
+   A whole turn resolves synchronously after the player taps a node.
+*/
+
+let P25=null;
+
+const P25_DALEKS={
+ drone:{name:'DRONE',colour:'#d72f36',style:'AGGRESSIVE'},
+ strategist:{name:'STRATEGIST',colour:'#238bd2',style:'TACTICAL'},
+ scientist:{name:'SCIENTIST',colour:'#f07a2d',style:'DEFENSIVE'},
+ supreme:{name:'SUPREME',colour:'#f3f3ee',style:'PSYCHOLOGICAL'},
+ eternal:{name:'ETERNAL',colour:'#e7cf35',style:'UNPREDICTABLE'}
+};
+
+function p25Rand(a){return a[Math.floor(Math.random()*a.length)]}
+
+function p25BuildCells(map){
+ let cuts=(typeof V23_CUTS!=='undefined'&&V23_CUTS[map.id])||{},cells=[],id=1;
+ for(let x=0;x<map.cols;x++){
+  for(let r=0;r<map.rows;r++){
+   if(cuts[x]&&cuts[x].includes(r))continue;
+   cells.push({id:id++,x,r,y:r+(x%2?0.5:0)})
+  }
+ }
+ return cells
+}
+function p25ById(id){return P25.cells.find(c=>c.id===id)||null}
+function p25Column(x){return P25.cells.filter(c=>c.x===x).sort((a,b)=>a.y-b.y)}
+function p25At(x,r){let c=p25Column(x);return c.length?c[Math.max(0,Math.min(c.length-1,r))]:null}
+
+function p25DynamicBlocked(){
+ let b=new Set(P25.blocked);
+ if((P25.map.kind==='doors'||P25.map.kind==='gates')&&P25.gateA&&P25.gateB){
+  b.add(P25.turn%2===0?P25.gateA:P25.gateB)
+ }
+ if(P25.map.kind==='hazard'&&P25.hazard)b.add(P25.hazard);
+ return b
+}
+function p25Neighbours(node){
+ let blocked=p25DynamicBlocked();
+ return P25.cells.filter(c=>
+  Math.abs(c.x-node.x)===1 &&
+  Math.abs(Math.abs(c.y-node.y)-0.5)<0.01 &&
+  !blocked.has(c.id)
+ )
+}
+function p25Dist(a,b){
+ if(!a||!b)return 99;
+ if(a.id===b.id)return 0;
+ let q=[[a,0]],seen=new Set([a.id]);
+ while(q.length){
+  let [n,d]=q.shift();
+  for(let k of p25Neighbours(n)){
+   if(k.id===b.id)return d+1;
+   if(!seen.has(k.id)){seen.add(k.id);q.push([k,d+1])}
+  }
+ }
+ return 99
+}
+function p25Forward(node,count){
+ let cur=node;
+ for(let i=0;i<count;i++){
+  let f=p25Neighbours(cur).filter(c=>c.x>cur.x);
+  if(!f.length)break;
+  cur=f.sort((a,b)=>Math.abs(a.y-cur.y)-Math.abs(b.y-cur.y))[0]
+ }
+ return cur
+}
+
+function p25SetupSpecials(){
+ let m=P25.map,mid=Math.floor(m.cols/2),r=Math.floor(m.rows/2);
+ if(['bat','blackout','hide'].includes(m.kind))P25.special=p25At(mid,Math.max(0,r-1))?.id||null;
+ if(m.kind==='slide')P25.special=p25At(2,Math.max(0,r-1))?.id||null;
+ if(m.kind==='passage')P25.special=p25At(1,1)?.id||null;
+ if(m.kind==='teleport'||m.kind==='transit'){
+  P25.special=p25At(1,1)?.id||null;
+  P25.special2=p25At(m.cols-2,Math.max(0,m.rows-2))?.id||null
+ }
+ if(m.kind==='doors'||m.kind==='gates'){
+  P25.gateA=p25At(mid,1)?.id||null;
+  P25.gateB=p25At(mid,Math.max(0,m.rows-2))?.id||null
+ }
+ if(m.kind==='dormant'){
+  P25.dormant=new Set([
+   p25At(mid-1,1)?.id,p25At(mid,Math.max(1,m.rows-2))?.id,p25At(mid+1,1)?.id
+  ].filter(Boolean))
+ }
+ if(m.kind==='hazard')P25.hazard=p25At(mid,Math.floor(m.rows/2))?.id||null
+}
+
+function p25Start(mapId){
+ let map=mapId?V22_MAPS.find(m=>m.id===mapId):p25Rand(V22_MAPS);
+ let cells=p25BuildCells(map),left=cells.filter(c=>c.x===0),right=cells.filter(c=>c.x===map.cols-1);
+ let doctor=left[Math.floor(left.length/2)],exit=right[Math.floor(right.length/2)];
+ let type=p25Rand(Object.keys(P25_DALEKS));
+ let starts=cells.filter(c=>c.x>=map.cols-3&&c.id!==exit.id);
+ P25={
+  map,cells,doctor,exit,type,dalek:p25Rand(starts),turn:1,
+  blocked:new Set(),bat:0,hide:false,blackout:0,
+  special:null,special2:null,gateA:null,gateB:null,dormant:null,hazard:null,
+  message:'REACH THE EXIT.'
+ };
+ p25SetupSpecials();
+ p25Render()
+}
+
+function p25AI(kind){
+ let opts=p25Neighbours(P25.dalek);
+ if(!opts.length)return P25.dalek;
+ let doc=P25.doctor;
+
+ if(kind==='drone'){
+  let best=Math.min(...opts.map(o=>p25Dist(o,doc)));
+  return p25Rand(opts.filter(o=>p25Dist(o,doc)===best))
+ }
+ if(kind==='scientist'){
+  let score=o=>p25Dist(o,P25.exit)*2+p25Dist(o,doc)*0.25;
+  let best=Math.min(...opts.map(score));
+  return p25Rand(opts.filter(o=>score(o)===best))
+ }
+ if(kind==='strategist'){
+  let dm=p25Neighbours(doc);
+  let forward=[...dm].sort((a,b)=>p25Dist(a,P25.exit)-p25Dist(b,P25.exit))[0]||doc;
+  let best=Math.min(...opts.map(o=>p25Dist(o,forward)));
+  return p25Rand(opts.filter(o=>p25Dist(o,forward)===best))
+ }
+ if(kind==='supreme')return Math.random()<0.58?p25AI('strategist'):p25Rand(opts);
+ return p25Rand(opts)
+}
+
+function p25Message(kind){
+ if(P25.type==='eternal')return p25Rand(['PATTERN ALTERED.','ADAPTATION COMPLETE.','YOUR STRATEGY IS OBSOLETE.']);
+ if(kind==='drone')return p25Rand(['PURSUIT CONTINUES.','YOU CANNOT ESCAPE.','ADVANCE. EXTERMINATE.']);
+ if(kind==='scientist')return p25Rand(['ESCAPE ROUTE CONTAINED.','EXIT DEFENCE OPTIMISED.','YOUR OPTIONS ARE DIMINISHING.']);
+ if(kind==='strategist')return 'YOUR ROUTE HAS BEEN CALCULATED.';
+ return p25Rand(['YOUR NEXT MOVE HAS BEEN PREDICTED.','YOUR ATTEMPT AT DECEPTION IS PREDICTABLE.'])
+}
+
+function p25Move(id){
+ if(!P25)return;
+ let target=p25ById(id);
+ if(!target||!p25Neighbours(P25.doctor).some(n=>n.id===id))return;
+
+ let oldDalek=P25.dalek;
+ P25.doctor=target;
+ let specialMessage='';
+
+ if(P25.map.kind==='bat'&&id===P25.special){
+  P25.bat=3;P25.special=null;specialMessage="ACE'S BASEBALL BAT COLLECTED."
+ }
+ if(P25.map.kind==='blackout'&&id===P25.special){
+  P25.blackout=1;specialMessage='POWER DRAIN · ONLY NEARBY ROUTES REMAIN VISIBLE.'
+ }
+ if(P25.map.kind==='hide'&&id===P25.special){
+  P25.hide=true;P25.special=null;specialMessage='CRYOGENIC CHAMBER · PROTECTED FOR ONE DALEK MOVE.'
+ }
+ if(P25.map.kind==='passage'&&id===P25.special){
+  let choices=[
+   p25At(0,Math.floor(P25.map.rows/2)),
+   p25At(Math.floor(P25.map.cols/2),Math.floor(P25.map.rows/2)),
+   p25At(P25.map.cols-2,Math.floor(P25.map.rows/2))
+  ].filter(Boolean);
+  P25.doctor=p25Rand(choices);
+  specialMessage='SECRET PASSAGE ACTIVATED.'
+ }
+ if(P25.map.kind==='slide'&&id===P25.special){
+  P25.doctor=p25Forward(target,P25.map.slide||2);
+  specialMessage=(P25.map.special||'FAST ROUTE')+' ACTIVATED.'
+ }
+ if((P25.map.kind==='teleport'||P25.map.kind==='transit')&&(id===P25.special||id===P25.special2)){
+  P25.doctor=p25ById(id===P25.special?P25.special2:P25.special);
+  specialMessage='SHORTCUT ACTIVATED.'
+ }
+ if(P25.map.kind==='dormant'&&P25.dormant&&P25.dormant.has(id)){
+  P25.dormant.delete(id);
+  P25.blocked.add(id);
+  specialMessage='A DORMANT DALEK WAKES. THAT NODE CLOSES BEHIND YOU.'
+ }
+
+ if(P25.doctor.id===P25.exit.id)return p25End(true,'THE DOCTOR ESCAPES.');
+ if(P25.doctor.id===oldDalek.id&&!P25.bat&&!P25.hide)return p25End(false,'EXTERMINATE!');
+
+ /* Resolve the Dalek immediately. No asynchronous turn, no "calculating" state. */
+ let behaviour=P25.type==='eternal'?p25Rand(['drone','strategist','scientist','supreme']):P25.type;
+ P25.dalek=p25AI(behaviour);
+
+ if(P25.dalek.id===P25.doctor.id){
+  if(P25.bat){
+   specialMessage="ACE'S BAT DEFLECTS THE EXTERMINATION BLAST."
+  }else if(P25.hide){
+   specialMessage='THE CRYOGENIC CHAMBER HIDES YOU.';
+   P25.hide=false
+  }else{
+   return p25End(false,'EXTERMINATE!')
+  }
+ }
+
+ if(P25.bat>0)P25.bat--;
+ if(P25.blackout>0)P25.blackout--;
+
+ if(P25.map.kind==='hazard'&&P25.hazard){
+  let h=p25ById(P25.hazard);
+  if(h){
+   let hm=p25Neighbours(h).filter(x=>x.id!==P25.doctor.id&&x.id!==P25.dalek.id);
+   if(hm.length)P25.hazard=p25Rand(hm).id
+  }
+ }
+
+ P25.turn++;
+ P25.message=specialMessage||p25Message(behaviour);
+ p25Render()
+}
+
+function p25Visible(){
+ if(P25.map.kind!=='jungle'&&P25.blackout<=0)return new Set(P25.cells.map(c=>c.id));
+ return new Set([P25.doctor.id,P25.dalek.id,P25.exit.id,...p25Neighbours(P25.doctor).map(c=>c.id)])
+}
+function p25SpecialSet(){
+ let s=new Set([P25.special,P25.special2,P25.gateA,P25.gateB].filter(Boolean));
+ if(P25.dormant)for(let x of P25.dormant)s.add(x);
+ return s
+}
+function p25Board(){
+ let m=P25.map,visible=p25Visible(),moves=p25Neighbours(P25.doctor),blocked=p25DynamicBlocked();
+ let maxY=m.rows-0.5,px=c=>6+(c.x/(m.cols-1))*88,py=c=>7+(c.y/maxY)*86;
+ let edges=[],seen=new Set();
+
+ for(let c of P25.cells){
+  for(let n of p25Neighbours(c)){
+   if(!visible.has(c.id)||!visible.has(n.id))continue;
+   let key=[c.id,n.id].sort((a,b)=>a-b).join('-');
+   if(seen.has(key))continue;
+   seen.add(key);
+   edges.push(`<line class="v25Edge" x1="${px(c)}" y1="${py(c)}" x2="${px(n)}" y2="${py(n)}"/>`)
+  }
+ }
+
+ let special=p25SpecialSet();
+ let nodes=P25.cells.filter(c=>visible.has(c.id)).map(c=>{
+  let can=moves.some(n=>n.id===c.id),piece='';
+  if(c.id===P25.doctor.id)piece='<div class="v25Piece v25Doctor"></div>';
+  if(c.id===P25.dalek.id)piece=`<div class="v25Piece v25Dalek" style="background:${P25_DALEKS[P25.type].colour}"></div>`;
+  if(P25.map.kind==='hazard'&&c.id===P25.hazard)piece+='<div class="v25Hazard"></div>';
+  return `<button class="v25Node${can?' move':''}${c.id===P25.exit.id?' exit':''}${special.has(c.id)?' special':''}${blocked.has(c.id)?' blocked':''}" style="left:${px(c)}%;top:${py(c)}%" ${can?`onclick="p25Move(${c.id})"`:''}>${piece}</button>`
+ }).join('');
+
+ return `<div class="v25Board ${m.id==='kembel'?'kembel':''} ${m.id==='bedford'?'bedford':''} ${m.id==='spiridon'?'spiridon':''} ${m.id==='canary'?'canary':''} ${m.id==='inside'?'inside':''}"><svg viewBox="0 0 100 100" preserveAspectRatio="none">${edges}</svg>${nodes}</div>`
+}
+
+function p25Render(){
+ let d=P25_DALEKS[P25.type];
+ app.innerHTML=`<div class="card v20Vortex">
+  <div class="v20Status">PARADIGM OF THE DALEKS · TURN ${P25.turn}</div>
+  <h2 class="v25MapName">${P25.map.name}</h2>
+  <div class="v25Meta"><span>${P25.map.size} MAP</span><span>${d.name} · ${d.style}</span></div>
+  <div class="v25Rule">${P25.map.rule}</div>
+  ${p25Key()}
+  ${p25Board()}
+  ${P25.bat?`<div class="v25Status">ACE'S BAT · ${P25.bat} PROTECTED MOVE${P25.bat===1?'':'S'} LEFT</div>`:''}
+  <div class="v20Message"><b>${d.name} DALEK</b><span>${P25.message}</span></div>
+  <button class="ghost" onclick="menu()">ABANDON BONUS GAME</button>
+ </div>`;
+ scrollTop()
+}
+
+function p25Key(){
+ return `<div class="v20Key">${Object.values(P25_DALEKS).map(d=>`<div class="v20KeyItem"><div class="v20KeyDot" style="background:${d.colour}"></div>${d.name}</div>`).join('')}</div>`
+}
+function p25End(win,text){
+ let d=P25_DALEKS[P25.type];
+ app.innerHTML=`<div class="card v20Vortex v20Outcome">
+  <div class="small">PARADIGM OF THE DALEKS · ${P25.map.name}</div>
+  <h2 class="${win?'win':'loss'}">${win?'ESCAPED':'EXTERMINATED'}</h2>
+  <div class="story">${text}</div>
+  <div class="small">${P25.map.size} MAP · ${d.name} · ${P25.turn} TURN${P25.turn===1?'':'S'}</div>
+  <button style="margin-top:18px" onclick="p25Start()">PLAY ANOTHER MAP</button>
+  <button class="secondary" style="margin-top:8px" onclick="menu()">MENU</button>
+ </div>`;
+ scrollTop()
+}
+function p25Intro(){
+ app.innerHTML=`<div class="card v20Vortex v20VortexIntro">
+  <div class="small">BONUS GAME · 12–15 WINS</div>
+  <h2>PARADIGM OF THE DALEKS</h2>
+  <div class="story">Twenty named locations. Move diagonally between connected nodes and reach the exit before the Paradigm Dalek catches you.</div>
+  ${p25Key()}
+  <button style="margin-top:18px" onclick="p25Start()">RANDOM LOCATION</button>
+  <button class="ghost" style="margin-top:8px" onclick="menu()">BACK</button>
+ </div>`;
+ scrollTop()
+}
+
+/* Route every Paradigm entry point to the rebuilt engine. */
+v21ParadigmIntro=p25Intro;
+v22ParadigmIntro=p25Intro;
+v22BetaParadigm=function(){p25Start()};
+if(typeof v21ParadigmPrompt==='function'){
+ v21ParadigmPrompt=function(){return `<div class="card v21Paradigm"><div class="small">BONUS GAME UNLOCKED · 12–15 WINS</div><h2>PARADIGM OF THE DALEKS</h2><div class="story">Cross one of twenty named locations. Each has its own routes and environmental behaviour.</div>${p25Key()}<button style="margin-top:16px" onclick="p25Intro()">FACE THE PARADIGM</button></div>`}
+}
+
+document.title='WHO-0 · Version 25';
+let p25Footer=document.querySelector('.footer');
+if(p25Footer)p25Footer.textContent='Version 25 · Paradigm rebuilt · Fan-made gameplay prototype.';
+menu();
+</script>
+
 </body></html>
