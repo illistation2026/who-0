@@ -1772,4 +1772,128 @@ if(v23Footer)v23Footer.textContent='Version 23 · Paradigm map fix · Fan-made g
 menu();
 </script>
 
+
+<script id="v24-paradigm-runtime-fix">
+/* ========================= WHO-0 VERSION 24 · PARADIGM RUNTIME FIX ========================= */
+
+/* V23 still called the old V20 message generator after the Dalek moved.
+   That function reads the old `v20` game state, so the delayed turn crashed
+   before the updated board could render. Paradigm now has its own message
+   generator which only reads v22Paradigm. */
+function v24ParadigmAfterMessage(kind){
+ let p=v22Paradigm;
+ if(p.type==='eternal')
+  return rand(['PATTERN ALTERED.','ADAPTATION COMPLETE.','YOUR STRATEGY IS OBSOLETE.']);
+ if(kind==='drone')
+  return rand(['PURSUIT CONTINUES.','YOU CANNOT ESCAPE.','ADVANCE. EXTERMINATE.']);
+ if(kind==='scientist')
+  return rand(['ESCAPE ROUTE CONTAINED.','EXIT DEFENCE OPTIMISED.','YOUR OPTIONS ARE DIMINISHING.']);
+ if(kind==='strategist'){
+  let m=v22PNeighbours(p.doctor).sort((a,b)=>v22PDist(a,p.exit)-v22PDist(b,p.exit))[0];
+  return m?`PROJECTED ROUTE: NODE ${m.id}.`:'MOVEMENT PREDICTED.';
+ }
+ let moves=v22PNeighbours(p.doctor);
+ let target=moves.length?rand(moves):null;
+ return target?rand([
+   `YOU WILL SELECT NODE ${target.id}.`,
+   `NODE ${target.id} WILL BE YOUR GRAVE.`,
+   'YOUR NEXT MOVE HAS ALREADY BEEN CALCULATED.',
+   'YOUR ATTEMPT AT DECEPTION IS PREDICTABLE.'
+ ]):'YOUR OPTIONS ARE EXHAUSTED.';
+}
+
+v22ParadigmMove=function(id){
+ let p=v22Paradigm;
+ if(!p||p.locked)return;
+ let t=v22PById(id);
+ if(!t||!v22PNeighbours(p.doctor).some(c=>c.id===id))return;
+
+ let oldDalek=p.dalek;
+ p.doctor=t;
+ p.message='DALEK CALCULATING…';
+
+ if(p.map.kind==='bat'&&id===p.special){
+  p.bat=3;p.special=null;p.message="ACE'S BASEBALL BAT COLLECTED."
+ }
+ if(p.map.kind==='blackout'&&id===p.special){
+  p.blackout=1;p.message='EXXILON POWER DRAIN · THE LATTICE DISAPPEARS.'
+ }
+ if(p.map.kind==='hide'&&id===p.special){
+  p.hide=true;p.special=null;p.message='CRYOGENIC CHAMBER SEALED · ONE MOVE OF PROTECTION.'
+ }
+ if(p.map.kind==='passage'&&id===p.special){
+  let start=v22PAt(0,Math.floor(p.map.rows/2)),
+      mid=v22PAt(Math.floor(p.map.cols/2),Math.floor(p.map.rows/2)),
+      near=v22PAt(p.map.cols-2,Math.floor(p.map.rows/2));
+  p.doctor=rand([start,mid,near].filter(Boolean));
+  p.message='THE SECRET PASSAGE DEPOSITS YOU SOMEWHERE ELSE.'
+ }
+ if(p.map.kind==='slide'&&id===p.special){
+  p.doctor=v22PForward(t,p.map.slide||2);
+  p.message='THE FAST ROUTE CARRIES YOU FORWARD.'
+ }
+ if((p.map.kind==='teleport'||p.map.kind==='transit')&&(id===p.special||id===p.special2)){
+  p.doctor=v22PById(id===p.special?p.special2:p.special);
+  p.message='SHORTCUT ENGAGED.'
+ }
+ if(p.map.kind==='dormant'&&p.dormant&&p.dormant.has(id)){
+  p.dormant.delete(id);
+  p.blocked.add(id);
+  p.message='A DORMANT DALEK WAKES. THAT NODE CLOSES BEHIND YOU.'
+ }
+
+ if(p.doctor.id===p.exit.id)return v22ParadigmEnd(true,'THE DOCTOR ESCAPES.');
+ if(p.doctor.id===oldDalek.id&&!p.bat&&!p.hide)return v22ParadigmEnd(false,'EXTERMINATE!');
+
+ p.locked=true;
+ v22ParadigmRender();
+
+ setTimeout(()=>{
+  try{
+   let behaviour=p.type==='eternal'?rand(['drone','strategist','scientist','supreme']):p.type;
+   let next=v22ParadigmDalek(behaviour);
+   p.dalek=next;
+
+   let hit=next.id===p.doctor.id;
+   if(hit&&p.bat){
+    p.message="ACE'S BAT DEFLECTS THE EXTERMINATION BLAST.";
+    hit=false;
+   }
+   if(hit&&p.hide){
+    p.message='THE CRYOGENIC CHAMBER HIDES YOU.';
+    p.hide=false;
+    hit=false;
+   }
+   if(hit)return v22ParadigmEnd(false,'EXTERMINATE!');
+
+   if(p.bat>0)p.bat--;
+   if(p.blackout>0)p.blackout--;
+
+   if(p.map.kind==='hazard'&&p.hazard){
+    let h=v22PById(p.hazard);
+    if(h){
+     let hm=v22PNeighbours(h).filter(x=>x.id!==p.doctor.id&&x.id!==p.dalek.id);
+     if(hm.length)p.hazard=rand(hm).id;
+    }
+   }
+
+   p.turn++;
+   p.locked=false;
+   if(!/BAT|CHAMBER/.test(p.message))p.message=v24ParadigmAfterMessage(behaviour);
+   v22ParadigmRender();
+  }catch(err){
+   console.error('Paradigm turn error',err);
+   p.locked=false;
+   p.message='THE DALEK RECALCULATES. TRY ANOTHER MOVE.';
+   v22ParadigmRender();
+  }
+ },480);
+};
+
+document.title='WHO-0 · Version 24';
+let v24Footer=document.querySelector('.footer');
+if(v24Footer)v24Footer.textContent='Version 24 · Paradigm runtime fix · Fan-made gameplay prototype.';
+menu();
+</script>
+
 </body></html>
