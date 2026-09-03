@@ -1448,4 +1448,261 @@ v19UseHandOfOmega=function(){v21HandBase();if(settings.autoRun&&run&&run.index<r
 document.title='WHO-0 · Version 21';let v21f=document.querySelector('.footer');if(v21f)v21f.textContent='Version 21 · Fan-made gameplay prototype.';menu();
 </script>
 
+
+<style id="v22-style">
+.v22Beta{border-color:#695f2c;background:linear-gradient(180deg,#17180f,#0c1116)}
+.v22Beta .betaBtns{display:grid;gap:8px;margin-top:12px}
+.v22MapTag{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin:8px 0 10px}
+.v22MapTag span{font-size:10px;letter-spacing:.09em;border:1px solid #3b5367;border-radius:999px;padding:4px 8px;color:#b8c8d5}
+.v22Board{position:relative;height:390px;margin:14px 0 12px;border:1px solid #31495c;border-radius:16px;background:#071018;overflow:hidden}
+.v22Board svg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.v22Edge{stroke:#45657c;stroke-width:.7;opacity:.78}
+.v22Node{position:absolute;transform:translate(-50%,-50%);width:27px;height:27px;border:1px solid #64849b;border-radius:50%;background:#101c25;padding:0;min-height:0;z-index:2}
+.v22Node.move{box-shadow:0 0 0 4px rgba(88,190,255,.18);border-color:#7dd0ff}
+.v22Node.exit{border-color:#76d79a}
+.v22Node.blocked{opacity:.22}
+.v22Node.special{border-color:#d8bd59}
+.v22Node span{display:none}
+.v22Piece{position:absolute;inset:4px;z-index:4}
+.v22Doctor{background:#0c4b73;border-radius:3px}
+.v22Doctor:after{content:"";position:absolute;width:7px;height:7px;border-radius:50%;background:white;left:50%;top:50%;transform:translate(-50%,-50%)}
+.v22Dalek{border-radius:50%}
+.v22Jungle{background:
+ radial-gradient(circle at 18% 20%,#173c2b 0 9%,transparent 10%),
+ radial-gradient(circle at 72% 32%,#123524 0 12%,transparent 13%),
+ radial-gradient(circle at 38% 76%,#153a27 0 15%,transparent 16%),
+ #07170f}
+.v22Jungle .v22Edge{stroke:#6b9974;opacity:.65}
+.v22Legend{font-size:11px;color:#9eb1bf;text-align:center;margin:5px 0 10px}
+.v22SpecialMsg{padding:8px 10px;border:1px solid #5c5127;border-radius:10px;margin:8px 0;font-size:12px}
+</style>
+<script id="v22-script">
+/* ========================= WHO-0 VERSION 22 ========================= */
+
+/* Revised mythic definitions. */
+mythicEvents.splice(0,mythicEvents.length,
+ {id:'badwolf',name:'BAD WOLF',text:'The words are everywhere. Rose Tyler looks into the heart of the TARDIS and the Time Vortex looks back.',effect:'v22_badwolf'},
+ {id:'doctordonna',name:'THE DOCTOR-DONNA',text:'Donna Noble carries the mind of a Time Lord. For three encounters, the universe is in serious trouble. For your enemies.',effect:'v22_doctordonna'},
+ {id:'cia',name:'CELESTIAL INTERVENTION AGENCY',text:'The Time Lords’ secretive organisation want answers. They interrogate your whole team, slowing everything down.',effect:'v22_cia'},
+ {id:'watcher',name:'THE WATCHER',text:'A pale figure waits at the edge of the timeline. The moment has come. The Doctor must regenerate.',effect:'v22_watcher'},
+ {id:'trial',name:'THE TRIAL OF A TIME LORD',text:'The Doctor is on trial. Again. He’ll find a way to get himself out of it, but for the next two encounters you’ll have to cope without him.',effect:'v22_trial'},
+ {id:'fugitive',name:'THE FUGITIVE DOCTOR',text:'Who are they, where did they come from and why are they armed? This Doctor is a true mystery, and it’s unclear what they’re up to. But it’s clear what they want: a sidekick.',effect:'v22_fugitive'}
+);
+const v22OldBeginRun=beginRun;
+beginRun=function(){
+ v22OldBeginRun();
+ if(!run||!run.mythic)return;
+ let eligible=mythicEvents.filter(e=>{
+   if(e.id==='badwolf')return slots.some(s=>team[s]&&/rose tyler/i.test(team[s].name));
+   if(e.id==='doctordonna')return slots.some(s=>team[s]&&/donna noble/i.test(team[s].name));
+   return true;
+ });
+ run.mythic=eligible.length?rand(eligible):null;
+ if(!run.mythic)run.mythicAt=null;
+};
+function v22ApplyTeamBuff(amount,rounds,label){
+ run.v22TeamBuff={amount,rounds,label};
+}
+const v22TeamMetricBase=teamMetric;
+teamMetric=function(key,opts={}){
+ let val=v22TeamMetricBase(key,opts);
+ if(run&&run.v22TeamBuff&&run.v22TeamBuff.rounds>0){
+   let count=slots.filter(s=>team[s]&&!(opts&&opts.excludeSlot===s)).length;
+   val += amountToMetric(run.v22TeamBuff.amount,count);
+ }
+ if(run&&run.v22Cia&&run.v22Cia.rounds>0){
+   let count=slots.filter(s=>team[s]).length;
+   val -= amountToMetric(10,count);
+ }
+ return val;
+};
+function amountToMetric(perMember,count){return perMember*count/5}
+function v22ChooseAnyDoctor(){
+ let current=team.Doctor&&team.Doctor.name;
+ let docs=uniqueCharacters(allCharacters().filter(c=>c.type==='Doctor'&&c.name!==current)).sort((a,b)=>overall(b,'Doctor')-overall(a,'Doctor'));
+ eventState={slot:'Doctor',candidates:docs,after:'showEncounter()'};
+ app.innerHTML=teamHTML()+`<div class="card vortex"><div class="small">THE WATCHER</div><h2>Choose the next Doctor.</h2><div class="story">The normal Time Scoop limits no longer apply. Any Doctor. Any season.</div><div class="options">${docs.map((c,i)=>`<div class="pick doctor"><div class="pickTop"><h3>${c.name}</h3><div class="overall">${overall(c,'Doctor')}<small>VALUE</small></div></div><div class="stats">Science ${c.sci} · Action ${c.act} · Influence ${c.inf} · Survival ${c.surv}</div><button onclick="completeReplacement(${i})">REGENERATE</button></div>`).join('')}</div></div>`;scrollTop()
+}
+function v22ChooseFugitive(){
+ let candidates=slots.filter(s=>s!=='Doctor'&&team[s]);
+ app.innerHTML=teamHTML()+`<div class="card vortex"><div class="small">THE FUGITIVE DOCTOR</div><h2>Choose their sidekick.</h2><div class="story">They will disappear with the Fugitive Doctor for the next two encounters.</div><div class="options">${candidates.map((s,i)=>`<div class="pick ${s.startsWith('Companion')?'companion':'teamup'}"><h3>${team[s].name}</h3><div class="small">${s}</div><button onclick="v22TakeSidekick('${s}')">CHOOSE</button></div>`).join('')}</div></div>`;scrollTop()
+}
+function v22TakeSidekick(slot){run.v22Fugitive={slot,rounds:2};showEncounter()}
+triggerMythic=function(){
+ let ev=run.mythic;run.mythicDone=true;remember('anomalies',ev.name);
+ if(ev.id==='badwolf'){unlock('badwolf');v22ApplyTeamBuff(20,3,'BAD WOLF')}
+ if(ev.id==='doctordonna')v22ApplyTeamBuff(15,3,'THE DOCTOR-DONNA');
+ if(ev.id==='cia')run.v22Cia={rounds:1};
+ if(ev.id==='trial')run.v22Trial={rounds:2};
+ app.innerHTML=teamHTML()+`<div class="card vortex"><div class="small">EXTREME TEMPORAL ANOMALY</div><h2>${ev.name}</h2><div class="story">${ev.text}</div></div>`;scrollTop();
+ if(ev.id==='watcher'){app.querySelector('.vortex').insertAdjacentHTML('beforeend','<button style="margin-top:14px" onclick="v22ChooseAnyDoctor()">REGENERATE</button>');return}
+ if(ev.id==='fugitive'){app.querySelector('.vortex').insertAdjacentHTML('beforeend','<button style="margin-top:14px" onclick="v22ChooseFugitive()">CHOOSE A SIDEKICK</button>');return}
+ if(settings.autoRun)setTimeout(showEncounter,1500);else app.querySelector('.vortex').insertAdjacentHTML('beforeend','<button style="margin-top:14px" onclick="showEncounter()">CONTINUE</button>')
+};
+
+/* Temporarily exclude Trial/Fugitive characters through the existing metric exclusion path. */
+const v22SlotPowerBase=slotPower;
+slotPower=function(slot,key){
+ if(run&&run.v22Trial&&run.v22Trial.rounds>0&&slot==='Doctor')return 0;
+ if(run&&run.v22Fugitive&&run.v22Fugitive.rounds>0&&slot===run.v22Fugitive.slot)return 0;
+ return v22SlotPowerBase(slot,key);
+};
+const v22AdvanceBase=advanceAfterResult;
+advanceAfterResult=function(...args){
+ if(run&&run.v22TeamBuff&&run.v22TeamBuff.rounds>0)run.v22TeamBuff.rounds--;
+ if(run&&run.v22Cia&&run.v22Cia.rounds>0)run.v22Cia.rounds--;
+ if(run&&run.v22Trial&&run.v22Trial.rounds>0)run.v22Trial.rounds--;
+ if(run&&run.v22Fugitive&&run.v22Fugitive.rounds>0)run.v22Fugitive.rounds--;
+ return v22AdvanceBase(...args);
+};
+
+/* 20 hand-authored Paradigm map definitions. Sizes vary without simply doubling. */
+const V22_MAPS=[
+ {id:'exxilon',name:'EXXILON',size:'MEDIUM',cols:9,rows:5,kind:'blackout'},
+ {id:'spiridon',name:'SPIRIDON',size:'MEDIUM',cols:9,rows:5,kind:'slide',special:'ICE SLIDE'},
+ {id:'skaro_city',name:'SKARO – CITY',size:'LARGE',cols:11,rows:6,kind:'clean'},
+ {id:'skaro_waste',name:'SKARO – WASTELANDS',size:'MEDIUM',cols:9,rows:5,kind:'clean'},
+ {id:'skaro_bunker',name:'SKARO – THE BUNKER',size:'SMALL',cols:7,rows:4,kind:'doors'},
+ {id:'skaro_sewers',name:'SKARO – SEWERS',size:'MEDIUM',cols:9,rows:5,kind:'slide',special:'WATER CURRENT'},
+ {id:'necros',name:'NECROS',size:'MEDIUM',cols:9,rows:5,kind:'hide'},
+ {id:'auderley',name:'EARTH – AUDERLEY HOUSE',size:'SMALL',cols:7,rows:4,kind:'clean'},
+ {id:'coalhill',name:'EARTH – COAL HILL SCHOOL',size:'MEDIUM',cols:9,rows:5,kind:'bat'},
+ {id:'totters',name:"EARTH – TOTTER'S LANE",size:'SMALL',cols:7,rows:4,kind:'tardis'},
+ {id:'canary',name:'EARTH – CANARY WHARF',size:'LARGE',cols:11,rows:6,kind:'slide',special:'LIFT'},
+ {id:'westminster',name:'EARTH – WESTMINSTER',size:'MEDIUM',cols:9,rows:5,kind:'clean'},
+ {id:'bedford',name:'EARTH – BEDFORD MINE AREA',size:'LARGE',cols:11,rows:6,kind:'slide',special:'MINE SHAFT'},
+ {id:'alt_ogron',name:'ALT EARTH – OGRON BARRACKS',size:'MEDIUM',cols:9,rows:5,kind:'gates'},
+ {id:'ogron',name:'PLANET OF THE OGRONS',size:'LARGE',cols:11,rows:6,kind:'clean'},
+ {id:'asylum',name:'ASYLUM OF THE DALEKS',size:'LARGE',cols:11,rows:6,kind:'dormant'},
+ {id:'waterfield',name:"EARTH – WATERFIELD'S HOUSE",size:'SMALL',cols:7,rows:4,kind:'passage'},
+ {id:'inside',name:'DALEK – INSIDE A DALEK',size:'MEDIUM',cols:9,rows:5,kind:'hazard'},
+ {id:'mechanoid',name:'MECHANOID CITY',size:'LARGE',cols:11,rows:6,kind:'slide',special:'TRANSIT SYSTEM'},
+ {id:'kembel',name:'KEMBEL JUNGLE',size:'LARGE',cols:11,rows:6,kind:'jungle'}
+];
+function v22Cells(map){
+ let cells=[],id=1;
+ for(let x=0;x<map.cols;x++){
+   let count=map.rows;
+   for(let r=0;r<count;r++)cells.push({id:id++,x,y:r+(x%2?0.5:0)});
+ }
+ return cells;
+}
+function v22ById(id){return v22.cells.find(c=>c.id===id)}
+function v22Neighbours(p){
+ return v22.cells.filter(c=>Math.abs(c.x-p.x)===1&&Math.abs(Math.abs(c.y-p.y)-0.5)<.01&&!v22.blocked.has(c.id));
+}
+function v22Dist(a,b){
+ if(a.id===b.id)return 0;let q=[[a,0]],seen=new Set([a.id]);
+ while(q.length){let [n,d]=q.shift();for(let k of v22Neighbours(n)){if(k.id===b.id)return d+1;if(!seen.has(k.id)){seen.add(k.id);q.push([k,d+1])}}}return 99
+}
+let v22=null;
+function v22Start(mapId){
+ let map=mapId?V22_MAPS.find(m=>m.id===mapId):rand(V22_MAPS),cells=v22Cells(map);
+ let left=cells.filter(c=>c.x===0),right=cells.filter(c=>c.x===map.cols-1);
+ let doctor=left[Math.floor(left.length/2)],exit=right[Math.floor(right.length/2)];
+ let keys=Object.keys(V20_DALEKS),type=rand(keys),starts=cells.filter(c=>c.x>=map.cols-3&&c.id!==exit.id);
+ v22={map,cells,type,doctor,exit,dalek:rand(starts),turn:1,locked:false,blocked:new Set(),message:'',bat:0,blackout:0};
+ // Map-specific landmark nodes.
+ let mid=cells.filter(c=>c.x===Math.floor(map.cols/2));
+ if(map.kind==='bat')v22.special=mid[Math.floor(mid.length/2)].id;
+ if(map.kind==='passage')v22.special=cells.filter(c=>c.x===1)[1].id;
+ if(map.kind==='hide')v22.special=mid[0].id;
+ if(map.kind==='tardis'){v22.special=cells.filter(c=>c.x===1)[0].id;v22.special2=cells.filter(c=>c.x===map.cols-2).slice(-1)[0].id}
+ if(map.kind==='slide'){v22.special=cells.filter(c=>c.x===2)[1].id;v22.slideTo=cells.filter(c=>c.x===Math.min(map.cols-1,5))[1].id}
+ if(map.kind==='dormant')v22.dormant=new Set(mid.slice(0,3).map(c=>c.id));
+ v22.message=v20Opening(type);v22Render();
+}
+function v22DalekMove(kind){
+ let opts=v22Neighbours(v22.dalek);if(!opts.length)return v22.dalek,doc=v22.doctor;
+ if(kind==='drone'){let m=Math.min(...opts.map(o=>v22Dist(o,doc)));return rand(opts.filter(o=>v22Dist(o,doc)===m))}
+ if(kind==='scientist'){let m=Math.min(...opts.map(o=>v22Dist(o,v22.exit)*2+v22Dist(o,doc)*.25));return rand(opts.filter(o=>v22Dist(o,v22.exit)*2+v22Dist(o,doc)*.25===m))}
+ if(kind==='strategist'){let dm=v22Neighbours(doc),f=dm.sort((a,b)=>v22Dist(a,v22.exit)-v22Dist(b,v22.exit))[0]||doc;let m=Math.min(...opts.map(o=>v22Dist(o,f)));return rand(opts.filter(o=>v22Dist(o,f)===m))}
+ if(kind==='supreme')return Math.random()<.58?v22DalekMove('strategist'):rand(opts);
+ return rand(opts)
+}
+function v22Board(){
+ let map=v22.map,moves=v22.locked?[]:v22Neighbours(v22.doctor),maxY=map.rows-.5;
+ const px=c=>7+(c.x/(map.cols-1))*86,py=c=>8+(c.y/maxY)*84;
+ let visible=new Set(v22.cells.map(c=>c.id));
+ if(map.kind==='jungle'){visible=new Set([v22.doctor.id,v22.dalek.id,v22.exit.id,...moves.map(c=>c.id)])}
+ let edges=[],done=new Set();
+ for(let c of v22.cells)for(let n of v22Neighbours(c)){if(map.kind==='jungle'&&!(visible.has(c.id)&&visible.has(n.id)))continue;let k=[c.id,n.id].sort((a,b)=>a-b).join('-');if(done.has(k))continue;done.add(k);edges.push(`<line class="v22Edge" x1="${px(c)}" y1="${py(c)}" x2="${px(n)}" y2="${py(n)}"/>`)}
+ let nodes=v22.cells.filter(c=>visible.has(c.id)).map(c=>{let can=moves.some(m=>m.id===c.id),piece='';if(c.id===v22.doctor.id)piece='<div class="v22Piece v22Doctor"></div>';if(c.id===v22.dalek.id)piece=`<div class="v22Piece v22Dalek" style="background:${V20_DALEKS[v22.type].colour}"></div>`;let sp=c.id===v22.special||c.id===v22.special2||(v22.dormant&&v22.dormant.has(c.id));return `<button class="v22Node${can?' move':''}${c.id===v22.exit.id?' exit':''}${sp?' special':''}" style="left:${px(c)}%;top:${py(c)}%" ${can?`onclick="v22Move(${c.id})"`:''}><span>${c.id}</span>${piece}</button>`}).join('');
+ return `<div class="v22Board${map.kind==='jungle'?' v22Jungle':''}"><svg viewBox="0 0 100 100" preserveAspectRatio="none">${edges}</svg>${nodes}</div>`
+}
+function v22MapRule(){
+ let m=v22.map;
+ if(m.kind==='clean')return 'PURE LATTICE · NO ENVIRONMENTAL EFFECT';
+ if(m.kind==='jungle')return 'THICK JUNGLE · ONLY YOUR CURRENT CONNECTIONS ARE VISIBLE';
+ if(m.kind==='bat')return `ACE'S BASEBALL BAT · LAND ON THE GOLD NODE FOR 3 MOVES OF PROTECTION`;
+ if(m.kind==='passage')return 'SECRET PASSAGE · RANDOM EXIT: START / MIDDLE / ONE MOVE FROM ESCAPE';
+ if(m.kind==='slide')return `${m.special} · LAND ON THE GOLD NODE AND RIDE TO ITS DESTINATION`;
+ if(m.kind==='hide')return 'CRYOGENIC CHAMBER · GOLD NODE SHIELDS YOU FOR ONE DALEK MOVE';
+ if(m.kind==='tardis')return 'TARDIS SHORTCUT · GOLD NODES ARE LINKED';
+ if(m.kind==='doors')return 'SECURITY DOORS · ROUTES CHANGE AS YOU MOVE';
+ if(m.kind==='gates')return 'OGRON GATES · ROUTES CHANGE BEHIND YOU';
+ if(m.kind==='dormant')return 'DORMANT DALEKS · LANDING ON A GOLD NODE BLOCKS IT';
+ if(m.kind==='blackout')return 'POWER DRAIN · SPECIAL AREAS CAN BLACK OUT THE LATTICE';
+ if(m.kind==='hazard')return 'ANTIBODIES · INTERNAL HAZARDS RESTRICT THE ROUTE';
+ return ''
+}
+function v22Render(){
+ let d=V20_DALEKS[v22.type];
+ app.innerHTML=`<div class="card v20Vortex"><div class="small">PARADIGM OF THE DALEKS · TURN ${v22.turn}</div><h2 style="text-align:center">${v22.map.name}</h2><div class="v22MapTag"><span>${v22.map.size} MAP</span><span>${d.name} · ${d.style}</span></div><div class="v22Legend">${v22MapRule()}</div>${v22Board()}${v22.bat?`<div class="v22SpecialMsg">ACE'S BAT · ${v22.bat} PROTECTED MOVE${v22.bat===1?'':'S'} LEFT</div>`:''}<div class="v20Message"><b>${d.name} DALEK</b><span>${v22.message}</span></div><button class="ghost" onclick="menu()">ABANDON BONUS GAME</button></div>`;scrollTop()
+}
+function v22Move(id){
+ if(!v22||v22.locked)return;let t=v22ById(id);if(!t||!v22Neighbours(v22.doctor).some(c=>c.id===id))return;
+ let old=v22.doctor;v22.doctor=t;
+ if(t.id===v22.exit.id){v22End(true,'THE DOCTOR ESCAPES.');return}
+ if(t.id===v22.dalek.id&&!v22.bat){v22End(false,'EXTERMINATE!');return}
+ let m=v22.map;
+ if(m.kind==='bat'&&t.id===v22.special){v22.bat=3;v22.special=null;v22.message="ACE'S BASEBALL BAT COLLECTED."}
+ if(m.kind==='passage'&&t.id===v22.special){
+   let left=v22.cells.filter(c=>c.x===0)[Math.floor(m.rows/2)],mid=v22.cells.filter(c=>c.x===Math.floor(m.cols/2))[Math.floor(m.rows/2)],near=v22.cells.filter(c=>c.x===m.cols-2)[Math.floor(m.rows/2)];
+   v22.doctor=rand([left,mid,near]);v22.message='THE SECRET PASSAGE DEPOSITS YOU SOMEWHERE ELSE IN THE HOUSE.'
+ }
+ if(m.kind==='slide'&&t.id===v22.special){v22.doctor=v22ById(v22.slideTo);v22.message=m.special+' CARRIES YOU ACROSS THE MAP.'}
+ if(m.kind==='tardis'&&(t.id===v22.special||t.id===v22.special2)){v22.doctor=v22ById(t.id===v22.special?v22.special2:v22.special);v22.message='THE TARDIS SHORTCUT DEPOSITS YOU ELSEWHERE.'}
+ if(m.kind==='dormant'&&v22.dormant.has(t.id)){v22.dormant.delete(t.id);v22.blocked.add(t.id);v22.message='A DORMANT DALEK WAKES. THAT ROUTE IS NOW BLOCKED.'}
+ v22.locked=true;v22Render();
+ setTimeout(()=>{
+   let behaviour=v22.type==='eternal'?rand(['drone','strategist','scientist','supreme']):v22.type;
+   let next=v22DalekMove(behaviour);v22.dalek=next;
+   if(next.id===v22.doctor.id){
+     if(v22.bat){v22.message="ACE'S BAT DEFLECTS THE DALEK FIRE."}else{v22End(false,'EXTERMINATE!');return}
+   }
+   if(v22.bat)v22.bat--;
+   v22.turn++;v22.locked=false;v22Render()
+ },430)
+}
+function v22End(win,msg){
+ let d=V20_DALEKS[v22.type];app.innerHTML=`<div class="card v20Vortex v20Outcome"><div class="small">PARADIGM OF THE DALEKS · ${v22.map.name}</div><h2 class="${win?'win':'loss'}">${win?'ESCAPED':'EXTERMINATED'}</h2><div class="story">${msg}</div><div class="small">${v22.map.size} MAP · ${d.name} · ${v22.turn} TURN${v22.turn===1?'':'S'}</div><button style="margin-top:16px" onclick="v22Start()">PLAY ANOTHER MAP</button><button class="secondary" style="margin-top:8px" onclick="menu()">MENU</button></div>`;scrollTop()
+}
+v21ParadigmIntro=function(){
+ app.innerHTML=`<div class="card v20Vortex v20VortexIntro"><div class="small">BONUS GAME · 12–15 WINS</div><h2>PARADIGM OF THE DALEKS</h2><div class="story">Cross one of 20 locations from left to right. Move diagonally between connected nodes. Each map has its own geography and some have environmental effects.</div>${v20Key()}<button style="margin-top:18px" onclick="v22Start()">BEGIN</button><button class="ghost" style="margin-top:8px" onclick="menu()">BACK</button></div>`;scrollTop()
+};
+
+/* Beta buttons on home page. Create a temporary five-person team where a bonus requires one. */
+function v22BetaTeam(){
+ if(slots.every(s=>team[s]))return;
+ let pool=uniqueCharacters(allCharacters()),doc=pool.find(c=>c.type==='Doctor');
+ let comps=pool.filter(c=>c.type==='Companion').slice(0,2),ups=pool.filter(c=>c.type==='Support').slice(0,2);
+ team={Doctor:{...doc},'Companion 1':{...comps[0]},'Companion 2':{...comps[1]},'Team-up 1':{...ups[0]},'Team-up 2':{...ups[1]}};
+}
+function v22BetaToy(){v22BetaTeam();startCelestialIntro()}
+function v22BetaParadigm(){v22Start()}
+function v22BetaDeath(){v22BetaTeam();chooseBonusDoctor()}
+const v22MenuBase=menu;
+menu=function(){
+ v22MenuBase();
+ let cards=app.querySelectorAll('.card');if(!cards.length)return;
+ let b=document.createElement('div');b.className='card v22Beta';
+ b.innerHTML='<div class="small">BETA TESTING · VERSION 22</div><h2 style="margin:5px 0 7px">BONUS GAMES</h2><div class="story">Jump straight into a bonus game without completing a full run.</div><div class="betaBtns"><button onclick="v22BetaToy()">CELESTIAL TOYROOM</button><button onclick="v22BetaParadigm()">PARADIGM OF THE DALEKS</button><button onclick="v22BetaDeath()">ENTER THE DEATH ZONE</button></div>';
+ cards[0].after(b)
+};
+document.title='WHO-0 · Version 22';
+let v22f=document.querySelector('.footer');if(v22f)v22f.textContent='Version 22 · Fan-made gameplay prototype.';
+menu();
+</script>
+
 </body></html>
