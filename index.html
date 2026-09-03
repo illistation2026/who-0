@@ -1654,4 +1654,122 @@ menu=function(){
 document.title='WHO-0 · Version 22';let v22Footer=document.querySelector('.footer');if(v22Footer)v22Footer.textContent='Version 22 · Fan-made gameplay prototype.';menu();
 
 </script>
+
+<style id="v23-paradigm-style">
+.v22PBoard.map-exxillon{background:radial-gradient(circle at 50% 50%,#17212a 0,#080d11 72%)}
+.v22PBoard.map-spiridon{background:radial-gradient(circle at 50% 45%,#17364a 0,#09131c 72%)}
+.v22PBoard.map-skaro_bunker,.v22PBoard.map-alt_ogron{background:linear-gradient(90deg,#0a131b,#101d28 50%,#0a131b)}
+.v22PBoard.map-skaro_sewers{background:linear-gradient(180deg,#071018,#0a2029 55%,#071018)}
+.v22PBoard.map-necros{background:radial-gradient(circle at 50% 50%,#25303a 0,#081018 70%)}
+.v22PBoard.map-coalhill{background:linear-gradient(180deg,#101923,#081018)}
+.v22PBoard.map-totters,.v22PBoard.map-waterfield{background:radial-gradient(circle at 50% 50%,#1b1714 0,#081018 72%)}
+.v22PBoard.map-canary{background:linear-gradient(180deg,#142635,#071018)}
+.v22PBoard.map-bedford{background:radial-gradient(circle at 50% 50%,#201a13 0,#070b0e 72%)}
+.v22PBoard.map-asylum{background:radial-gradient(circle at 50% 50%,#24161d 0,#070b10 72%)}
+.v22PBoard.map-inside{background:radial-gradient(circle at 50% 50%,#301018 0,#09080b 72%)}
+.v22PBoard.map-mechanoid{background:linear-gradient(135deg,#10293a,#071018 65%)}
+.v22PBoard.map-kembel{background:
+ radial-gradient(circle at 20% 20%,#173b28 0 10%,transparent 11%),
+ radial-gradient(circle at 75% 30%,#153522 0 14%,transparent 15%),
+ radial-gradient(circle at 38% 75%,#163c27 0 16%,transparent 17%),
+ #07150d}
+.v23ObstacleNote{font-size:10px;color:#8397a6;text-align:center;margin-top:-4px}
+</style>
+<script id="v23-paradigm-fix">
+/* ========================= WHO-0 VERSION 23 · PARADIGM FIX ========================= */
+
+/*
+  Distinct node omissions for each special map.
+  The five intentionally "clean" maps remain full lattices:
+  Skaro City, Skaro Wastelands, Auderley House, Westminster, Planet of the Ogrons.
+*/
+const V23_CUTS={
+ exxillon:{2:[0,4],4:[1,3],6:[0,4]},
+ spiridon:{1:[4],3:[0],5:[4],7:[0]},
+ skaro_bunker:{1:[0,3],2:[1],4:[2],5:[0,3]},
+ skaro_sewers:{2:[0,4],3:[0,4],5:[0,4],6:[0,4]},
+ necros:{2:[1],4:[0,4],6:[3]},
+ coalhill:{2:[0],3:[4],5:[0],6:[4]},
+ totters:{2:[1,2],4:[0,3]},
+ canary:{2:[0,5],4:[1,4],6:[0,5],8:[1,4]},
+ bedford:{2:[0,1],4:[4,5],6:[0,1],8:[4,5]},
+ alt_ogron:{2:[0,4],4:[2],6:[0,4]},
+ asylum:{2:[0,5],3:[2],5:[0,5],7:[3],8:[0,5]},
+ waterfield:{2:[0],3:[2],4:[3]},
+ inside:{2:[0,4],4:[2],6:[0,4]},
+ mechanoid:{2:[1,4],4:[0,5],6:[1,4],8:[0,5]},
+ kembel:{1:[0,5],2:[2],3:[4],5:[1],6:[3],8:[0,5],9:[2]}
+};
+
+function v22Cells(map){
+ let a=[],id=1,cuts=V23_CUTS[map.id]||{};
+ for(let x=0;x<map.cols;x++){
+  for(let r=0;r<map.rows;r++){
+   if(cuts[x]&&cuts[x].includes(r))continue;
+   a.push({id:id++,x,y:r+(x%2?.5:0),r});
+  }
+ }
+ return a;
+}
+
+/* Fix: V22 used `doc` before it existed after the Doctor moved.
+   That threw a ReferenceError inside the delayed Dalek turn. */
+v22ParadigmDalek=function(kind){
+ let p=v22Paradigm,opts=v22PNeighbours(p.dalek);
+ if(!opts.length)return p.dalek;
+ let doc=p.doctor;
+ if(kind==='drone'){
+  let n=Math.min(...opts.map(o=>v22PDist(o,doc)));
+  return rand(opts.filter(o=>v22PDist(o,doc)===n))
+ }
+ if(kind==='scientist'){
+  let n=Math.min(...opts.map(o=>v22PDist(o,p.exit)*2+v22PDist(o,doc)*.25));
+  return rand(opts.filter(o=>v22PDist(o,p.exit)*2+v22PDist(o,doc)*.25===n))
+ }
+ if(kind==='strategist'){
+  let dm=v22PNeighbours(doc),forward=dm.sort((a,b)=>v22PDist(a,p.exit)-v22PDist(b,p.exit))[0]||doc;
+  let n=Math.min(...opts.map(o=>v22PDist(o,forward)));
+  return rand(opts.filter(o=>v22PDist(o,forward)===n))
+ }
+ if(kind==='supreme')return Math.random()<.58?v22ParadigmDalek('strategist'):rand(opts);
+ return rand(opts)
+};
+
+/* Add map ID to the board so each location can also have its own visual treatment. */
+const v23BoardBase=v22ParadigmBoard;
+v22ParadigmBoard=function(){
+ let html=v23BoardBase();
+ return html.replace('class="v22PBoard',`class="v22PBoard map-${v22Paradigm.map.id}`);
+};
+
+/* Use robust row selection after map-specific nodes are removed. */
+v22PAt=function(x,r){
+ let col=v22Paradigm.cells.filter(c=>c.x===x).sort((a,b)=>a.y-b.y);
+ if(!col.length)return null;
+ return col[Math.max(0,Math.min(col.length-1,r))];
+};
+
+v22PSetupSpecials=function(){
+ let p=v22Paradigm,m=p.map,mid=Math.floor(m.cols/2),r=Math.floor(m.rows/2);
+ const id=n=>n?n.id:null;
+ if(['bat','blackout','hide','slide','passage'].includes(m.kind))
+  p.special=id(v22PAt(m.kind==='passage'?1:(m.kind==='slide'?2:mid),Math.max(0,r-1)));
+ if(m.kind==='teleport'||m.kind==='transit'){
+  p.special=id(v22PAt(1,1));p.special2=id(v22PAt(m.cols-2,m.rows-2))
+ }
+ if(m.kind==='doors'||m.kind==='gates'){
+  p.gateA=id(v22PAt(mid,1));p.gateB=id(v22PAt(mid,m.rows-2))
+ }
+ if(m.kind==='dormant'){
+  p.dormant=new Set([id(v22PAt(mid-1,1)),id(v22PAt(mid,Math.max(1,m.rows-2))),id(v22PAt(mid+1,1))].filter(Boolean))
+ }
+ if(m.kind==='hazard')p.hazard=id(v22PAt(mid,Math.floor(m.rows/2)));
+};
+
+document.title='WHO-0 · Version 23';
+let v23Footer=document.querySelector('.footer');
+if(v23Footer)v23Footer.textContent='Version 23 · Paradigm map fix · Fan-made gameplay prototype.';
+menu();
+</script>
+
 </body></html>
