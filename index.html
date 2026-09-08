@@ -2229,4 +2229,304 @@ if(p25Footer)p25Footer.textContent='Version 25 · Paradigm rebuilt · Fan-made g
 menu();
 </script>
 
+
+<style id="v26-time-war-style">
+.tw26{--twline:#34546b;--twink:#eaf4fb}
+.tw26 h2{margin-bottom:4px}
+.tw26Top{display:flex;justify-content:space-between;gap:8px;align-items:flex-start;flex-wrap:wrap}
+.tw26Pill{font-size:10px;letter-spacing:.08em;border:1px solid var(--line);padding:6px 9px;border-radius:999px}
+.tw26Stats{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin:12px 0}
+.tw26Stat{border:1px solid var(--line);border-radius:11px;padding:9px 6px;text-align:center;background:#09131c}
+.tw26Stat b{display:block;font-size:17px}.tw26Stat span{font-size:9px;color:var(--muted);letter-spacing:.08em}
+.tw26Map{position:relative;width:100%;aspect-ratio:1.02;border:1px solid var(--line);border-radius:15px;overflow:hidden;background:radial-gradient(circle at 50% 45%,#132332,#050a0f 75%);margin:12px 0}
+.tw26Map svg{width:100%;height:100%;display:block}
+.tw26Territory{stroke:#071019;stroke-width:1.8;vector-effect:non-scaling-stroke;cursor:pointer;transition:.15s}
+.tw26Territory:hover{filter:brightness(1.15)}
+.tw26Territory.sel{stroke:#fff;stroke-width:4}
+.tw26Territory.target{stroke:#ffe77a;stroke-width:4}
+.tw26Territory.doctor{stroke:#6ed8ff;stroke-width:5}
+.tw26Label{font-size:2.55px;fill:white;text-anchor:middle;pointer-events:none;font-family:Arial,sans-serif;font-weight:700}
+.tw26Tiny{font-size:1.8px;fill:#d6e1e8;text-anchor:middle;pointer-events:none;font-family:Arial,sans-serif}
+.tw26Legend{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:10px 0}
+.tw26LegendItem{display:flex;align-items:center;gap:7px;font-size:10px}
+.tw26Dot{width:10px;height:10px;border-radius:3px;flex:0 0 auto}
+.tw26Action{border:1px solid var(--line);border-radius:13px;padding:12px;margin:10px 0;background:#09131c}
+.tw26Action h3{margin:0 0 6px;font-size:15px}
+.tw26Action button{margin-top:7px}
+.tw26Log{max-height:145px;overflow:auto;border-top:1px solid var(--line);margin-top:12px;padding-top:9px}
+.tw26Log div{font-size:10px;color:#b9c9d4;margin:0 0 6px}
+.tw26DoctorCard{border-color:#327da4;background:linear-gradient(180deg,#0b2231,#08121a)}
+.tw26DoctorCard b{color:#8bdfff}
+.tw26BuildMark{font-size:2px;fill:#ffe48a;text-anchor:middle;pointer-events:none;font-family:Arial,sans-serif}
+.tw26Peace{font-size:4px;fill:#8be5ff;text-anchor:middle;pointer-events:none}
+@media(max-width:520px){.tw26Stats{grid-template-columns:repeat(2,1fr)}.tw26Label{font-size:2.35px}.tw26Tiny{font-size:1.65px}}
+</style>
+
+<script id="v26-time-war">
+/* WHO-0 V26 · THE TIME WAR
+   First playable strategy prototype.
+   Risk: territory, attack, strength.
+   Catan: resources, routes, bases, installations.
+   Doctor: neutral peace broker, never owns territory.
+*/
+const TW26_FACTIONS={
+ "Time Lords":{c:"#a86a28",ai:"balanced"},
+ "Daleks":{c:"#b62c35",ai:"aggressive"},
+ "Cybermen":{c:"#758797",ai:"industrial"},
+ "Humans":{c:"#3f79b9",ai:"balanced"},
+ "Autons":{c:"#c06d92",ai:"expansion"},
+ "Homo Reptilia":{c:"#4c9567",ai:"defensive"},
+ "Sontarans":{c:"#8c5139",ai:"aggressive"},
+ "Judoon":{c:"#687078",ai:"defensive"},
+ "Sisterhood of Karn":{c:"#9a4ca3",ai:"balanced"},
+ "Movellans":{c:"#d2c35b",ai:"industrial"},
+ "Zygons":{c:"#c25b38",ai:"expansion"},
+ "Sycorax":{c:"#6d4c35",ai:"aggressive"},
+ "The Silence":{c:"#48415c",ai:"defensive"},
+ "Ogrons":{c:"#736447",ai:"aggressive"}
+};
+const TW26_RANDOM=Object.keys(TW26_FACTIONS).filter(x=>!["Time Lords","Daleks"].includes(x));
+const TW26_RES=["ENERGY","TECH","MATERIALS","PERSONNEL"];
+const TW26_RC={ENERGY:"E",TECH:"T",MATERIALS:"M",PERSONNEL:"P"};
+let TW26=null;
+
+function tw26Shuffle(a){return [...a].sort(()=>Math.random()-.5)}
+function tw26Pick(a){return a[Math.floor(Math.random()*a.length)]}
+function tw26Clamp(n,a,b){return Math.max(a,Math.min(b,n))}
+function tw26Key(r){return TW26_RC[r]}
+
+function tw26GenerateMap(){
+ /* triangular lattice with deliberately varied visual cells */
+ let pts=[],rows=6,cols=6,id=0;
+ for(let r=0;r<rows;r++)for(let c=0;c<cols;c++){
+   let x0=c*16.66,y0=r*16.66,x1=(c+1)*16.66,y1=(r+1)*16.66;
+   let up=(r+c)%2===0;
+   let p=up?[[x0,y1],[x1,y1],[x0+8.33,y0]]:[[x0,y0],[x1,y0],[x0+8.33,y1]];
+   pts.push({id:id++,r,c,p,owner:null,str:0,res:TW26_RES[(r*3+c)%4],route:false,base:false,mil:false});
+ }
+ /* adjacency uses shared row/column neighbourhood rather than polygon edge maths */
+ pts.forEach(t=>t.nei=pts.filter(o=>o.id!==t.id && (
+   (o.r===t.r&&Math.abs(o.c-t.c)===1) ||
+   (o.c===t.c&&Math.abs(o.r-t.r)===1) ||
+   (Math.abs(o.r-t.r)===1&&Math.abs(o.c-t.c)===1&&(o.r+o.c+t.r+t.c)%2===0)
+ )).map(o=>o.id));
+ return pts
+}
+function tw26Centroid(t){return [t.p.reduce((s,p)=>s+p[0],0)/3,t.p.reduce((s,p)=>s+p[1],0)/3]}
+
+function tw26New(){
+ let player=tw26Pick(TW26_RANDOM);
+ let extras=tw26Shuffle(TW26_RANDOM.filter(x=>x!==player)).slice(0,3);
+ let factions=["Time Lords","Daleks",player,...extras];
+ let map=tw26GenerateMap(),spots=tw26Shuffle(map.map(t=>t.id));
+ let state={player,factions,map,turn:1,phase:"player",selected:null,doctor:null,doctorMove:false,
+  resources:{},log:[],gameOver:false};
+ factions.forEach((f,i)=>{
+   state.resources[f]={ENERGY:2,TECH:2,MATERIALS:2,PERSONNEL:2};
+   for(let n=0;n<2;n++){
+     let t=map[spots.pop()];t.owner=f;t.str=n===0?4:3;
+     if(n===0)t.base=true;
+   }
+ });
+ TW26=state;
+ tw26Log(`THE TIME WAR BEGINS. YOU COMMAND THE ${player.toUpperCase()}.`);
+ tw26Log("The Doctor is not a faction. When the TARDIS appears, conflict stops in that territory.");
+ tw26StartTurn()
+}
+
+function tw26Log(s){TW26.log.unshift(`TURN ${TW26.turn} · ${s}`);TW26.log=TW26.log.slice(0,30)}
+function tw26Owned(f){return TW26.map.filter(t=>t.owner===f)}
+function tw26Res(f){return TW26.resources[f]}
+function tw26ConnectedToOwned(t,f){return t.nei.some(id=>TW26.map[id].owner===f)}
+function tw26BorderEnemy(t,f){return t.nei.map(id=>TW26.map[id]).filter(n=>n.owner&&n.owner!==f)}
+function tw26DoctorBlocks(a,b){return TW26.doctor!==null&&(a.id===TW26.doctor||b.id===TW26.doctor)}
+
+function tw26Produce(f){
+ let r=tw26Res(f);
+ tw26Owned(f).forEach(t=>{
+   let amount=1+(t.base?1:0);
+   r[t.res]+=amount;
+ });
+}
+function tw26StartTurn(){
+ if(TW26.gameOver)return;
+ TW26.factions.forEach(tw26Produce);
+ if(TW26.turn%3===0){
+   TW26.doctorMove=true;
+   tw26Log("THE TARDIS DEMATERIALISES. Choose a territory for the Doctor to broker peace.");
+ }else TW26.doctorMove=false;
+ tw26Render()
+}
+
+function tw26Select(id){
+ if(TW26.gameOver)return;
+ let t=TW26.map[id];
+ if(TW26.doctorMove){
+   TW26.doctor=id;TW26.doctorMove=false;TW26.selected=null;
+   tw26Log(`THE DOCTOR INTERVENES IN SECTOR ${id+1}. No attacks may enter or leave it this turn.`);
+   return tw26Render()
+ }
+ TW26.selected=(TW26.selected===id?null:id);
+ tw26Render()
+}
+function tw26CanPay(f,cost){
+ let r=tw26Res(f);return Object.entries(cost).every(([k,v])=>r[k]>=v)
+}
+function tw26Pay(f,cost){let r=tw26Res(f);Object.entries(cost).forEach(([k,v])=>r[k]-=v)}
+function tw26Build(kind){
+ let t=TW26.map[TW26.selected],f=TW26.player;if(!t||t.owner!==f)return;
+ let cfg={
+  route:{cost:{ENERGY:1,MATERIALS:1},ok:!t.route,label:"SUPPLY ROUTE"},
+  base:{cost:{PERSONNEL:1,MATERIALS:1,TECH:1},ok:!t.base&&t.route,label:"STRATEGIC BASE"},
+  mil:{cost:{TECH:1,MATERIALS:2},ok:!t.mil&&t.base,label:"MILITARY INSTALLATION"}
+ }[kind];
+ if(!cfg.ok)return;
+ if(!tw26CanPay(f,cfg.cost)){tw26Log(`INSUFFICIENT RESOURCES FOR ${cfg.label}.`);return tw26Render()}
+ tw26Pay(f,cfg.cost);t[kind]=true;if(kind==="mil")t.str+=2;if(kind==="base")t.str+=1;
+ tw26Log(`${cfg.label} BUILT IN SECTOR ${t.id+1}.`);tw26Render()
+}
+function tw26Expand(targetId){
+ let from=TW26.map[TW26.selected],to=TW26.map[targetId],f=TW26.player;
+ if(!from||from.owner!==f||to.owner||!from.nei.includes(to.id))return;
+ let cost={ENERGY:1,PERSONNEL:1};
+ if(!tw26CanPay(f,cost)){tw26Log("EXPANSION NEEDS 1 ENERGY + 1 PERSONNEL.");return tw26Render()}
+ tw26Pay(f,cost);to.owner=f;to.str=2;TW26.selected=to.id;
+ tw26Log(`THE ${f.toUpperCase()} CLAIM SECTOR ${to.id+1}.`);tw26Render()
+}
+function tw26Attack(targetId){
+ let a=TW26.map[TW26.selected],d=TW26.map[targetId],f=TW26.player;
+ if(!a||a.owner!==f||!d.owner||d.owner===f||!a.nei.includes(d.id))return;
+ if(tw26DoctorBlocks(a,d)){tw26Log("THE DOCTOR REFUSES TO LET THIS BATTLE BEGIN.");return tw26Render()}
+ if(a.str<2){tw26Log("NOT ENOUGH STRENGTH TO ATTACK.");return tw26Render()}
+ let atk=a.str+(a.mil?2:0)+Math.floor(Math.random()*4);
+ let def=d.str+(d.mil?2:0)+(d.base?1:0)+Math.floor(Math.random()*4);
+ if(atk>def){
+   let old=d.owner;a.str=Math.max(1,a.str-1);d.owner=f;d.str=Math.max(2,Math.floor(a.str/2));d.route=false;d.base=false;d.mil=false;
+   tw26Log(`${f.toUpperCase()} CAPTURE SECTOR ${d.id+1} FROM ${old.toUpperCase()}.`);
+ }else{
+   a.str=Math.max(1,a.str-2);d.str=Math.max(1,d.str-1);
+   tw26Log(`${d.owner.toUpperCase()} HOLD SECTOR ${d.id+1}.`);
+ }
+ tw26Check();tw26Render()
+}
+function tw26Reinforce(){
+ let t=TW26.map[TW26.selected],f=TW26.player;if(!t||t.owner!==f)return;
+ let cost={PERSONNEL:1};if(!tw26CanPay(f,cost))return;
+ tw26Pay(f,cost);t.str++;tw26Log(`SECTOR ${t.id+1} REINFORCED.`);tw26Render()
+}
+
+function tw26AI(f){
+ if(TW26.gameOver)return;
+ let owned=tw26Owned(f),r=tw26Res(f);
+ if(!owned.length)return;
+ /* build useful infrastructure */
+ let build=tw26Shuffle(owned).find(t=>!t.route&&r.ENERGY>=1&&r.MATERIALS>=1);
+ if(build){r.ENERGY--;r.MATERIALS--;build.route=true}
+ let base=tw26Shuffle(owned).find(t=>t.route&&!t.base&&r.PERSONNEL>=1&&r.MATERIALS>=1&&r.TECH>=1);
+ if(base&&Math.random()<.45){r.PERSONNEL--;r.MATERIALS--;r.TECH--;base.base=true;base.str++}
+ let mil=tw26Shuffle(owned).find(t=>t.base&&!t.mil&&r.TECH>=1&&r.MATERIALS>=2);
+ if(mil&&Math.random()<.35){r.TECH--;r.MATERIALS-=2;mil.mil=true;mil.str+=2}
+
+ let empties=[];
+ owned.forEach(t=>t.nei.forEach(id=>{let n=TW26.map[id];if(!n.owner)empties.push([t,n])}));
+ if(empties.length&&r.ENERGY>=1&&r.PERSONNEL>=1&&Math.random()<.65){
+   let [a,n]=tw26Pick(empties);r.ENERGY--;r.PERSONNEL--;n.owner=f;n.str=2;tw26Log(`${f.toUpperCase()} EXPAND INTO SECTOR ${n.id+1}.`);return
+ }
+ let attacks=[];
+ owned.forEach(a=>a.nei.forEach(id=>{let d=TW26.map[id];if(d.owner&&d.owner!==f&&a.str>=2&&!tw26DoctorBlocks(a,d))attacks.push([a,d])}));
+ if(attacks.length){
+   let ai=TW26_FACTIONS[f].ai;
+   attacks.sort((x,y)=>(x[1].str-x[0].str)-(y[1].str-y[0].str));
+   let [a,d]=ai==="aggressive"?attacks[0]:tw26Pick(attacks.slice(0,Math.max(1,Math.ceil(attacks.length/2))));
+   let atk=a.str+(a.mil?2:0)+Math.floor(Math.random()*4),def=d.str+(d.mil?2:0)+(d.base?1:0)+Math.floor(Math.random()*4);
+   if(atk>def){let old=d.owner;a.str=Math.max(1,a.str-1);d.owner=f;d.str=Math.max(2,Math.floor(a.str/2));d.route=d.base=d.mil=false;tw26Log(`${f.toUpperCase()} TAKE SECTOR ${d.id+1} FROM ${old.toUpperCase()}.`)}
+   else{a.str=Math.max(1,a.str-1);tw26Log(`${f.toUpperCase()} ATTACK ${d.owner.toUpperCase()} AND ARE REPELLED.`)}
+ }else{
+   tw26Pick(owned).str++;
+ }
+}
+function tw26EndTurn(){
+ if(TW26.doctorMove){tw26Log("MOVE THE DOCTOR BEFORE ENDING THE TURN.");return tw26Render()}
+ TW26.selected=null;
+ TW26.factions.filter(f=>f!==TW26.player).forEach(tw26AI);
+ tw26Check();if(TW26.gameOver)return tw26Render();
+ TW26.turn++;
+ if(TW26.turn>30){TW26.gameOver=true;tw26Log("THE TIME WAR BURNS ITSELF OUT AFTER 30 TURNS.");return tw26Render()}
+ tw26StartTurn()
+}
+function tw26Check(){
+ let p=tw26Owned(TW26.player).length,total=TW26.map.length;
+ if(p===0){TW26.gameOver=true;tw26Log("YOUR FACTION HAS BEEN ERASED FROM THE TIME WAR.");return}
+ if(p>=Math.ceil(total*.5)){TW26.gameOver=true;tw26Log(`THE ${TW26.player.toUpperCase()} CONTROL HALF OF FRACTURED TIME. VICTORY.`);return}
+ let living=TW26.factions.filter(f=>tw26Owned(f).length);
+ if(living.length===1){TW26.gameOver=true;tw26Log(`${living[0].toUpperCase()} DOMINATE THE TIME WAR.`)}
+}
+
+function tw26Actions(){
+ if(TW26.doctorMove)return `<div class="tw26Action tw26DoctorCard"><h3>THE DOCTOR</h3><div class="small">Tap any triangle. The TARDIS will land there and prevent attacks into or out of that territory for this turn.</div></div>`;
+ let t=TW26.selected;if(t===null)return `<div class="tw26Action"><h3>YOUR TURN</h3><div class="small">Tap one of your territories to build, reinforce, expand or attack.</div></div>`;
+ t=TW26.map[t];
+ if(t.owner!==TW26.player){
+   return `<div class="tw26Action"><h3>SECTOR ${t.id+1}</h3><div class="small">${t.owner||"UNCLAIMED"} · ${t.res} · STRENGTH ${t.str}</div></div>`
+ }
+ let neigh=t.nei.map(id=>TW26.map[id]),empty=neigh.filter(n=>!n.owner),enemy=neigh.filter(n=>n.owner&&n.owner!==TW26.player);
+ return `<div class="tw26Action"><h3>SECTOR ${t.id+1} · ${t.res}</h3><div class="small">STRENGTH ${t.str}${t.route?" · ROUTE":""}${t.base?" · BASE":""}${t.mil?" · INSTALLATION":""}</div>
+ ${!t.route?`<button class="secondary" onclick="tw26Build('route')">BUILD SUPPLY ROUTE · 1E 1M</button>`:""}
+ ${t.route&&!t.base?`<button class="secondary" onclick="tw26Build('base')">BUILD STRATEGIC BASE · 1P 1M 1T</button>`:""}
+ ${t.base&&!t.mil?`<button class="secondary" onclick="tw26Build('mil')">BUILD MILITARY INSTALLATION · 1T 2M</button>`:""}
+ <button class="secondary" onclick="tw26Reinforce()">REINFORCE · 1P</button>
+ ${empty.map(n=>`<button onclick="tw26Expand(${n.id})">CLAIM SECTOR ${n.id+1} · 1E 1P</button>`).join("")}
+ ${enemy.map(n=>`<button onclick="tw26Attack(${n.id})">ATTACK ${n.owner.toUpperCase()} · SECTOR ${n.id+1}</button>`).join("")}
+ </div>`
+}
+function tw26Map(){
+ let player=TW26.player;
+ let poly=TW26.map.map(t=>{
+   let col=t.owner?TW26_FACTIONS[t.owner].c:"#18242d",[cx,cy]=tw26Centroid(t);
+   let cls=`tw26Territory${TW26.selected===t.id?" sel":""}${TW26.doctor===t.id?" doctor":""}`;
+   let marks=`${t.route?"R":""}${t.base?"B":""}${t.mil?"M":""}`;
+   return `<g onclick="tw26Select(${t.id})"><polygon class="${cls}" points="${t.p.map(p=>p.join(",")).join(" ")}" fill="${col}"/>
+   <text class="tw26Label" x="${cx}" y="${cy-.7}">${t.owner?t.owner==="Time Lords"?"TIME LORDS":t.owner.toUpperCase():"UNCLAIMED"}</text>
+   <text class="tw26Tiny" x="${cx}" y="${cy+2.1}">${tw26Key(t.res)} · ${t.str||"–"}</text>
+   ${marks?`<text class="tw26BuildMark" x="${cx}" y="${cy+4.5}">${marks}</text>`:""}
+   ${TW26.doctor===t.id?`<text class="tw26Peace" x="${cx}" y="${cy-4.2}">◆</text>`:""}</g>`
+ }).join("");
+ return `<div class="tw26Map"><svg viewBox="0 0 100 100">${poly}</svg></div>`
+}
+function tw26Render(){
+ let r=tw26Res(TW26.player),owned=tw26Owned(TW26.player).length;
+ app.innerHTML=`<div class="card tw26">
+ <div class="tw26Top"><div><div class="small">BONUS GAME · BETA PROTOTYPE</div><h2>THE TIME WAR</h2><div class="small">YOU COMMAND THE <b>${TW26.player.toUpperCase()}</b></div></div><div class="tw26Pill">TURN ${TW26.turn} / 30</div></div>
+ <div class="tw26Stats">${TW26_RES.map(x=>`<div class="tw26Stat"><b>${r[x]}</b><span>${x}</span></div>`).join("")}</div>
+ <div class="small">TERRITORIES ${owned} · R = ROUTE · B = BASE · M = MILITARY INSTALLATION · ◆ = THE DOCTOR</div>
+ ${tw26Map()}
+ <div class="tw26Legend">${TW26.factions.map(f=>`<div class="tw26LegendItem"><span class="tw26Dot" style="background:${TW26_FACTIONS[f].c}"></span>${f} · ${tw26Owned(f).length}</div>`).join("")}</div>
+ ${TW26.gameOver?`<div class="tw26Action"><h3>THE WAR IS OVER</h3><div class="story">${TW26.log[0]}</div><button onclick="tw26New()">NEW TIME WAR</button><button class="secondary" onclick="menu()">MENU</button></div>`:tw26Actions()+`<button onclick="tw26EndTurn()">END TURN</button><button class="ghost" onclick="menu()">ABANDON TIME WAR</button>`}
+ <div class="tw26Log">${TW26.log.map(x=>`<div>${x}</div>`).join("")}</div>
+ </div>`;scrollTop()
+}
+function tw26Intro(){
+ app.innerHTML=`<div class="card tw26"><div class="small">NEW BONUS GAME · BETA</div><h2>THE TIME WAR</h2>
+ <div class="story">Fractured time has become a battlefield. The Daleks and Time Lords are always present. Other powers are drawn into the war at random.</div>
+ <div class="story"><b>You control one faction.</b> Claim territory, gather resources, build supply routes, strategic bases and military installations, then fight for control.</div>
+ <div class="story"><b>The Doctor controls nothing.</b> Every third turn the TARDIS appears. You choose where the Doctor intervenes, and no battle can enter or leave that territory for the turn.</div>
+ <div class="small" style="margin-top:14px">FIRST PROTOTYPE RULES · VICTORY: CONTROL 50% OF THE MAP · MAXIMUM 30 TURNS</div>
+ <button style="margin-top:16px" onclick="tw26New()">ENTER THE TIME WAR</button><button class="ghost" onclick="menu()">BACK</button></div>`;scrollTop()
+}
+
+/* Add a beta entry without replacing the existing WHO-0 menu. */
+const tw26OldMenu=menu;
+menu=function(){
+ tw26OldMenu();
+ let cards=app.querySelectorAll(".card");
+ let first=cards[0];
+ if(first){
+  first.insertAdjacentHTML("afterend",`<div class="card tw26"><div class="small">BETA TESTING · VERSION 26</div><h2>THE TIME WAR</h2><div class="story">Risk-style territorial conflict meets Catan-style resources and infrastructure. The Doctor acts as a neutral peace broker.</div><button onclick="tw26Intro()">PLAY TIME WAR PROTOTYPE</button></div>`)
+ }
+};
+document.title="WHO-0 · Version 26";
+let tw26Footer=document.querySelector(".footer");if(tw26Footer)tw26Footer.textContent="Version 26 · The Time War prototype · Fan-made gameplay prototype.";
+menu();
+</script>
+
 </body></html>
