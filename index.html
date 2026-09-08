@@ -2862,4 +2862,189 @@ tw26New=function(){TW30_END_SHOWN=false;TW30_WINNER=null;TW30_MOVE={active:false
 
 document.title='WHO-0 · Version 30';let tw30Footer=document.querySelector('.footer');if(tw30Footer)tw30Footer.textContent='Version 30 · Time War redeployment & faction crests · Fan-made gameplay prototype.';menu();
 </script>
+
+<style id="v31-crest-style">
+:root{
+  --v31-stone:#c9c1b2;
+  --v31-stone-mid:#8f887c;
+  --v31-stone-dark:#4f4b46;
+  --v31-grit:url("data:image/png;base64,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");
+}
+
+/* Overall atmosphere: keep the existing WHO-0 colour palette, add the battered insignia finish. */
+html{background:#04080c}
+body{
+  background:
+    var(--v31-grit),
+    radial-gradient(circle at 50% 0%,#17314b 0,#081018 38%,#05090e 100%) !important;
+  background-blend-mode:soft-light,normal;
+}
+body:before{
+  content:"";
+  position:fixed;inset:0;z-index:99998;pointer-events:none;
+  background:
+    radial-gradient(circle at 17% 13%,#ffffff0a 0 1px,transparent 2px),
+    radial-gradient(circle at 78% 37%,#00000025 0 1px,transparent 2px),
+    repeating-linear-gradient(118deg,transparent 0 37px,#ffffff05 38px,#00000008 39px,transparent 40px 71px);
+  opacity:.55;
+  mix-blend-mode:screen;
+}
+
+/* Header / brand */
+header{
+  background:
+    var(--v31-grit),
+    linear-gradient(180deg,#081018 68%,#081018ec 82%,transparent) !important;
+  background-blend-mode:soft-light,normal;
+}
+.brand h1{
+  text-shadow:0 1px 0 #fff3,0 0 16px #000;
+}
+.tag,.small{
+  letter-spacing:.04em;
+}
+
+/* Main cards become battered metal / stone plates while retaining their colours. */
+.card{
+  position:relative;
+  isolation:isolate;
+  border:1px solid #746f67 !important;
+  background:
+    var(--v31-grit),
+    linear-gradient(180deg,#122130,#0d1721) !important;
+  background-blend-mode:soft-light,normal;
+  box-shadow:
+    0 10px 30px #0008,
+    inset 0 1px 0 #ffffff16,
+    inset 0 0 0 1px #0009,
+    inset 0 -10px 26px #0003 !important;
+}
+.card:before{
+  content:"";
+  position:absolute;inset:0;z-index:-1;pointer-events:none;border-radius:inherit;
+  background:
+    linear-gradient(104deg,transparent 0 13%,#ffffff06 13.4%,transparent 14% 64%,#00000014 64.4%,transparent 65%),
+    radial-gradient(circle at 12% 16%,#fff1 0 1px,transparent 1.4px),
+    radial-gradient(circle at 85% 73%,#0007 0 1px,transparent 1.5px);
+  opacity:.9;
+}
+.card:after{
+  content:"";
+  position:absolute;inset:2px;z-index:-1;pointer-events:none;border-radius:calc(18px - 2px);
+  box-shadow:inset 0 0 0 1px #bdb5a51c;
+}
+
+/* Hero panels get a little more of the crest's engraved hierarchy. */
+.hero h2,.season,.battleStage h2,.tw26 h2{
+  letter-spacing:.035em;
+  text-shadow:0 1px 0 #fff2,0 2px 8px #000;
+}
+.hero{
+  background:
+    var(--v31-grit),
+    radial-gradient(circle at 50% 14%,#173550 0,#10202e 46%,#0b151e 100%) !important;
+  background-blend-mode:soft-light,normal;
+}
+
+/* Buttons: current colours stay intact, but controls feel stamped / cast. */
+button{
+  position:relative;
+  border:1px solid #8f887c88 !important;
+  box-shadow:
+    inset 0 1px 0 #ffffff36,
+    inset 0 -3px 7px #0003,
+    0 2px 0 #0009 !important;
+  text-shadow:0 1px 0 #ffffff25;
+}
+button.secondary,button.ghost,button.danger,.segment button{
+  background-image:var(--v31-grit) !important;
+  background-blend-mode:soft-light;
+}
+button:active:not(:disabled){
+  transform:translateY(1px);
+  box-shadow:inset 0 2px 5px #0006 !important;
+}
+
+/* Form fields and slots as inset armour panels. */
+.slot,.pick,.rangeRow select,.docDot,.tw26Stat,.tw28SectorInfo,.tw30MoveMode,.tw26Action,.tw26Log{
+  background-image:var(--v31-grit),linear-gradient(180deg,#0d1924,#08121a) !important;
+  background-blend-mode:soft-light,normal;
+  border-color:#625f59 !important;
+  box-shadow:inset 0 1px 0 #ffffff0d,inset 0 0 12px #0004;
+}
+
+/* Battle / bonus areas get faint tactical target lines similar to the crest backplates. */
+.battleStage,.tw26Map{
+  position:relative;
+  background-image:
+    var(--v31-grit),
+    radial-gradient(circle at 50% 50%,transparent 0 31%,#7ad9ff12 31.3% 31.8%,transparent 32.2% 45%,#7ad9ff0d 45.3% 45.8%,transparent 46.2%),
+    linear-gradient(90deg,transparent 49.8%,#7ad9ff0c 50%,transparent 50.2%),
+    linear-gradient(0deg,transparent 49.8%,#7ad9ff0c 50%,transparent 50.2%) !important;
+  background-blend-mode:soft-light,screen,screen,screen;
+}
+.tw26Map{
+  border:1px solid #69645c !important;
+  box-shadow:inset 0 0 0 1px #000,inset 0 0 28px #0007;
+}
+
+/* Faction / status chips and legend elements become small stamped plates. */
+.tw26Pill,.tw26LegendItem{
+  background:
+    var(--v31-grit),
+    linear-gradient(180deg,#172733,#0c171f) !important;
+  background-blend-mode:soft-light,normal;
+  border:1px solid #625f59 !important;
+  box-shadow:inset 0 1px 0 #ffffff12;
+}
+
+/* Result and celebration screens inherit the same material language. */
+.celebrate,.tw30Victory{
+  background:
+    var(--v31-grit),
+    radial-gradient(circle at 50% 42%,#173e5d 0,#07101c 43%,#020509 78%) !important;
+  background-blend-mode:soft-light,normal;
+}
+.tw30VictoryCard{
+  border:1px solid #91897d !important;
+  background:
+    var(--v31-grit),
+    linear-gradient(180deg,#0e1d29,#07121a) !important;
+  background-blend-mode:soft-light,normal;
+  box-shadow:0 24px 90px #000,inset 0 0 0 1px #000,inset 0 1px 0 #ffffff16 !important;
+}
+.tw30VictoryCrest{
+  border:1px solid #8f887c;
+  box-shadow:0 14px 44px #000,inset 0 0 0 1px #000;
+}
+
+/* Archive / modal / bonus containers, including later-added cards. */
+.modal,.archive,.bonus,.result,.panel,[class*="modalCard"],[class*="reward"]{
+  background-image:var(--v31-grit) !important;
+  background-blend-mode:soft-light;
+}
+
+/* Fine metallic divider treatment */
+hr{
+  border:0;height:1px;
+  background:linear-gradient(90deg,transparent,#bcb4a45c 15%,#bcb4a4 50%,#bcb4a45c 85%,transparent);
+}
+.footer{
+  color:#8c9398 !important;
+  letter-spacing:.07em;
+  text-transform:uppercase;
+}
+
+/* Keep mobile scrolling / tap behaviour unchanged. */
+@media(max-width:520px){
+  .card{box-shadow:0 7px 20px #0008,inset 0 1px 0 #ffffff12,inset 0 0 0 1px #0008 !important}
+}
+</style>
+
+<script id="v31-meta">
+document.title='WHO-0 · Version 31';
+let v31Footer=document.querySelector('.footer');
+if(v31Footer)v31Footer.textContent='Version 31 · Crest-style interface · Fan-made gameplay prototype.';
+</script>
+
 </body></html>
