@@ -3163,4 +3163,301 @@ let v32Footer=document.querySelector('.footer');
 if(v32Footer)v32Footer.textContent='Version 32 · Visible cracked-stone interface · Fan-made gameplay prototype.';
 </script>
 
+
+<style id="v33-style">
+/* ---------- TIME WAR FACTION SELECT ---------- */
+.tw33FactionGrid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:10px;
+  margin:16px 0 6px;
+}
+.tw33FactionButton{
+  padding:0!important;
+  overflow:hidden;
+  border:1px solid #8e877b!important;
+  border-radius:12px!important;
+  background:#071019!important;
+  min-height:0!important;
+  aspect-ratio:1/1;
+  box-shadow:0 5px 18px #0008,inset 0 0 0 1px #000!important;
+}
+.tw33FactionButton img{
+  display:block;
+  width:100%;
+  height:100%;
+  object-fit:cover;
+}
+.tw33FactionButton:active{transform:scale(.985)!important}
+.tw33ChooseNote{
+  margin-top:12px;
+  padding:10px 12px;
+  border:1px solid #655f56;
+  border-radius:10px;
+  background:var(--v32-cracks),linear-gradient(180deg,#101d27,#081119);
+  background-size:180px 180px,auto;
+  background-blend-mode:multiply,normal;
+}
+@media(min-width:720px){
+  .tw33FactionGrid{grid-template-columns:repeat(3,minmax(0,1fr))}
+}
+
+/* ---------- PARADIGM RELIABILITY PASS ---------- */
+.v25Node.exit{
+  box-shadow:0 0 0 2px #fff inset,0 0 14px #fff7!important;
+}
+.v33ParadigmNote{
+  text-align:center;
+  font-size:9px;
+  color:#91a6b4;
+  margin:7px 0 2px;
+  letter-spacing:.04em;
+}
+</style>
+
+<script id="v33-patch">
+/* ========================= WHO-0 VERSION 33 =========================
+   1. Paradigm reliability pass
+   2. Time War faction-select screen using the supplied crests
+*/
+
+/* ------------------------------------------------------------------
+   PARADIGM OF THE DALEKS
+   ------------------------------------------------------------------
+   V25 was already the isolated engine, but two edge cases remained:
+   - the Scientist could over-optimise the exit and effectively camp it;
+   - some cut maps could select an exit that was disconnected in the
+     underlying static lattice.
+   This patch keeps the existing mechanics but makes map setup and the
+   Scientist behaviour deterministic and safe.
+*/
+
+function p33StaticNeighbours(node,cells){
+  return cells.filter(c =>
+    Math.abs(c.x-node.x)===1 &&
+    Math.abs(Math.abs(c.y-node.y)-0.5)<0.01
+  );
+}
+function p33StaticReachable(start,cells){
+  let seen=new Set([start.id]),q=[start];
+  while(q.length){
+    let n=q.shift();
+    for(let k of p33StaticNeighbours(n,cells)){
+      if(!seen.has(k.id)){seen.add(k.id);q.push(k)}
+    }
+  }
+  return seen;
+}
+
+/* Rebuild start logic so every selected exit is actually reachable on the
+   underlying lattice, before temporary gates/hazards are applied. */
+p25Start=function(mapId){
+  let map=mapId?V22_MAPS.find(m=>m.id===mapId):p25Rand(V22_MAPS);
+  if(!map)map=p25Rand(V22_MAPS);
+
+  let cells=p25BuildCells(map);
+  let left=cells.filter(c=>c.x===0).sort((a,b)=>a.y-b.y);
+  let right=cells.filter(c=>c.x===map.cols-1).sort((a,b)=>a.y-b.y);
+  let doctor=left[Math.floor(left.length/2)];
+
+  let reachable=p33StaticReachable(doctor,cells);
+  let reachableRight=right.filter(c=>reachable.has(c.id));
+  let exitPool=reachableRight.length?reachableRight:right;
+  let exit=exitPool[Math.floor(exitPool.length/2)];
+
+  let type=p25Rand(Object.keys(P25_DALEKS));
+  let starts=cells.filter(c=>
+    c.x>=map.cols-3 &&
+    c.id!==exit.id &&
+    c.id!==doctor.id &&
+    reachable.has(c.id)
+  );
+  if(!starts.length)starts=cells.filter(c=>c.id!==exit.id&&c.id!==doctor.id);
+
+  P25={
+    map,cells,doctor,exit,type,dalek:p25Rand(starts),turn:1,
+    blocked:new Set(),bat:0,hide:false,blackout:0,
+    special:null,special2:null,gateA:null,gateB:null,dormant:null,hazard:null,
+    message:'REACH THE EXIT.'
+  };
+  p25SetupSpecials();
+  p25Render();
+};
+
+/* Scientist redesign:
+   protect the route to the exit rather than simply trying to sit on it.
+   It is explicitly forbidden from entering the exit node. */
+const p33AIBase=p25AI;
+p25AI=function(kind){
+  if(kind!=='scientist')return p33AIBase(kind);
+
+  let opts=p25Neighbours(P25.dalek).filter(o=>o.id!==P25.exit.id);
+  if(!opts.length)return P25.dalek;
+
+  let doc=P25.doctor;
+  let docMoves=p25Neighbours(doc);
+  let likely=docMoves.length
+    ? [...docMoves].sort((a,b)=>p25Dist(a,P25.exit)-p25Dist(b,P25.exit))[0]
+    : doc;
+
+  let score=o=>{
+    let exitDistance=p25Dist(o,P25.exit);
+    let likelyDistance=p25Dist(o,likely);
+    let doctorDistance=p25Dist(o,doc);
+
+    /* Prefer the 1–2 move defensive band around the exit.
+       Then shade toward the Doctor's most likely route. */
+    let defensiveBand=Math.abs(exitDistance-2)*3;
+    return defensiveBand + likelyDistance*1.25 + doctorDistance*0.08;
+  };
+
+  let best=Math.min(...opts.map(score));
+  return p25Rand(opts.filter(o=>Math.abs(score(o)-best)<0.0001));
+};
+
+/* Guard against invalid destinations caused by a temporary dynamic obstacle.
+   This is deliberately small and leaves the game's move rules unchanged. */
+const p33MoveBase=p25Move;
+p25Move=function(id){
+  if(!P25)return;
+  let target=p25ById(id);
+  if(!target)return;
+  let legal=p25Neighbours(P25.doctor).some(n=>n.id===id);
+  if(!legal){
+    P25.message='THAT ROUTE IS CURRENTLY BLOCKED.';
+    return p25Render();
+  }
+  return p33MoveBase(id);
+};
+
+/* Slightly clearer note, especially useful on mobile. */
+const p33RenderBase=p25Render;
+p25Render=function(){
+  p33RenderBase();
+  let board=app.querySelector('.v25Board');
+  if(board)board.insertAdjacentHTML('afterend','<div class="v33ParadigmNote">MOVE DIAGONALLY ALONG CONNECTED NODES · REACH THE WHITE EXIT</div>');
+};
+
+/* ------------------------------------------------------------------
+   TIME WAR FACTION SELECT
+   ------------------------------------------------------------------ */
+
+const TW33_SELECTABLE=[
+  "Time Lords","Daleks","Cybermen","Humans","Autons","Homo Reptilia",
+  "Sontarans","Judoon","Sisterhood of Karn","Ice Warriors",
+  "Zygons","Sycorax","The Silence","Ogrons"
+];
+
+function tw33FactionMenu(){
+  let buttons=TW33_SELECTABLE.map(f=>{
+    let crest=(typeof TW30_CRESTS!=='undefined'&&TW30_CRESTS[f])||'';
+    return `<button class="tw33FactionButton" onclick='tw33StartFaction(${JSON.stringify(f)})' aria-label="Play as ${f}">
+      ${crest?`<img src="${crest}" alt="${f} crest">`:`<span>${f}</span>`}
+    </button>`
+  }).join('');
+
+  app.innerHTML=`<div class="card tw26">
+    <div class="small">THE TIME WAR</div>
+    <h2>CHOOSE YOUR FACTION</h2>
+    <div class="story">Choose who you want to command. The Time Lords and Daleks are always drawn into the war, whoever you choose.</div>
+    <div class="tw33ChooseNote small">SIX FACTIONS WILL ENTER EACH TIME WAR · YOUR CHOICE + MANDATORY POWERS + RANDOM OPPONENTS</div>
+    <div class="tw33FactionGrid">${buttons}</div>
+    <button class="ghost" onclick="menu()">BACK</button>
+  </div>`;
+  scrollTop();
+}
+
+function tw33StartFaction(player){
+  if(!TW33_SELECTABLE.includes(player))return;
+
+  /* Always include Time Lords and Daleks. Fill the remaining places at random
+     until six unique factions are active. */
+  let factions=["Time Lords","Daleks"];
+  if(!factions.includes(player))factions.push(player);
+
+  let candidates=tw26Shuffle(TW33_SELECTABLE.filter(f=>!factions.includes(f)));
+  while(factions.length<6&&candidates.length)factions.push(candidates.shift());
+
+  /* If the player chose Time Lords or Daleks they are already in the mandatory
+     pair, so four random factions complete the six. */
+  let map=tw26GenerateMap();
+  let spots=tw26Shuffle(map.map(t=>t.id));
+
+  let state={
+    player,factions,map,turn:1,phase:"player",selected:null,doctor:null,doctorMove:false,
+    resources:{},log:[],gameOver:false
+  };
+
+  factions.forEach((f,i)=>{
+    state.resources[f]={ENERGY:2,TECH:2,MATERIALS:2,PERSONNEL:2};
+
+    let firstId=spots.pop();
+    let first=map[firstId];
+    first.owner=f;first.str=4;first.base=true;
+
+    /* Prefer a neighbouring second territory so every faction begins as a
+       coherent little foothold rather than two disconnected spots. */
+    let neighbourIds=first.nei.filter(id=>spots.includes(id)&&!map[id].owner);
+    let secondId=neighbourIds.length?tw26Pick(neighbourIds):spots[spots.length-1];
+    let spotIndex=spots.indexOf(secondId);
+    if(spotIndex>=0)spots.splice(spotIndex,1);
+    let second=map[secondId];
+    second.owner=f;second.str=3;
+  });
+
+  TW26=state;
+
+  /* Reset state owned by later Time War versions. */
+  if(typeof TW29_AI_BUSY!=='undefined')TW29_AI_BUSY=false;
+  if(typeof TW29_AI_LABEL!=='undefined')TW29_AI_LABEL="";
+  if(typeof TW30_END_SHOWN!=='undefined')TW30_END_SHOWN=false;
+  if(typeof TW30_WINNER!=='undefined')TW30_WINNER=null;
+  if(typeof TW30_MOVE!=='undefined')TW30_MOVE={active:false,source:null,used:false};
+
+  tw26Log(`THE TIME WAR BEGINS. YOU COMMAND THE ${player.toUpperCase()}.`);
+  tw26Log("The Doctor is not a faction. When the TARDIS appears, conflict stops in that territory.");
+  tw26StartTurn();
+}
+
+/* Replace the old explanatory intro with the faction-selection menu. */
+tw26Intro=tw33FactionMenu;
+
+/* New Time War buttons should also return to faction selection instead of
+   silently randomising the player's faction. */
+const tw33OldShowEnd = typeof tw30ShowEnd==='function' ? tw30ShowEnd : null;
+if(tw33OldShowEnd){
+  tw30ShowEnd=function(winner){
+    if(TW30_END_SHOWN||!winner)return;
+    TW30_END_SHOWN=true;
+    let win=winner===TW26.player,wrap=document.createElement('div');
+    wrap.className='tw30Victory';
+    let sparks='';
+    for(let i=0;i<40;i++){
+      let a=Math.random()*Math.PI*2,d=80+Math.random()*220,x=Math.cos(a)*d,y=Math.sin(a)*d;
+      sparks+=`<i class="tw30Fire" style="left:${18+Math.random()*64}%;top:${16+Math.random()*62}%;--dx:${x.toFixed(0)}px;--dy:${y.toFixed(0)}px;animation-delay:${(Math.random()*1.5).toFixed(2)}s;background:hsl(${Math.floor(Math.random()*360)},85%,65%)"></i>`
+    }
+    let headline=win?`${winner.toUpperCase()} VICTORY`:`YOU'VE BEEN DEFEATED`;
+    let copy=`THE ${winner.toUpperCase()} HAVE BECOME MASTERS OF TIME.`;
+    let crest=TW30_CRESTS[winner]||'';
+    wrap.innerHTML=`${sparks}<div class="tw30VictoryCard">
+      <div class="small">THE TIME WAR IS OVER</div>
+      ${crest?`<img class="tw30VictoryCrest" src="${crest}" alt="${winner} crest">`:''}
+      <h2>${headline}</h2>
+      <div class="story">${copy}</div>
+      <button onclick="this.closest('.tw30Victory').remove();tw33FactionMenu()">NEW TIME WAR</button>
+      <button class="secondary" onclick="this.closest('.tw30Victory').remove();menu()">MENU</button>
+    </div>`;
+    document.body.appendChild(wrap);
+  };
+}
+
+/* Any ordinary "new war" call now asks for a faction first. */
+tw26New=function(){tw33FactionMenu()};
+
+document.title="WHO-0 · Version 33";
+let v33Footer=document.querySelector(".footer");
+if(v33Footer)v33Footer.textContent="Version 33 · Paradigm reliability + Time War faction select · Fan-made gameplay prototype.";
+menu();
+</script>
+
 </body></html>
