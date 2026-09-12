@@ -4062,4 +4062,267 @@ p36Stamp();
 menu();
 </script>
 
+
+<style id="v37-paradigm-refinement">
+/* V37: restore the refined proportions of the original Paradigm board
+   while keeping V36's reliable SVG-only interaction system. */
+
+.v36Board{
+  width:100%;
+  aspect-ratio:1.15 !important;   /* matches the original v25 board */
+  border:1px solid #31506a !important;
+  border-radius:16px;
+  background:#061019;
+  display:block;
+  overflow:hidden;
+}
+
+/* Finer linework, closer to the original HTML-node version */
+.v36Edge{
+  stroke:#31506a !important;
+  stroke-width:.42 !important;
+  opacity:.72 !important;
+}
+.v36Node{
+  fill:#0b151f !important;
+  stroke:#4d555c !important;
+  stroke-width:.52 !important;
+}
+.v36Move{
+  fill:#102533 !important;
+  stroke:#67d8ff !important;
+  stroke-width:.9 !important;
+}
+.v36Exit{
+  fill:#0b151f !important;
+  stroke:#fff !important;
+  stroke-width:1.05 !important;
+}
+.v36Special{
+  stroke:#e9c75d !important;
+  stroke-width:.85 !important;
+}
+.v36Doctor{
+  stroke:#8adfff !important;
+  stroke-width:.72 !important;
+}
+.v36Dalek{
+  stroke:#ffffffaa !important;
+  stroke-width:.45 !important;
+}
+.v36Hazard{
+  stroke-width:.8 !important;
+  stroke-dasharray:1.2 1.2 !important;
+}
+
+/* Keep generous invisible touch targets without making the visible nodes chunky */
+.v36Hit{
+  pointer-events:all;
+}
+
+/* Restore the authored map atmospheres from the older board */
+.v36Board.kembel{background:radial-gradient(circle at 18% 20%,#173c2b 0 10%,transparent 11%),radial-gradient(circle at 75% 34%,#123524 0 14%,transparent 15%),radial-gradient(circle at 38% 76%,#153a27 0 16%,transparent 17%),#06150d}
+.v36Board.bedford{background:radial-gradient(circle at 50% 50%,#211910,#070b0e 72%)}
+.v36Board.spiridon{background:radial-gradient(circle at 50% 45%,#17364a,#071018 72%)}
+.v36Board.canary{background:linear-gradient(180deg,#142b3c,#071018)}
+.v36Board.inside{background:radial-gradient(circle at 50% 50%,#31111a,#08090c 72%)}
+</style>
+
+<script id="v37-paradigm-refinement">
+/* Rebuild only the SVG presentation. V36's input/movement logic is unchanged. */
+function p36BoardSvg(){
+  let m=P25.map;
+  let visible=p25Visible();
+  let moves=p25Neighbours(P25.doctor);
+  let moveIds=new Set(moves.map(n=>n.id));
+  let blocked=p25DynamicBlocked();
+  let special=p25SpecialSet();
+
+  let edges=[], seen=new Set();
+  for(let c of P25.cells){
+    if(!visible.has(c.id)) continue;
+    for(let n of p34BaseNeighbours(c)){
+      if(!visible.has(n.id)) continue;
+      let key=[c.id,n.id].sort((a,b)=>a-b).join("-");
+      if(seen.has(key)) continue;
+      seen.add(key);
+      let a=p36Coords(c,m), b=p36Coords(n,m);
+      edges.push(`<line class="v36Edge" x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}"/>`);
+    }
+  }
+
+  let nodes=[], pieces=[], hits=[];
+  for(let c of P25.cells){
+    if(!visible.has(c.id)) continue;
+    let p=p36Coords(c,m);
+    let cls=["v36Node"];
+    if(moveIds.has(c.id)) cls.push("v36Move");
+    if(c.id===P25.exit.id) cls.push("v36Exit");
+    if(special.has(c.id)) cls.push("v36Special");
+    if(blocked.has(c.id)) cls.push("v36Blocked");
+
+    /* Smaller visible node radius, closer to the old 34px circles */
+    nodes.push(`<circle class="${cls.join(" ")}" cx="${p.x}" cy="${p.y}" r="3.35"/>`);
+
+    if(P25.map.kind==="hazard" && c.id===P25.hazard){
+      pieces.push(`<circle class="v36Hazard" cx="${p.x}" cy="${p.y}" r="2.25"/>`);
+    }
+    if(c.id===P25.dalek.id){
+      pieces.push(`<circle class="v36Dalek" cx="${p.x}" cy="${p.y}" r="2.15" fill="${P25_DALEKS[P25.type].colour}"/>`);
+    }
+    if(c.id===P25.doctor.id){
+      pieces.push(`<rect class="v36Doctor" x="${p.x-2.2}" y="${p.y-2.2}" width="4.4" height="4.4" rx=".4"/>`);
+      pieces.push(`<circle class="v36DoctorDot" cx="${p.x}" cy="${p.y}" r=".62"/>`);
+    }
+
+    /* Touch target stays large even though the visible node is smaller */
+    if(moveIds.has(c.id)){
+      hits.push(`<circle class="v36Hit" data-move="${c.id}" cx="${p.x}" cy="${p.y}" r="5.8"/>`);
+    }
+  }
+
+  let mapClass=[
+    m.id==='kembel'?'kembel':'',
+    m.id==='bedford'?'bedford':'',
+    m.id==='spiridon'?'spiridon':'',
+    m.id==='canary'?'canary':'',
+    m.id==='inside'?'inside':''
+  ].filter(Boolean).join(' ');
+
+  return `<svg id="v36Board" class="v36Board ${mapClass}" viewBox="0 0 100 100"
+    preserveAspectRatio="xMidYMid meet" aria-label="Paradigm of the Daleks game board">
+    ${edges.join("")}
+    ${nodes.join("")}
+    ${pieces.join("")}
+    ${hits.join("")}
+  </svg>`;
+}
+
+document.title="WHO-0 · Version 37";
+const p37MenuBase=menu;
+menu=function(){
+  p37MenuBase();
+  document.title="WHO-0 · Version 37";
+  let f=document.querySelector(".footer");
+  if(f)f.textContent="Version 37 · Refined Paradigm map · Fan-made gameplay prototype.";
+};
+menu();
+</script>
+
+
+<script id="v38-time-war-resource-balance">
+/* ================================================================
+   V38 TIME WAR RESOURCE BALANCE
+   Problem: map resources were assigned by a simple deterministic index formula.
+   Depending on territory count/shape, a generated Time Fracture could contain
+   too few or even zero examples of a resource type, including ENERGY.
+
+   Fix:
+   - Every generated map is guaranteed to contain all four resource types.
+   - Resource distribution is kept as even as possible across the whole map.
+   - Starting territories for each faction are guaranteed to include at least
+     two different resource types where possible.
+   ================================================================ */
+
+function tw38BalanceResources(map){
+  if(!map || !map.length) return map;
+
+  let resources=[...TW26_RES];
+  let shuffled=tw26Shuffle(map.slice());
+
+  /* Even distribution: cycle through the resource list across a shuffled map. */
+  shuffled.forEach((t,i)=>{
+    t.res=resources[i % resources.length];
+  });
+
+  /* Defensive guarantee in case a future map is ever smaller than 4 territories. */
+  for(let i=0;i<Math.min(resources.length,map.length);i++){
+    map[i].res=resources[i];
+  }
+  return map;
+}
+
+/* Wrap the current V29/V33 map generator, preserving all map variants. */
+const tw38MapBase = tw26GenerateMap;
+tw26GenerateMap = function(){
+  return tw38BalanceResources(tw38MapBase());
+};
+
+/* Starting territory helper: prefer a neighbouring territory with a different
+   resource from the faction's base, so each faction begins with a more useful
+   economy and fewer dead starts. */
+function tw38PickSecondTerritory(first,map,spots){
+  let neighbourIds=first.nei.filter(id=>spots.includes(id) && !map[id].owner);
+  if(!neighbourIds.length) return spots[spots.length-1];
+
+  let different=neighbourIds.filter(id=>map[id].res!==first.res);
+  return tw26Pick(different.length?different:neighbourIds);
+}
+
+/* Override V33 faction-start setup only, preserving its faction selection UI. */
+tw33StartFaction=function(player){
+  if(!TW33_SELECTABLE.includes(player))return;
+
+  let factions=["Time Lords","Daleks"];
+  if(!factions.includes(player))factions.push(player);
+
+  let candidates=tw26Shuffle(TW33_SELECTABLE.filter(f=>!factions.includes(f)));
+  while(factions.length<6&&candidates.length)factions.push(candidates.shift());
+
+  let map=tw26GenerateMap();
+  let spots=tw26Shuffle(map.map(t=>t.id));
+
+  let state={
+    player,factions,map,turn:1,phase:"player",selected:null,doctor:null,doctorMove:false,
+    resources:{},log:[],gameOver:false
+  };
+
+  factions.forEach((f,i)=>{
+    state.resources[f]={ENERGY:2,TECH:2,MATERIALS:2,PERSONNEL:2};
+
+    let firstId=spots.pop();
+    let first=map[firstId];
+    first.owner=f;first.str=4;first.base=true;
+
+    let secondId=tw38PickSecondTerritory(first,map,spots);
+    let spotIndex=spots.indexOf(secondId);
+    if(spotIndex>=0)spots.splice(spotIndex,1);
+
+    let second=map[secondId];
+    second.owner=f;second.str=3;
+  });
+
+  TW26=state;
+
+  if(typeof TW29_AI_BUSY!=='undefined')TW29_AI_BUSY=false;
+  if(typeof TW29_AI_LABEL!=='undefined')TW29_AI_LABEL="";
+  if(typeof TW30_END_SHOWN!=='undefined')TW30_END_SHOWN=false;
+  if(typeof TW30_WINNER!=='undefined')TW30_WINNER=null;
+  if(typeof TW30_MOVE!=='undefined')TW30_MOVE={active:false,source:null,used:false};
+
+  tw26Log(`THE TIME WAR BEGINS. YOU COMMAND THE ${player.toUpperCase()}.`);
+  tw26Log("The Doctor is not a faction. When the TARDIS appears, conflict stops in that territory.");
+  tw26StartTurn();
+};
+
+/* Visible developer-safe audit in console only. */
+function tw38AuditResources(){
+  if(!TW26||!TW26.map)return null;
+  let counts={};
+  TW26_RES.forEach(r=>counts[r]=0);
+  TW26.map.forEach(t=>counts[t.res]=(counts[t.res]||0)+1);
+  return counts;
+}
+
+document.title="WHO-0 · Version 38";
+const tw38MenuBase=menu;
+menu=function(){
+  tw38MenuBase();
+  document.title="WHO-0 · Version 38";
+  let f=document.querySelector(".footer");
+  if(f)f.textContent="Version 38 · Time War resource balance · Fan-made gameplay prototype.";
+};
+menu();
+</script>
+
 </body></html>
