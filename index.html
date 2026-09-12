@@ -3707,4 +3707,359 @@ if(v34Footer)v34Footer.textContent="Version 34 · Paradigm movement fix · Fan-m
 menu();
 </script>
 
+
+<style id="v35-paradigm-touch">
+/* V35: only legal destinations receive pointer events. This prevents a nearby
+   non-move node from sitting over a valid target and swallowing the tap. */
+.v25Node{
+  pointer-events:none !important;
+}
+.v25Node.move{
+  pointer-events:auto !important;
+  z-index:12 !important;
+  touch-action:manipulation;
+  -webkit-tap-highlight-color:transparent;
+}
+.v25Node.exit.move{
+  z-index:13 !important;
+}
+.v25Piece,.v25Hazard{
+  pointer-events:none !important;
+}
+.v25Board{
+  touch-action:manipulation;
+}
+</style>
+
+<script id="v35-paradigm-touch">
+/* ================================================================
+   V35 PARADIGM TOUCH / MOVE FIX
+
+   Root cause addressed:
+   Paradigm nodes are large circular BUTTON elements. On dense maps, their
+   hit areas can overlap or sit close enough that an unclickable node catches
+   a mobile tap intended for a blue legal destination.
+
+   Fix:
+   1. Non-legal nodes no longer accept pointer events.
+   2. Legal nodes are raised above the board.
+   3. The board itself has a tap fallback: a tap near a legal destination
+      snaps to the nearest legal node. This makes touch behaviour reliable
+      even if the finger lands a few pixels off-centre.
+   ================================================================ */
+
+let P35_MOVING=false;
+
+function p35BoardTap(ev){
+  if(!P25 || P35_MOVING)return;
+
+  /* If the actual legal button handled the tap, do nothing here. */
+  if(ev.target && ev.target.closest && ev.target.closest('.v25Node.move'))return;
+
+  let board=ev.currentTarget;
+  let rect=board.getBoundingClientRect();
+  if(!rect.width||!rect.height)return;
+
+  let x=((ev.clientX-rect.left)/rect.width)*100;
+  let y=((ev.clientY-rect.top)/rect.height)*100;
+
+  let m=P25.map;
+  let maxY=m.rows-0.5;
+  let px=c=>6+(c.x/(m.cols-1))*88;
+  let py=c=>7+(c.y/maxY)*86;
+  let moves=p25Neighbours(P25.doctor);
+
+  if(!moves.length)return;
+
+  let ranked=moves.map(n=>{
+    let dx=px(n)-x,dy=py(n)-y;
+    return {n,d:Math.sqrt(dx*dx+dy*dy)};
+  }).sort((a,b)=>a.d-b.d);
+
+  /* 8 percentage points is roughly the radius of one rendered node on the
+     mobile board. It is deliberately forgiving without allowing a tap in
+     empty space to jump the Doctor across the map. */
+  if(ranked[0].d<=8){
+    p35DoMove(ranked[0].n.id);
+  }
+}
+
+function p35DoMove(id){
+  if(P35_MOVING)return;
+  P35_MOVING=true;
+  try{
+    p25Move(id);
+  } finally {
+    /* p25Move is synchronous in the rebuilt Paradigm engine. */
+    P35_MOVING=false;
+  }
+}
+
+/* Re-render board with a single board-level fallback tap handler.
+   Every legal node still has its own direct handler, but all other nodes are
+   pointer-transparent, so the nearest legal destination always wins. */
+p25Board=function(){
+  let m=P25.map,visible=p25Visible(),moves=p25Neighbours(P25.doctor),blocked=p25DynamicBlocked();
+  let maxY=m.rows-0.5,px=c=>6+(c.x/(m.cols-1))*88,py=c=>7+(c.y/maxY)*86;
+  let edges=[],seen=new Set();
+
+  for(let c of P25.cells){
+    for(let n of p34BaseNeighbours(c)){
+      if(!visible.has(c.id)||!visible.has(n.id))continue;
+      let key=[c.id,n.id].sort((a,b)=>a-b).join('-');
+      if(seen.has(key))continue;
+      seen.add(key);
+      edges.push(`<line class="v25Edge" x1="${px(c)}" y1="${py(c)}" x2="${px(n)}" y2="${py(n)}"/>`)
+    }
+  }
+
+  let special=p25SpecialSet();
+  let nodes=P25.cells.filter(c=>visible.has(c.id)).map(c=>{
+    let can=moves.some(n=>n.id===c.id),piece='';
+    if(c.id===P25.doctor.id)piece='<div class="v25Piece v25Doctor"></div>';
+    if(c.id===P25.dalek.id)piece=`<div class="v25Piece v25Dalek" style="background:${P25_DALEKS[P25.type].colour}"></div>`;
+    if(P25.map.kind==='hazard'&&c.id===P25.hazard)piece+='<div class="v25Hazard"></div>';
+
+    return `<button
+      type="button"
+      aria-label="${can?'Move Doctor here':'Map node'}"
+      class="v25Node${can?' move':''}${c.id===P25.exit.id?' exit':''}${special.has(c.id)?' special':''}${blocked.has(c.id)?' blocked':''}"
+      style="left:${px(c)}%;top:${py(c)}%"
+      ${can?`onclick="event.stopPropagation();p35DoMove(${c.id})"`:''}
+    >${piece}</button>`
+  }).join('');
+
+  return `<div class="v25Board ${m.id==='kembel'?'kembel':''} ${m.id==='bedford'?'bedford':''} ${m.id==='spiridon'?'spiridon':''} ${m.id==='canary'?'canary':''} ${m.id==='inside'?'inside':''}" onclick="p35BoardTap(event)">
+    <svg viewBox="0 0 100 100" preserveAspectRatio="none">${edges}</svg>${nodes}
+  </div>`
+};
+
+/* Do not force the page back to the top after every Paradigm move.
+   This is not the movement bug, but on mobile it made successful taps feel
+   less predictable. Keep the current viewport while playing. */
+p25Render=function(){
+  let d=P25_DALEKS[P25.type];
+  app.innerHTML=`<div class="card v20Vortex">
+    <div class="v20Status">PARADIGM OF THE DALEKS · TURN ${P25.turn}</div>
+    <h2 class="v25MapName">${P25.map.name}</h2>
+    <div class="v25Meta"><span>${P25.map.size} MAP</span><span>${d.name} · ${d.style}</span></div>
+    <div class="v25Rule">${P25.map.rule}</div>
+    ${p25Key()}
+    ${p25Board()}
+    <div class="v33ParadigmNote">MOVE DIAGONALLY ALONG CONNECTED NODES · BLUE-LIT NODES ARE VALID MOVES · REACH THE WHITE EXIT</div>
+    ${P25.bat?`<div class="v25Status">ACE'S BAT · ${P25.bat} PROTECTED MOVE${P25.bat===1?'':'S'} LEFT</div>`:''}
+    <div class="v20Message"><b>${d.name} DALEK</b><span>${P25.message}</span></div>
+    <button class="ghost" onclick="menu()">ABANDON BONUS GAME</button>
+  </div>`;
+};
+
+document.title="WHO-0 · Version 35";
+let v35Footer=document.querySelector(".footer");
+if(v35Footer)v35Footer.textContent="Version 35 · Paradigm touch reliability fix · Fan-made gameplay prototype.";
+menu();
+</script>
+
+
+<style id="v36-paradigm">
+.v36Build{
+  display:inline-block;
+  margin-bottom:6px;
+  padding:3px 7px;
+  border:1px solid #75808a;
+  border-radius:999px;
+  font-size:8px;
+  letter-spacing:.12em;
+  color:#c7d5df;
+  background:#071019;
+}
+.v36Board{
+  width:100%;
+  aspect-ratio:1/1.18;
+  border:1px solid #315b78;
+  border-radius:16px;
+  overflow:hidden;
+  background:#071019;
+  display:block;
+  touch-action:none;
+  -webkit-user-select:none;
+  user-select:none;
+}
+.v36Edge{stroke:#315b78;stroke-width:.8;opacity:.7}
+.v36Node{fill:#0b151f;stroke:#49525a;stroke-width:1.1}
+.v36Move{fill:#102533;stroke:#67d8ff;stroke-width:2.2}
+.v36Exit{fill:#0b151f;stroke:#fff;stroke-width:2.6}
+.v36Special{stroke:#e9c75d;stroke-width:1.8}
+.v36Blocked{opacity:.22}
+.v36Hit{fill:transparent;stroke:none;pointer-events:all;cursor:pointer}
+.v36Doctor{fill:#0e75b8;stroke:#8adfff;stroke-width:1.5}
+.v36DoctorDot{fill:#fff}
+.v36Dalek{stroke:#fff8;stroke-width:1}
+.v36Hazard{fill:none;stroke:#f0cf4b;stroke-width:1.8;stroke-dasharray:2 2}
+.v36Instruction{
+  margin:8px 0 2px;text-align:center;font-size:9px;color:#9db1bf;letter-spacing:.04em
+}
+</style>
+
+<script id="v36-paradigm">
+/*
+  VERSION 36
+  Paradigm input rebuilt around one SVG.
+  There are no HTML node buttons at all in this version.
+  Only legal destinations receive invisible SVG hit-circles.
+  This removes overlapping DOM buttons and CSS button skins from the game.
+*/
+
+const V36_BUILD="V36 · SVG PARADIGM REBUILD";
+
+function p36Coords(c,m){
+  let maxY=m.rows-0.5;
+  return {
+    x:6+(c.x/(m.cols-1))*88,
+    y:7+(c.y/maxY)*86
+  };
+}
+
+function p36BoardSvg(){
+  let m=P25.map;
+  let visible=p25Visible();
+  let moves=p25Neighbours(P25.doctor);
+  let moveIds=new Set(moves.map(n=>n.id));
+  let blocked=p25DynamicBlocked();
+  let special=p25SpecialSet();
+
+  let edges=[];
+  let seen=new Set();
+  for(let c of P25.cells){
+    if(!visible.has(c.id)) continue;
+    for(let n of p34BaseNeighbours(c)){
+      if(!visible.has(n.id)) continue;
+      let key=[c.id,n.id].sort((a,b)=>a-b).join("-");
+      if(seen.has(key)) continue;
+      seen.add(key);
+      let a=p36Coords(c,m), b=p36Coords(n,m);
+      edges.push(`<line class="v36Edge" x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}"/>`);
+    }
+  }
+
+  let nodes=[];
+  let pieces=[];
+  let hits=[];
+
+  for(let c of P25.cells){
+    if(!visible.has(c.id)) continue;
+    let p=p36Coords(c,m);
+    let cls=["v36Node"];
+    if(moveIds.has(c.id)) cls.push("v36Move");
+    if(c.id===P25.exit.id) cls.push("v36Exit");
+    if(special.has(c.id)) cls.push("v36Special");
+    if(blocked.has(c.id)) cls.push("v36Blocked");
+
+    nodes.push(`<circle class="${cls.join(" ")}" cx="${p.x}" cy="${p.y}" r="4.55"/>`);
+
+    if(P25.map.kind==="hazard" && c.id===P25.hazard){
+      pieces.push(`<circle class="v36Hazard" cx="${p.x}" cy="${p.y}" r="3.1"/>`);
+    }
+    if(c.id===P25.dalek.id){
+      pieces.push(`<circle class="v36Dalek" cx="${p.x}" cy="${p.y}" r="3.0" fill="${P25_DALEKS[P25.type].colour}"/>`);
+    }
+    if(c.id===P25.doctor.id){
+      pieces.push(`<rect class="v36Doctor" x="${p.x-2.9}" y="${p.y-2.9}" width="5.8" height="5.8" rx=".5"/>`);
+      pieces.push(`<circle class="v36DoctorDot" cx="${p.x}" cy="${p.y}" r=".8"/>`);
+    }
+
+    /* Legal destinations only. Large enough to be forgiving, but they cannot
+       overlap with non-legal controls because no other controls exist. */
+    if(moveIds.has(c.id)){
+      hits.push(`<circle class="v36Hit" data-move="${c.id}" cx="${p.x}" cy="${p.y}" r="5.7"/>`);
+    }
+  }
+
+  return `<svg id="v36Board" class="v36Board" viewBox="0 0 100 100" preserveAspectRatio="none"
+    aria-label="Paradigm of the Daleks game board">
+    ${edges.join("")}
+    ${nodes.join("")}
+    ${pieces.join("")}
+    ${hits.join("")}
+  </svg>`;
+}
+
+function p36BindBoard(){
+  let board=document.getElementById("v36Board");
+  if(!board)return;
+
+  let handling=false;
+
+  const activate=(ev)=>{
+    if(handling || !P25)return;
+    let target=ev.target.closest?.("[data-move]");
+    if(!target)return;
+    ev.preventDefault();
+    ev.stopPropagation();
+
+    let id=Number(target.getAttribute("data-move"));
+    if(!Number.isFinite(id))return;
+
+    /* Revalidate against CURRENT state at the instant of activation. */
+    let legal=p25Neighbours(P25.doctor).some(n=>n.id===id);
+    if(!legal){
+      P25.message="THAT MOVE IS NO LONGER AVAILABLE.";
+      p25Render();
+      return;
+    }
+
+    handling=true;
+    p25Move(id);
+  };
+
+  /* pointerup works for touch, pencil and mouse without a synthetic second click. */
+  board.addEventListener("pointerup",activate,{passive:false});
+}
+
+p25Render=function(){
+  let d=P25_DALEKS[P25.type];
+  app.innerHTML=`<div class="card v20Vortex">
+    <div class="v36Build">${V36_BUILD}</div>
+    <div class="v20Status">PARADIGM OF THE DALEKS · TURN ${P25.turn}</div>
+    <h2 class="v25MapName">${P25.map.name}</h2>
+    <div class="v25Meta"><span>${P25.map.size} MAP</span><span>${d.name} · ${d.style}</span></div>
+    <div class="v25Rule">${P25.map.rule}</div>
+    ${p25Key()}
+    ${p36BoardSvg()}
+    <div class="v36Instruction">TAP A BLUE-LIT NODE · MOVE DIAGONALLY ALONG CONNECTED ROUTES · REACH THE WHITE EXIT</div>
+    ${P25.bat?`<div class="v25Status">ACE'S BAT · ${P25.bat} PROTECTED MOVE${P25.bat===1?'':'S'} LEFT</div>`:''}
+    <div class="v20Message"><b>${d.name} DALEK</b><span>${P25.message}</span></div>
+    <button class="ghost" onclick="menu()">ABANDON BONUS GAME</button>
+  </div>`;
+  p36BindBoard();
+};
+
+/* Keep V34's single adjacency graph and move engine, but remove every older
+   board-level click system from the equation. */
+p25Board=function(){ return p36BoardSvg(); };
+
+/* Force a fresh graph whenever an authored map starts. */
+const p36StartBase=p25Start;
+p25Start=function(mapId){
+  p36StartBase(mapId);
+  if(P25 && P25.cells){
+    P34_GRAPH=p34BuildGraph(P25.cells);
+    p25Render();
+  }
+};
+
+/* Version stamp must survive every menu redraw. */
+function p36Stamp(){
+  document.title="WHO-0 · Version 36";
+  let f=document.querySelector(".footer");
+  if(f)f.textContent="Version 36 · Paradigm SVG rebuild · Fan-made gameplay prototype.";
+}
+const p36MenuBase=menu;
+menu=function(){
+  p36MenuBase();
+  p36Stamp();
+};
+p36Stamp();
+menu();
+</script>
+
 </body></html>
