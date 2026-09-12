@@ -3460,4 +3460,251 @@ if(v33Footer)v33Footer.textContent="Version 33 · Paradigm reliability + Time Wa
 menu();
 </script>
 
+
+<style id="v34-paradigm-fix">
+/* V34: Paradigm move targets must remain visually obvious despite the global stone/button skin. */
+.v25Node{
+  background:#0b151f !important;
+  background-image:none !important;
+  border:2px solid #49525a !important;
+  box-shadow:0 0 0 3px #081018 !important;
+}
+.v25Node.move{
+  border:3px solid #67d8ff !important;
+  box-shadow:0 0 0 3px #081018,0 0 18px #67d8ffaa !important;
+  cursor:pointer;
+}
+.v25Node.move:after{
+  content:"";
+  position:absolute;
+  inset:6px;
+  border-radius:50%;
+  border:1px solid #67d8ff77;
+  pointer-events:none;
+}
+.v25Node.exit{
+  border:3px solid #fff !important;
+  box-shadow:0 0 0 3px #081018,0 0 18px #ffffff88 !important;
+}
+.v25Node.special{
+  border-color:#e9c75d !important;
+}
+.v25Node.blocked{
+  opacity:.25 !important;
+}
+.v25Edge{
+  stroke:#315b78 !important;
+  opacity:.62 !important;
+}
+</style>
+
+<script id="v34-paradigm-fix">
+/* ================================================================
+   PARADIGM MOVEMENT FIX
+   The move system is now driven by ONE explicit adjacency graph.
+   Board lines, click targets, Doctor movement, Dalek movement and
+   pathfinding all use the same graph, so they cannot disagree.
+   ================================================================ */
+
+let P34_GRAPH=null;
+
+function p34BuildGraph(cells){
+  let graph=new Map();
+  for(let c of cells)graph.set(c.id,[]);
+  for(let a of cells){
+    for(let b of cells){
+      if(a.id===b.id)continue;
+      if(Math.abs(a.x-b.x)!==1)continue;
+      if(Math.abs(Math.abs(a.y-b.y)-0.5)>0.01)continue;
+      graph.get(a.id).push(b.id);
+    }
+  }
+  return graph;
+}
+
+function p34BaseNeighbours(node){
+  if(!node||!P34_GRAPH)return [];
+  return (P34_GRAPH.get(node.id)||[]).map(id=>p25ById(id)).filter(Boolean);
+}
+
+function p34ReachableIgnoringDynamic(start){
+  if(!start)return new Set();
+  let seen=new Set([start.id]),q=[start];
+  while(q.length){
+    let n=q.shift();
+    for(let k of p34BaseNeighbours(n)){
+      if(!seen.has(k.id)){seen.add(k.id);q.push(k)}
+    }
+  }
+  return seen;
+}
+
+/* One and only legal-neighbour function. Temporary gates / hazards remove
+   destination nodes, but the underlying geometry never changes mid-game. */
+p25Neighbours=function(node){
+  if(!P25||!node)return [];
+  let blocked=p25DynamicBlocked();
+  return p34BaseNeighbours(node).filter(c=>!blocked.has(c.id));
+};
+
+/* Rebuild start so Doctor and exit are selected from the same connected component. */
+p25Start=function(mapId){
+  let map=mapId?V22_MAPS.find(m=>m.id===mapId):p25Rand(V22_MAPS);
+  if(!map)map=p25Rand(V22_MAPS);
+
+  let cells=p25BuildCells(map);
+  P25={map,cells};             // temporary so p25ById can resolve graph nodes
+  P34_GRAPH=p34BuildGraph(cells);
+
+  let left=cells.filter(c=>c.x===0).sort((a,b)=>a.y-b.y);
+  let doctor=left[Math.floor(left.length/2)];
+  let connected=p34ReachableIgnoringDynamic(doctor);
+
+  let right=cells.filter(c=>c.x===map.cols-1&&connected.has(c.id)).sort((a,b)=>a.y-b.y);
+  if(!right.length){
+    /* Defensive fallback. This should not occur in the authored map set. */
+    right=cells.filter(c=>connected.has(c.id)).sort((a,b)=>b.x-a.x||Math.abs(a.y-doctor.y)-Math.abs(b.y-doctor.y));
+  }
+  let exit=right[Math.floor(right.length/2)];
+
+  let type=p25Rand(Object.keys(P25_DALEKS));
+  let starts=cells.filter(c=>connected.has(c.id)&&c.x>=Math.max(1,map.cols-3)&&c.id!==exit.id&&c.id!==doctor.id);
+  if(!starts.length)starts=cells.filter(c=>connected.has(c.id)&&c.id!==exit.id&&c.id!==doctor.id);
+
+  P25={
+    map,cells,doctor,exit,type,dalek:p25Rand(starts),turn:1,
+    blocked:new Set(),bat:0,hide:false,blackout:0,
+    special:null,special2:null,gateA:null,gateB:null,dormant:null,hazard:null,
+    message:'REACH THE EXIT.'
+  };
+  P34_GRAPH=p34BuildGraph(P25.cells);
+  p25SetupSpecials();
+  p25Render();
+};
+
+/* Rebuild move handler rather than wrapping the older one. The target clicked is
+   always the exact node the Doctor moves to, unless a named map mechanic then
+   deliberately transports them. */
+p25Move=function(id){
+  if(!P25)return;
+  let target=p25ById(id);
+  let legal=p25Neighbours(P25.doctor);
+  if(!target||!legal.some(n=>n.id===id)){
+    P25.message='MOVE TO A BLUE-LIT DIAGONAL NODE.';
+    return p25Render();
+  }
+
+  let oldDalek=P25.dalek;
+  P25.doctor=target;
+  let specialMessage='';
+
+  if(P25.map.kind==='bat'&&id===P25.special){
+    P25.bat=3;P25.special=null;specialMessage="ACE'S BASEBALL BAT COLLECTED."
+  }
+  if(P25.map.kind==='blackout'&&id===P25.special){
+    P25.blackout=1;specialMessage='POWER DRAIN · ONLY NEARBY ROUTES REMAIN VISIBLE.'
+  }
+  if(P25.map.kind==='hide'&&id===P25.special){
+    P25.hide=true;P25.special=null;specialMessage='CRYOGENIC CHAMBER · PROTECTED FOR ONE DALEK MOVE.'
+  }
+  if(P25.map.kind==='passage'&&id===P25.special){
+    let choices=[
+      p25At(0,Math.floor(P25.map.rows/2)),
+      p25At(Math.floor(P25.map.cols/2),Math.floor(P25.map.rows/2)),
+      p25At(P25.map.cols-2,Math.floor(P25.map.rows/2))
+    ].filter(Boolean);
+    P25.doctor=p25Rand(choices);
+    specialMessage='SECRET PASSAGE ACTIVATED.'
+  }
+  if(P25.map.kind==='slide'&&id===P25.special){
+    P25.doctor=p25Forward(target,P25.map.slide||2);
+    specialMessage=(P25.map.special||'FAST ROUTE')+' ACTIVATED.'
+  }
+  if((P25.map.kind==='teleport'||P25.map.kind==='transit')&&(id===P25.special||id===P25.special2)){
+    let other=id===P25.special?P25.special2:P25.special;
+    let dest=p25ById(other);
+    if(dest)P25.doctor=dest;
+    specialMessage='SHORTCUT ACTIVATED.'
+  }
+  if(P25.map.kind==='dormant'&&P25.dormant&&P25.dormant.has(id)){
+    P25.dormant.delete(id);
+    /* Mark the node as spent, but do not block it until AFTER the Doctor leaves it.
+       Blocking the occupied node was the source of confusing movement on Asylum. */
+    P25._pendingDormantBlock=id;
+    specialMessage='A DORMANT DALEK WAKES. THAT NODE WILL CLOSE BEHIND YOU.'
+  }
+
+  if(P25.doctor.id===P25.exit.id)return p25End(true,'THE DOCTOR ESCAPES.');
+  if(P25.doctor.id===oldDalek.id&&!P25.bat&&!P25.hide)return p25End(false,'EXTERMINATE!');
+
+  let behaviour=P25.type==='eternal'?p25Rand(['drone','strategist','scientist','supreme']):P25.type;
+  P25.dalek=p25AI(behaviour);
+
+  if(P25.dalek.id===P25.doctor.id){
+    if(P25.bat){
+      specialMessage="ACE'S BAT DEFLECTS THE EXTERMINATION BLAST."
+    }else if(P25.hide){
+      specialMessage='THE CRYOGENIC CHAMBER HIDES YOU.';
+      P25.hide=false
+    }else{
+      return p25End(false,'EXTERMINATE!')
+    }
+  }
+
+  if(P25.bat>0)P25.bat--;
+  if(P25.blackout>0)P25.blackout--;
+
+  if(P25.map.kind==='hazard'&&P25.hazard){
+    let h=p25ById(P25.hazard);
+    if(h){
+      let hm=p25Neighbours(h).filter(x=>x.id!==P25.doctor.id&&x.id!==P25.dalek.id);
+      if(hm.length)P25.hazard=p25Rand(hm).id
+    }
+  }
+
+  /* Dormant node closes only once the Doctor has actually left it. */
+  if(P25._pendingDormantBlock && P25.doctor.id!==P25._pendingDormantBlock){
+    P25.blocked.add(P25._pendingDormantBlock);
+    P25._pendingDormantBlock=null;
+  }
+
+  P25.turn++;
+  P25.message=specialMessage||p25Message(behaviour);
+  p25Render();
+};
+
+/* Board renderer also uses the explicit graph, not a second geometric test. */
+p25Board=function(){
+  let m=P25.map,visible=p25Visible(),moves=p25Neighbours(P25.doctor),blocked=p25DynamicBlocked();
+  let maxY=m.rows-0.5,px=c=>6+(c.x/(m.cols-1))*88,py=c=>7+(c.y/maxY)*86;
+  let edges=[],seen=new Set();
+
+  for(let c of P25.cells){
+    for(let n of p34BaseNeighbours(c)){
+      if(!visible.has(c.id)||!visible.has(n.id))continue;
+      let key=[c.id,n.id].sort((a,b)=>a-b).join('-');
+      if(seen.has(key))continue;
+      seen.add(key);
+      edges.push(`<line class="v25Edge" x1="${px(c)}" y1="${py(c)}" x2="${px(n)}" y2="${py(n)}"/>`)
+    }
+  }
+
+  let special=p25SpecialSet();
+  let nodes=P25.cells.filter(c=>visible.has(c.id)).map(c=>{
+    let can=moves.some(n=>n.id===c.id),piece='';
+    if(c.id===P25.doctor.id)piece='<div class="v25Piece v25Doctor"></div>';
+    if(c.id===P25.dalek.id)piece=`<div class="v25Piece v25Dalek" style="background:${P25_DALEKS[P25.type].colour}"></div>`;
+    if(P25.map.kind==='hazard'&&c.id===P25.hazard)piece+='<div class="v25Hazard"></div>';
+    return `<button class="v25Node${can?' move':''}${c.id===P25.exit.id?' exit':''}${special.has(c.id)?' special':''}${blocked.has(c.id)?' blocked':''}" style="left:${px(c)}%;top:${py(c)}%" ${can?`onclick="p25Move(${c.id})"`:''}>${piece}</button>`
+  }).join('');
+
+  return `<div class="v25Board ${m.id==='kembel'?'kembel':''} ${m.id==='bedford'?'bedford':''} ${m.id==='spiridon'?'spiridon':''} ${m.id==='canary'?'canary':''} ${m.id==='inside'?'inside':''}"><svg viewBox="0 0 100 100" preserveAspectRatio="none">${edges}</svg>${nodes}</div>`
+};
+
+document.title="WHO-0 · Version 34";
+let v34Footer=document.querySelector(".footer");
+if(v34Footer)v34Footer.textContent="Version 34 · Paradigm movement fix · Fan-made gameplay prototype.";
+menu();
+</script>
+
 </body></html>
