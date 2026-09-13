@@ -4325,4 +4325,314 @@ menu=function(){
 menu();
 </script>
 
+
+<style id="v39-sonic-stone-ui">
+/* ================================================================
+   WHO-0 V39 - SONIC / STONE MATERIAL SYSTEM
+   Inspired by the Doctor's screwdriver: fractured pale stone,
+   dark gunmetal, brushed silver and restrained aged gold.
+   Gameplay colours remain functional and unchanged.
+   ================================================================ */
+
+:root{
+  --v39-ink:#071019;
+  --v39-navy:#0a1b29;
+  --v39-metal:#aeb6b8;
+  --v39-metal-dark:#555f64;
+  --v39-stone:#c8c1b4;
+  --v39-gold:#b98735;
+  --v39-gold-light:#d5b56b;
+}
+
+/* Dark engineered body */
+body{
+  background:
+    radial-gradient(circle at 50% -10%,#17354a55 0 18%,transparent 42%),
+    linear-gradient(115deg,transparent 0 47%,#ffffff08 48%,transparent 49% 100%),
+    #040a10 !important;
+}
+#app{position:relative}
+
+/* Fractured surface. Fine enough to read as material rather than decoration. */
+.card,
+.modal,
+.tw26Action,
+.tw26Stat,
+.v20Vortex,
+.v25Paradigm,
+.v36Board{
+  background-color:var(--v39-navy) !important;
+  background-image:
+    linear-gradient(31deg,transparent 0 47%,#aeb6b80e 48%,transparent 49% 100%),
+    linear-gradient(139deg,transparent 0 61%,#aeb6b80b 62%,transparent 63% 100%),
+    linear-gradient(76deg,transparent 0 73%,#b987350c 74%,transparent 75% 100%),
+    radial-gradient(circle at 18% 21%,#ffffff08 0 1px,transparent 1.4px),
+    radial-gradient(circle at 76% 64%,#ffffff07 0 1px,transparent 1.5px),
+    linear-gradient(180deg,#102331,#07121b) !important;
+}
+
+/* Silver chassis with a fine gold inner keyline */
+.card,
+.modal{
+  border:1px solid var(--v39-metal-dark) !important;
+  box-shadow:
+    0 10px 30px #000a,
+    inset 0 0 0 1px #d7dddc22,
+    inset 0 0 0 3px #071019,
+    inset 0 0 0 4px #b9873540 !important;
+}
+
+/* Stone edge fragments around major panels */
+.card:before{
+  content:"";
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  border-radius:inherit;
+  opacity:.34;
+  background:
+    linear-gradient(128deg,transparent 0 7%,#d0c8b9 7.2% 7.7%,transparent 8% 28%,#d0c8b9 28.2% 28.6%,transparent 29%),
+    linear-gradient(42deg,transparent 0 66%,#8e887d 66.2% 66.7%,transparent 67% 87%,#cfc7b8 87.2% 87.6%,transparent 88%);
+  mix-blend-mode:screen;
+}
+
+/* Typography */
+h1,h2,h3,.enemy,.resultWord{
+  text-shadow:0 2px 0 #000,0 0 14px #8bdfff18;
+}
+.small,.encounterNo,.form{
+  letter-spacing:.12em;
+}
+a,button{ -webkit-tap-highlight-color:transparent }
+
+/* Physical controls */
+button{
+  border:1px solid #737d80 !important;
+  background:
+    linear-gradient(180deg,#26333b 0,#111b22 48%,#091118 52%,#17232a 100%) !important;
+  box-shadow:
+    inset 0 1px 0 #ffffff30,
+    inset 0 -1px 0 #000,
+    0 2px 5px #0008 !important;
+}
+button:not(.ghost):not(.secondary){
+  border-color:#9a7a45 !important;
+  box-shadow:
+    inset 0 1px 0 #fff4,
+    inset 0 0 0 1px #3a2b16,
+    0 2px 6px #0009 !important;
+}
+button:active{transform:translateY(1px)}
+
+/* Silver/gold instrument detailing */
+.tw26Pill,.pill,.tag,.v33ParadigmNote{
+  border-color:#737d80 !important;
+  box-shadow:inset 0 0 0 1px #0008;
+}
+.tw26Stat{
+  border:1px solid #6d7475 !important;
+  box-shadow:inset 0 0 0 1px #b987352c !important;
+}
+.tw26Stat b{color:#f0eee8}
+.tw29MapTag{color:var(--v39-gold-light) !important}
+
+/* Paradigm remains clean and playable, with finer metallic nodes */
+.v36Node{
+  fill:#172028 !important;
+  stroke:#899092 !important;
+}
+.v36Edge{stroke:#8c9699 !important}
+.v36Move{stroke:#64d8ff !important;filter:drop-shadow(0 0 2px #45cfff)}
+.v36Special{stroke:#d7b95d !important}
+.v36Exit{stroke:#f4f2eb !important}
+
+/* TIME WAR: keep faction colours intact, change only chassis and framing. */
+.tw26Map{
+  border:1px solid #778184 !important;
+  box-shadow:
+    inset 0 0 0 2px #071019,
+    inset 0 0 0 3px #b9873544,
+    0 6px 18px #0008 !important;
+  background:
+    radial-gradient(circle at 50% 45%,#17314955,transparent 58%),
+    radial-gradient(circle,#a9dfff33 0 1px,transparent 1.4px) 0 0/17px 17px,
+    #050c12 !important;
+}
+
+/* Faction crest selector now feels like an instrument rack. */
+.tw33FactionButton{
+  background:linear-gradient(145deg,#16232b,#070d12) !important;
+  border:1px solid #6d7678 !important;
+  box-shadow:inset 0 0 0 1px #b9873540,0 5px 12px #0008 !important;
+}
+.tw33FactionButton img{
+  filter:contrast(1.06) saturate(.9);
+}
+
+/* TOYMAKER - preserve the card artwork but rehouse/regrade it to match V39. */
+.playroom .cardArt{
+  border:1px solid #8f9695 !important;
+  outline:2px solid #161d21;
+  box-shadow:
+    0 0 0 3px #a77b36,
+    0 10px 24px #000a,
+    inset 0 0 18px #000 !important;
+  filter:saturate(.62) contrast(1.12) sepia(.12);
+  border-radius:8px;
+}
+.playroom{
+  background-image:
+    linear-gradient(32deg,transparent 0 44%,#c6bdad12 45%,transparent 46%),
+    linear-gradient(145deg,transparent 0 67%,#b9873510 68%,transparent 69%),
+    linear-gradient(180deg,#151c21,#080d12) !important;
+}
+.playroom .speaker{
+  border-left:2px solid var(--v39-gold) !important;
+  background:#050b10aa !important;
+}
+
+/* DEATH ZONE - deliberately protect the existing 80s tower artwork.
+   The surrounding WHO-0 chassis changes, the tower itself does not. */
+.deathZone .towerArt{
+  filter:none !important;
+  image-rendering:auto !important;
+  border:none !important;
+  outline:none !important;
+  box-shadow:none !important;
+}
+
+/* Archive and reward panels pick up the material language without losing hierarchy. */
+.ach,.keyQuest,.eventResult,.continuity{
+  border-color:#626c70 !important;
+  box-shadow:inset 0 0 0 1px #b9873525 !important;
+}
+
+/* Time War Doctor mode switch */
+.tw39DoctorMode{
+  display:flex;
+  gap:6px;
+  align-items:center;
+  justify-content:space-between;
+  margin:8px 0 10px;
+  padding:7px 9px;
+  border:1px solid #59656a;
+  border-radius:10px;
+  background:linear-gradient(180deg,#111e27,#081118);
+  box-shadow:inset 0 0 0 1px #b9873528;
+}
+.tw39DoctorMode .small{margin:0}
+.tw39DoctorMode button{
+  width:auto !important;
+  margin:0 !important;
+  padding:7px 10px !important;
+  font-size:10px !important;
+  letter-spacing:.08em;
+}
+.tw39DoctorMode button.active{
+  border-color:#c79a50 !important;
+  color:#f1d18c !important;
+  box-shadow:inset 0 0 0 1px #5a401e,0 0 9px #b9873530 !important;
+}
+
+@media(max-width:600px){
+  .card{box-shadow:0 6px 18px #0009,inset 0 0 0 1px #d7dddc1c,inset 0 0 0 3px #071019,inset 0 0 0 4px #b9873535 !important}
+  .tw39DoctorMode{padding:6px 7px}
+}
+</style>
+
+<script id="v39-doctor-behaviour">
+/* ================================================================
+   V39 TIME WAR - DOCTOR BEHAVIOUR
+   MANUAL = existing peace-broker behaviour.
+   RANDOM = on intervention turns, the TARDIS automatically relocates
+            to a random sector, never deliberately remaining in place.
+   ================================================================ */
+let TW39_DOCTOR_MODE="manual";
+
+function tw39SetDoctorMode(mode){
+  TW39_DOCTOR_MODE=(mode==="random"?"random":"manual");
+  if(TW26)TW26.doctorMode=TW39_DOCTOR_MODE;
+  if(TW26)tw26Render(false);
+  else tw33FactionMenu();
+}
+
+function tw39ModeControl(){
+  let mode=(TW26&&TW26.doctorMode)||TW39_DOCTOR_MODE;
+  return `<div class="tw39DoctorMode">
+    <div class="small">THE DOCTOR</div>
+    <div>
+      <button class="${mode==="manual"?"active":""}" onclick="tw39SetDoctorMode('manual')">MANUAL</button>
+      <button class="${mode==="random"?"active":""}" onclick="tw39SetDoctorMode('random')">RANDOM</button>
+    </div>
+  </div>`;
+}
+
+/* Add the choice to the faction-select screen. */
+const tw39FactionMenuBase=tw33FactionMenu;
+tw33FactionMenu=function(){
+  tw39FactionMenuBase();
+  let note=document.querySelector(".tw33ChooseNote");
+  if(note)note.insertAdjacentHTML("afterend",tw39ModeControl());
+};
+
+/* Ensure a newly-created Time War inherits the selected mode.
+   V38's balanced-resource start routine remains the source of the game state. */
+const tw39StartFactionBase=tw33StartFaction;
+tw33StartFaction=function(player){
+  tw39StartFactionBase(player);
+  if(TW26)TW26.doctorMode=TW39_DOCTOR_MODE;
+};
+
+/* Rebuild start-of-turn behaviour without changing production.
+   This replaces only the Doctor intervention branch. */
+tw26StartTurn=function(){
+  if(TW26.gameOver)return;
+
+  if(typeof TW30_MOVE!=="undefined")TW30_MOVE={active:false,source:null,used:false};
+
+  TW26.factions.forEach(tw26Produce);
+  let mode=TW26.doctorMode||TW39_DOCTOR_MODE;
+
+  if(TW26.turn%3===0){
+    if(mode==="random"){
+      let choices=TW26.map.filter(t=>t.id!==TW26.doctor);
+      let target=tw26Pick(choices.length?choices:TW26.map);
+      TW26.doctor=target.id;
+      TW26.doctorMove=false;
+      TW26.selected=null;
+      tw26Log(`THE TARDIS MATERIALISES IN SECTOR ${target.id+1}. The Doctor brokers peace there this turn.`);
+    }else{
+      TW26.doctorMove=true;
+      tw26Log("THE TARDIS DEMATERIALISES. Choose a territory for the Doctor to broker peace.");
+    }
+  }else{
+    TW26.doctorMove=false;
+  }
+  tw26Render(false);
+};
+
+/* Add an always-accessible mode switch to the live Time War HUD. */
+const tw39RenderBase=tw26Render;
+tw26Render=function(doScroll=false){
+  tw39RenderBase(doScroll);
+  if(!TW26)return;
+  let stats=document.querySelector(".tw26Stats");
+  if(stats)stats.insertAdjacentHTML("afterend",tw39ModeControl());
+};
+
+/* The setup copy now explains both behaviours. */
+const tw39IntroBase=tw26Intro;
+tw26Intro=function(){ return tw33FactionMenu(); };
+
+document.title="WHO-0 · Version 39";
+const tw39MenuBase=menu;
+menu=function(){
+  tw39MenuBase();
+  document.title="WHO-0 · Version 39";
+  let f=document.querySelector(".footer");
+  if(f)f.textContent="Version 39 · Sonic stone interface · Fan-made gameplay prototype.";
+};
+menu();
+</script>
+
 </body></html>
