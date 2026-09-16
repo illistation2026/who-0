@@ -5179,4 +5179,183 @@ menu=function(){
 document.title='WHO-0 · Version 44';
 </script>
 
+
+<style id="v45-style">
+/* Selected states throughout the game */
+button:not(:disabled).selected,button:not(:disabled).sel,.activeToggle,.activeMode{
+  outline:3px solid #f0c968!important;
+  box-shadow:0 0 0 2px #091117,0 0 18px #e4b84d99,inset 0 0 14px #fff1!important;
+  transform:translateY(-2px);
+}
+button[aria-pressed="true"]{
+  outline:3px solid #f0c968!important;
+  box-shadow:0 0 18px #e4b84d88!important;
+}
+.mb45HelpToggle{display:flex;justify-content:flex-end;margin:2px 0 8px}
+.mb45HelpToggle button{width:auto!important;margin:0!important;padding:7px 10px!important;min-height:0!important;font-size:10px!important}
+.mb45Instruction{border:1px solid #59747c;border-left:4px solid #e2b857;border-radius:9px;background:#071117;padding:10px 12px;margin:8px 0 12px}
+.mb45Instruction b{display:block;color:#edcc78;font-size:10px;letter-spacing:.14em;margin-bottom:4px}
+.mb45Instruction span{font-size:11px;color:#d8e0e1;line-height:1.4}
+.mb45Stage{position:relative;min-height:168px;margin:8px 0 12px}
+.mb45Stage .mb43Mind{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%)}
+.mb45Played{position:absolute;top:50%;width:50px;height:70px;margin-top:-35px;border-radius:6px;display:grid;place-items:center;font:bold 26px Georgia,serif;z-index:8;box-shadow:0 6px 18px #000b}
+.mb45Played.doctor{left:calc(50% - 72px);background:linear-gradient(145deg,#d4dce0,#7d9aae);color:#081017;border:2px solid #b8d0dc}
+.mb45Played.morbius{right:calc(50% - 72px);background:linear-gradient(145deg,#e6dcc4,#a69a7c);color:#111;border:2px solid #d6c79f}
+.mb45Played.fromDoctor{animation:mb45DocIn .48s cubic-bezier(.2,.8,.2,1)}
+.mb45Played.fromMorbius{animation:mb45MorIn .48s cubic-bezier(.2,.8,.2,1)}
+@keyframes mb45DocIn{from{transform:translate(-120px,95px) rotate(-10deg) scale(.65);opacity:0}to{transform:none;opacity:1}}
+@keyframes mb45MorIn{from{transform:translate(120px,-95px) rotate(10deg) scale(.65);opacity:0}to{transform:none;opacity:1}}
+.mb45Result{text-align:center;border:1px solid #a68549;border-radius:9px;background:#0a1418;padding:10px;margin:8px 0;font-weight:800;letter-spacing:.08em;color:#f0d58d}
+.mb45Continue{margin-top:8px!important}
+.mb45Locked{pointer-events:none!important;opacity:.62}
+.mb45CardPick{outline:3px solid #f0c968!important;box-shadow:0 0 20px #e4b84daa!important;transform:translateY(-5px)!important}
+</style>
+
+<script id="v45-script">
+/* V45 Mindbending presentation layer. Logic remains V44/Tacocat rebuild. */
+let MB45_HELP=true;
+function mb45Instruction(){
+ if(!MB)return '';
+ const map={
+  replaceD:'Select any memories you want to replace, then choose REPLACE SELECTED. Or keep the hand you have.',
+  duelD:'Choose one card for the Mind Clash. Morbius will reveal one too. Highest card takes control.',
+  attackD:'Choose a single card to Probe. Matching cards, or a run of three or more, can form a Psychic Assault.',
+  attackM:'Morbius has control. Watch his card move into the Mind-Bending Display.',
+  defendD:'Morbius has probed. Play a card that equals or beats his. If you cannot, you must lose your lowest card.',
+  final:'One memory remains each. Lowest final card wins the round.'
+ };
+ return MB45_HELP?`<div class="mb45Instruction"><b>WHAT TO DO</b><span>${map[MB.phase]||'Follow the Mind-Bending Display.'}</span></div>`:'';
+}
+function mb45ToggleHelp(){MB45_HELP=!MB45_HELP;mbRender()}
+function mb45Continue(){
+ if(!MB||!MB._v45Next)return;
+ const fn=MB._v45Next; MB._v45Next=null; MB._v45Result=null; MB._v45Doctor=null; MB._v45Morbius=null; fn();
+}
+function mb45Pause(result,next,doctor,morbius){
+ MB._v45Result=result; MB._v45Next=next; MB._v45Doctor=doctor??null; MB._v45Morbius=morbius??null; mbRender();
+}
+function mb45ResultHTML(){
+ if(!MB||!MB._v45Result)return '';
+ return `<div class="mb45Result">${MB._v45Result}</div><button class="mb45Continue" onclick="mb45Continue()">CONTINUE</button>`;
+}
+function mb45StageHTML(probe){
+ let d=MB&&MB._v45Doctor!=null?`<div class="mb45Played doctor fromDoctor">${MB._v45Doctor}</div>`:'';
+ let m=MB&&MB._v45Morbius!=null?`<div class="mb45Played morbius fromMorbius">${MB._v45Morbius}</div>`:'';
+ return `<div class="mb45Stage">${d}${m}<div class="mb43Mind"><div class="mb43Face"></div><div class="mb43ProbeCard ${probe==null?'empty':''}">${probe==null?'MIND':probe}</div></div></div>`;
+}
+
+/* Duel now visibly reveals Doctor, then Morbius, then announces the winner and waits. */
+mbDuel=function(){
+ if(MB.phase!=='duelD'||MB.sel.size!==1||MB._v45Next)return;
+ let di=[...MB.sel][0],dv=MB.d.splice(di,1)[0]; MB.sel.clear();
+ MB._v45Doctor=dv; MB._v45Morbius=null; MB.msg=`THE DOCTOR PLAYS ${dv}.`; mbRender();
+ setTimeout(()=>{
+  if(!MB)return;
+  let mi=mbAIChooseDuel(),mv=MB.m.splice(mi,1)[0]; MB._v45Morbius=mv; MB.msg=`MORBIUS PLAYS ${mv}.`; mbRender();
+  setTimeout(()=>{
+   if(!MB)return;
+   if(dv===mv){
+    mb45Pause(`DEADLOCK · ${dv} PLAYS ${mv}`,()=>{
+      if(MB.d.length<=1||MB.m.length<=1)return mbFinal();
+      MB.phase='duelD'; MB.msg='Clash again. Choose one memory.'; mbRender();
+    },dv,mv); return;
+   }
+   let winner=dv>mv?'d':'m'; MB.attacker=winner;
+   mb45Pause(`${winner==='d'?'THE DOCTOR':'MORBIUS'} WINS THE MIND CLASH`,()=>{
+     if(MB.d.length===1&&MB.m.length===1)return mbFinal();
+     MB.phase=winner==='d'?'attackD':'attackM';
+     MB.msg=`${winner==='d'?'The Doctor':'Morbius'} has control.`;
+     mbRender();
+     if(MB.phase==='attackM')setTimeout(mbAIAttack,650);
+   },dv,mv);
+  },520);
+ },520);
+};
+
+/* Player probe: show the selected card moving to centre before AI response. */
+const mb45ResolveAIBase=mbResolveAIDefence;
+mbDoctorAttack=function(){
+ if(MB.phase!=='attackD'||!mbCanAttackSelection()||MB._v45Next)return;
+ let ids=[...MB.sel].sort((a,b)=>b-a),vals=ids.map(i=>MB.d[i]);
+ ids.forEach(i=>MB.d.splice(i,1)); MB.sel.clear();
+ MB._v45Doctor=vals[0]; MB._v45Morbius=null; MB.lastProbe=vals[0];
+ MB.msg=`THE DOCTOR PROBES WITH ${vals.join(', ')}.`; mbRender();
+ setTimeout(()=>{ if(MB) mb45ResolveAIBase(vals) },520);
+};
+
+/* Morbius probe: animate his card into the centre before defence becomes active. */
+mbAIAttack=function(){
+ if(!MB||MB.phase!=='attackM'||MB._v45Next)return;
+ if(MB.m.length<=1)return mbFinal();
+ let groups={}; MB.m.forEach((v,i)=>(groups[v]??=[]).push(i));
+ let same=Object.values(groups).filter(g=>g.length>=2&&MB.m.length-g.length>=1).sort((a,b)=>b.length-a.length)[0];
+ let vals=[];
+ if(same&&Math.random()<.3){let ids=same.slice(0,Math.min(3,same.length)).sort((a,b)=>b-a);vals=ids.map(i=>MB.m[i]);ids.forEach(i=>MB.m.splice(i,1))}
+ else{let mx=Math.max(...MB.m),i=MB.m.indexOf(mx);vals=[MB.m.splice(i,1)[0]]}
+ MB.attack=vals; MB._v45Morbius=vals[0]; MB._v45Doctor=null; MB.lastProbe=vals[0];
+ MB.msg=`MORBIUS PLAYS ${vals[0]}.`; mbRender();
+ setTimeout(()=>{
+  if(!MB)return; MB.phase='defendD';
+  MB.msg=`MORBIUS PROBES WITH ${vals.join(', ')}. ${vals.length>1?'PSYCHIC ASSAULT. ':''}Resist each card if you can, otherwise your lowest memory is lost.`;
+  MB.sel.clear(); mbRender();
+ },520);
+};
+
+/* Defence: show both cards, state who won that exchange, and require Continue. */
+mbDefend=function(i){
+ if(!MB||MB.phase!=='defendD'||MB.d.length<=1||MB._v45Next)return;
+ let a=MB.attack[0],can=MB.d.some(v=>v>=a),legal=can?MB.d[i]>=a:MB.d[i]===Math.min(...MB.d);
+ if(!legal)return;
+ MB.attack.shift(); let v=MB.d.splice(i,1)[0],sac=!can;
+ MB._sac=(MB._sac||false)||sac; MB._v45Doctor=v; MB._v45Morbius=a;
+ let result=sac?`MORBIUS WINS · MEMORY ${v} IS LOST`:`THE DOCTOR RESISTS · ${v} BEATS ${a}`;
+ mb45Pause(result,()=>{
+   if(MB.attack.length){MB._v45Morbius=MB.attack[0];MB._v45Doctor=null;MB.msg=`NEXT MORBIUS PROBE: ${MB.attack[0]}.`;mbRender();return}
+   let sacrificed=!!MB._sac; MB._sac=false;
+   if(MB.d.length===1&&MB.m.length===1)return mbFinal();
+   MB.attacker=sacrificed?'m':'d'; MB.phase=MB.attacker==='d'?'attackD':'attackM';
+   MB.msg=sacrificed?'Morbius keeps control.':'The Doctor takes control.';
+   mbRender(); if(MB.phase==='attackM')setTimeout(mbAIAttack,650);
+ },v,a);
+};
+
+/* Make selected controls unmistakable, and add instructions + display stage. */
+const mb45RenderBase=mbRender;
+mbRender=function(){
+ mb45RenderBase();
+ if(!MB)return;
+ const shell=app.querySelector('.mb43Shell'); if(!shell)return;
+ let sub=shell.querySelector('.mb43Sub');
+ if(sub)sub.insertAdjacentHTML('afterend',`<div class="mb45HelpToggle"><button class="secondary ${MB45_HELP?'activeToggle':''}" aria-pressed="${MB45_HELP}" onclick="mb45ToggleHelp()">INSTRUCTIONS ${MB45_HELP?'ON':'OFF'}</button></div>${mb45Instruction()}`);
+ let oldMind=shell.querySelector('.mb43Arena');
+ if(oldMind){
+   let probe=mb43CurrentProbe();
+   oldMind.innerHTML=`<div class="mb43Side"><span>PROBE</span><b>${probe==null?'·':probe}</b><span>${probe==null?'AWAITING PLAY':'CURRENT PLAY'}</span></div><div>${mb45StageHTML(probe)}<div class="mb43ProbeLabel">MIND-BENDING DISPLAY</div></div><div class="mb43Side"><span>${mb43PhaseName()}</span><b>${MB.phase==='defendD'&&probe!=null?probe+'+':'·'}</b><span>${MB.msg}</span></div>`;
+ }
+ let phase=shell.querySelector('.mb43Phase'); if(phase&&MB._v45Result)phase.insertAdjacentHTML('beforebegin',mb45ResultHTML());
+ shell.querySelectorAll('.mb43Card.sel').forEach(x=>x.classList.add('mb45CardPick'));
+ if(MB._v45Next){
+   shell.querySelectorAll('.mb43Card,.mb43Actions button').forEach(x=>{x.disabled=true;x.classList.add('mb45Locked')});
+ }
+ let face=app.querySelector('.mb43Face'); if(face&&typeof MB43_MORBIUS_FACE!=='undefined'&&MB43_MORBIUS_FACE)face.style.backgroundImage=`url(${MB43_MORBIUS_FACE})`;
+};
+
+/* Clear presentation state at each new round. */
+const mb45RoundBase=mbRound;
+mbRound=function(){if(MB){MB._v45Next=null;MB._v45Result=null;MB._v45Doctor=null;MB._v45Morbius=null}mb45RoundBase()};
+
+/* Global selected-state helper for menu-style toggle groups. */
+document.addEventListener('click',e=>{
+ const b=e.target.closest('button'); if(!b)return;
+ if(/^(ON|OFF)$/.test((b.textContent||'').trim())){
+   const p=b.parentElement;if(p){p.querySelectorAll('button').forEach(x=>x.classList.remove('selected'));b.classList.add('selected')}
+ }
+},true);
+
+/* Version */
+const v45MenuBase=menu;
+menu=function(){v45MenuBase();document.querySelectorAll('.small').forEach(e=>{e.textContent=e.textContent.replace(/VERSION 4[1-4]/g,'VERSION 45')});let f=document.querySelector('.footer');if(f)f.textContent='Version 45 · Animated Mindbending · Fan-made gameplay prototype.';document.title='WHO-0 · Version 45'};
+document.title='WHO-0 · Version 45';
+</script>
+
 </body></html>
