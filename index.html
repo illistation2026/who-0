@@ -5116,4 +5116,67 @@ mbRound=function(){if(MB){MB.lastProbe=null;MB.lowlight=null}mb43RoundBase()}
 const v43MenuBase=menu;menu=function(){v43MenuBase();document.querySelectorAll('.small').forEach(e=>{if(e.textContent.includes('VERSION 42'))e.textContent=e.textContent.replace('VERSION 42','VERSION 43')});let f=document.querySelector('.footer');if(f)f.textContent='Version 43 · Mindbending display · Fan-made gameplay prototype.';document.title='WHO-0 · Version 43'};menu();
 </script>
 
+
+<style id="v44-interaction-fix">
+/* V44: make every genuinely active control explicitly tappable on mobile. */
+button:not(:disabled), [onclick]{
+  pointer-events:auto !important;
+  touch-action:manipulation;
+}
+.mb43Card:not(:disabled){
+  opacity:1 !important;
+  cursor:pointer !important;
+  position:relative;
+  z-index:5;
+}
+.mb43Card:not(:disabled):active{transform:translateY(-2px) scale(.98)}
+</style>
+<script id="v44-interaction-fix-script">
+/* WHO-0 V44
+   Fixes the V43 Mindbending lock during multi-card Psychic Assaults.
+   V42's mbLegalDefence incorrectly required attack.length === 1, even
+   though mbDefend() was already written to resolve assaults one card at a time.
+*/
+mbLegalDefence=function(i){
+  if(!MB || MB.phase!=='defendD' || !MB.attack || MB.attack.length<1) return false;
+  if(MB.d.length<=1) return false;
+  const a=MB.attack[0];
+  const can=MB.d.some(v=>v>=a);
+  return can ? MB.d[i]>=a : MB.d[i]===Math.min(...MB.d);
+};
+
+mb43Legal=function(i){
+  if(!MB) return false;
+  if(['replaceD','duelD','attackD'].includes(MB.phase)) return true;
+  if(MB.phase==='defendD') return mbLegalDefence(i);
+  return false;
+};
+
+/* Keep the action prompt truthful during an assault. */
+const mb44ActionBase=mb43ActionHTML;
+mb43ActionHTML=function(){
+  if(MB && MB.phase==='defendD'){
+    const p=MB.attack && MB.attack.length ? MB.attack[0] : '?';
+    const can=typeof p==='number' && MB.d.some(v=>v>=p);
+    const remaining=MB.attack ? MB.attack.length : 0;
+    return `<button disabled>RESIST ${p} OR HIGHER</button>
+      <button class="secondary" disabled>${can?'TAP A LIT CARD':'LOWEST CARD MUST GO'}${remaining>1?' · '+remaining+' PROBES':''}</button>`;
+  }
+  return mb44ActionBase();
+};
+
+/* Version stamp. */
+const v44MenuBase=menu;
+menu=function(){
+  v44MenuBase();
+  document.querySelectorAll('.small').forEach(e=>{
+    e.textContent=e.textContent.replace(/VERSION 4[123]/g,'VERSION 44');
+  });
+  const f=document.querySelector('.footer');
+  if(f) f.textContent='Version 44 · Mindbending interaction fix · Fan-made gameplay prototype.';
+  document.title='WHO-0 · Version 44';
+};
+document.title='WHO-0 · Version 44';
+</script>
+
 </body></html>
