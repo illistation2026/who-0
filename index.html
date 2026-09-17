@@ -5405,4 +5405,117 @@ menu=function(){
 document.title='WHO-0 · Version 46';
 </script>
 
+
+<style id="v47-style">
+/* V47: stronger selected states across menus */
+button.selected,button.sel,button[aria-pressed="true"],.activeToggle,.activeMode{
+  background:linear-gradient(180deg,#f2cf73,#b9842d)!important;
+  color:#071117!important;
+  border-color:#fff0b2!important;
+  outline:3px solid #f6d878!important;
+  box-shadow:0 0 0 3px #071117,0 0 24px #e8b84daa,inset 0 1px 0 #fff9!important;
+  text-shadow:none!important;
+  transform:translateY(-2px)!important;
+}
+/* Mindbending: don't dim unavailable cards. Gold tells you what is playable. */
+.mb43Card:disabled{opacity:1!important;filter:none!important;color:#081017!important}
+.mb43Card.mb47Legal{
+  outline:3px solid #f0c968!important;
+  box-shadow:0 0 0 1px #071117,0 0 15px #e4b84d88,inset 0 0 0 2px #23343b!important;
+}
+.mb43Card.sel,.mb43Card.mb45CardPick{
+  background:linear-gradient(145deg,#f5d778,#bd8730)!important;
+  outline:4px solid #fff0a8!important;
+  box-shadow:0 0 0 2px #071117,0 0 22px #f0c968bb!important;
+  transform:translateY(-5px)!important;
+}
+/* Remove the circular Mind-Bending display. Played cards own the centre. */
+.mb45Stage{min-height:128px!important;display:flex;align-items:center;justify-content:center;gap:10px;overflow:visible}
+.mb45Stage .mb43Mind{display:none!important}
+.mb45Played{position:relative!important;left:auto!important;right:auto!important;top:auto!important;margin:0!important;width:58px;height:80px}
+.mb45Played.doctor{order:1}.mb45Played.morbius{order:2}
+.mb43ProbeLabel{display:none!important}
+@keyframes mb47DocIn{from{transform:translate(-90px,70px) rotate(-8deg) scale(.72);opacity:0}to{transform:none;opacity:1}}
+@keyframes mb47MorIn{from{transform:translate(90px,-70px) rotate(8deg) scale(.72);opacity:0}to{transform:none;opacity:1}}
+.mb45Played.fromDoctor.mb47Animate{animation:mb47DocIn .42s cubic-bezier(.2,.8,.2,1) both}
+.mb45Played.fromMorbius.mb47Animate{animation:mb47MorIn .42s cubic-bezier(.2,.8,.2,1) both}
+.mb45Played.fromDoctor:not(.mb47Animate),.mb45Played.fromMorbius:not(.mb47Animate){animation:none!important}
+/* Put the result and Continue where the hand action happens, and keep it reachable. */
+.mb45Result{margin:6px 0 0!important}
+.mb45Continue{position:sticky!important;bottom:12px!important;z-index:40!important;min-height:54px!important;background:linear-gradient(180deg,#f2cf73,#b9842d)!important;color:#071117!important;border:2px solid #fff0a8!important;box-shadow:0 5px 22px #000c,0 0 18px #e8b84d66!important}
+</style>
+<script id="v47-script">
+/* WHO-0 V47 · Mindbending interaction refinement. */
+const WHO0_VERSION=47;
+
+/* No automatic scroll-to-top while Mindbending is on screen. */
+const v47ScrollTopBase=scrollTop;
+scrollTop=function(){
+  if(MB && document.querySelector('.mb43Shell')) return;
+  return v47ScrollTopBase();
+};
+
+/* Selection is local state only. Render without moving the viewport at all. */
+mbToggle=function(i){
+  if(!MB||!['replaceD','duelD','attackD','defendD'].includes(MB.phase)||MB._v45Next)return;
+  if(MB.sel.has(i))MB.sel.delete(i);else MB.sel.add(i);
+  const x=window.scrollX||0,y=window.scrollY||0;
+  mbRender();
+  if(window.scrollX!==x||window.scrollY!==y) window.scrollTo(x,y);
+};
+
+/* Animate a played card only when the actual play-state changes, not every render. */
+let MB47_LAST_STAGE='';
+mb45StageHTML=function(probe){
+  const hasD=MB&&MB._v45Doctor!=null, hasM=MB&&MB._v45Morbius!=null;
+  const sig=MB?[MB.round,MB.phase,MB.d.length,MB.m.length,MB.attack?MB.attack.length:'',MB._v45Doctor,MB._v45Morbius,MB._v45Result||''].join('|'):'';
+  const fresh=sig!==MB47_LAST_STAGE; MB47_LAST_STAGE=sig;
+  const d=hasD?`<div class="mb45Played doctor fromDoctor ${fresh?'mb47Animate':''}">${MB._v45Doctor}</div>`:'';
+  const m=hasM?`<div class="mb45Played morbius fromMorbius ${fresh?'mb47Animate':''}">${MB._v45Morbius}</div>`:'';
+  return `<div class="mb45Stage">${d}${m}</div>`;
+};
+
+/* Post-render: gold outline only on cards that can actually be played. */
+const mb47RenderBase=mbRender;
+mbRender=function(){
+  const y=window.scrollY||0;
+  mb47RenderBase();
+  if(!MB)return;
+  const shell=document.querySelector('.mb43Shell'); if(!shell)return;
+  shell.querySelectorAll('.mb43Card').forEach((card,i)=>{
+    if(mb43Legal(i) && !MB._v45Next) card.classList.add('mb47Legal');
+    else card.classList.remove('mb47Legal');
+  });
+  /* Put result + Continue immediately after the central play area. */
+  if(MB._v45Result){
+    const result=shell.querySelector('.mb45Result');
+    const stage=shell.querySelector('.mb45Stage');
+    if(result&&stage){
+      const btn=result.nextElementSibling&&result.nextElementSibling.classList.contains('mb45Continue')?result.nextElementSibling:null;
+      stage.insertAdjacentElement('afterend',result);
+      if(btn)result.insertAdjacentElement('afterend',btn);
+    }
+  }
+  if(window.scrollY!==y) window.scrollTo(0,y);
+};
+
+/* Reset animation identity at the start of a new round. */
+const mb47RoundBase=mbRound;
+mbRound=function(){MB47_LAST_STAGE='';mb47RoundBase()};
+
+/* One source of truth for visible version labels. */
+function v47Stamp(){
+  document.querySelectorAll('.small,.footer').forEach(e=>{
+    e.textContent=e.textContent.replace(/VERSION\s+\d+/gi,'VERSION '+WHO0_VERSION).replace(/Version\s+\d+/g,'Version '+WHO0_VERSION);
+  });
+  document.title='WHO-0 · Version '+WHO0_VERSION;
+}
+const v47MenuBase=menu;
+menu=function(){v47MenuBase();v47Stamp()};
+const v47ResetBase=resetUniverse;
+resetUniverse=function(){v47ResetBase();setTimeout(v47Stamp,0)};
+document.addEventListener('DOMContentLoaded',v47Stamp);
+v47Stamp();
+</script>
+
 </body></html>
