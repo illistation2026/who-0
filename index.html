@@ -5358,4 +5358,51 @@ menu=function(){v45MenuBase();document.querySelectorAll('.small').forEach(e=>{e.
 document.title='WHO-0 · Version 45';
 </script>
 
+
+<style id="v46-style">
+/* V46: central display has one visual instance per played card. */
+.mb45Stage.hasPlayed .mb43ProbeCard{opacity:.16;filter:grayscale(1);}
+.mb45Stage.hasPlayed .mb43ProbeCard:not(.empty){font-size:0;}
+.mb45Stage.hasPlayed .mb43ProbeCard:not(.empty)::after{content:"MIND";font:700 11px Arial,sans-serif;color:#809496;letter-spacing:.08em;}
+</style>
+<script id="v46-script">
+/* WHO-0 V46 · mobile selection position + duplicate animation-card fix. */
+
+/* Card selection is a local interaction. Preserve the exact viewport position
+   even though the inherited renderer rebuilds the Mindbending screen. */
+mbToggle=function(i){
+  if(!MB||!['replaceD','duelD','attackD','defendD'].includes(MB.phase)||MB._v45Next)return;
+  const y=window.scrollY||window.pageYOffset||0;
+  if(MB.sel.has(i))MB.sel.delete(i);else MB.sel.add(i);
+  mbRender();
+  window.scrollTo(0,y);
+  requestAnimationFrame(()=>window.scrollTo(0,y));
+};
+
+/* The old stage rendered the current probe card AND an animated played card,
+   which made a single 8 appear twice. The display now contains only the two
+   genuine played-card positions. The central plate becomes a neutral MIND
+   marker whenever a played card is present. */
+mb45StageHTML=function(probe){
+  const hasD=MB&&MB._v45Doctor!=null;
+  const hasM=MB&&MB._v45Morbius!=null;
+  const hasPlayed=hasD||hasM;
+  const d=hasD?`<div class="mb45Played doctor fromDoctor">${MB._v45Doctor}</div>`:'';
+  const m=hasM?`<div class="mb45Played morbius fromMorbius">${MB._v45Morbius}</div>`:'';
+  const centre=hasPlayed?null:probe;
+  return `<div class="mb45Stage ${hasPlayed?'hasPlayed':''}">${d}${m}<div class="mb43Mind"><div class="mb43Face"></div><div class="mb43ProbeCard ${centre==null?'empty':''}">${centre==null?'MIND':centre}</div></div></div>`;
+};
+
+/* V46 stamp. */
+const v46MenuBase=menu;
+menu=function(){
+  v46MenuBase();
+  document.querySelectorAll('.small').forEach(e=>{e.textContent=e.textContent.replace(/VERSION 4[1-5]/g,'VERSION 46')});
+  const f=document.querySelector('.footer');
+  if(f)f.textContent='Version 46 · Mindbending mobile + animation fix · Fan-made gameplay prototype.';
+  document.title='WHO-0 · Version 46';
+};
+document.title='WHO-0 · Version 46';
+</script>
+
 </body></html>
