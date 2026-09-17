@@ -5518,4 +5518,78 @@ document.addEventListener('DOMContentLoaded',v47Stamp);
 v47Stamp();
 </script>
 
+<style id="v48-selected-state-style">
+/* V48: unmistakable choice states. Selected = solid light metal, dark text. */
+button.v48Selected,
+button.selected,
+button.sel,
+button[aria-pressed="true"],
+.activeToggle,.activeMode{
+  background:linear-gradient(180deg,#fff4c7 0%,#e7c875 48%,#b98a35 100%)!important;
+  color:#071117!important;
+  border:2px solid #fff6cf!important;
+  outline:3px solid #d5a747!important;
+  box-shadow:0 0 0 3px #071117,0 0 22px #e8b84d99,inset 0 2px 0 #fff!important;
+  text-shadow:none!important;
+  transform:translateY(-2px)!important;
+}
+button.v48Selected *,button.selected *,button.sel *,button[aria-pressed="true"] *{color:#071117!important;text-shadow:none!important}
+/* Keep unselected choice buttons deliberately dark. */
+button.v48Choice:not(.v48Selected):not(.selected):not(.sel):not([aria-pressed="true"]){
+  background:linear-gradient(180deg,#182630,#0a141b)!important;
+  color:#f4f5f2!important;
+  border-color:#9d7941!important;
+  outline:none!important;
+  box-shadow:inset 0 0 0 1px #ffffff0b!important;
+  transform:none!important;
+}
+</style>
+<script id="v48-selected-state-script">
+/* WHO-0 V48 · one visible selected-state language across settings. */
+window.WHO0_VERSION=48;
+try{WHO0_VERSION=48}catch(e){}
+
+function v48Text(el){return (el.innerText||el.textContent||'').replace(/\s+/g,' ').trim().toUpperCase()}
+function v48MarkGroup(buttons, wanted){
+  buttons.forEach(b=>{
+    b.classList.add('v48Choice');
+    const on=wanted(b);
+    b.classList.toggle('v48Selected',!!on);
+    b.setAttribute('aria-pressed',on?'true':'false');
+  });
+}
+function v48SyncChoices(){
+  const buttons=[...document.querySelectorAll('button')];
+  /* Auto-play. Infer from the game's current control state where possible, then from existing selected classes. */
+  const auto=buttons.filter(b=>['OFF','ON'].includes(v48Text(b)) && /auto-play/i.test((b.closest('.card,.panel,.section,div')||document.body).innerText||''));
+  if(auto.length===2){
+    let active=auto.find(b=>b.classList.contains('selected')||b.classList.contains('sel')||b.classList.contains('activeToggle')||b.getAttribute('aria-pressed')==='true');
+    if(!active){ try{active=auto.find(b=>v48Text(b)===(autoPlay?'ON':'OFF'))}catch(e){} }
+    if(active)v48MarkGroup(auto,b=>b===active);
+  }
+  /* Re-roll difficulty: 0 Hard / 1 Normal / 3 Easy. */
+  const reroll=buttons.filter(b=>/^(0 HARD|1 NORMAL|3 EASY)$/.test(v48Text(b)));
+  if(reroll.length>=3){
+    let active=reroll.find(b=>b.classList.contains('selected')||b.classList.contains('sel')||b.classList.contains('activeMode')||b.getAttribute('aria-pressed')==='true');
+    if(!active){
+      let n=null; try{n=rerolls}catch(e){}; try{if(n==null)n=rerollCount}catch(e){}; try{if(n==null)n=REROLLS}catch(e){}
+      if(n!=null)active=reroll.find(b=>v48Text(b).startsWith(String(n)+' '));
+    }
+    if(active)v48MarkGroup(reroll,b=>b===active);
+  }
+  /* Any native choice group already carrying a selected marker gets the same treatment. */
+  document.querySelectorAll('button.selected,button.sel,button.activeToggle,button.activeMode,button[aria-pressed="true"]').forEach(b=>b.classList.add('v48Selected','v48Choice'));
+  v48Stamp();
+}
+function v48Stamp(){
+ document.querySelectorAll('.small,.footer').forEach(e=>{e.textContent=e.textContent.replace(/VERSION\s+\d+/gi,'VERSION 48').replace(/Version\s+\d+/g,'Version 48')});
+ document.title='WHO-0 · Version 48';
+}
+/* Sync after every menu interaction without replacing the game's handlers. */
+document.addEventListener('click',()=>setTimeout(v48SyncChoices,0),true);
+const v48MenuBase=menu; menu=function(){v48MenuBase();setTimeout(v48SyncChoices,0)};
+document.addEventListener('DOMContentLoaded',()=>setTimeout(v48SyncChoices,0));
+setTimeout(v48SyncChoices,0);
+</script>
+
 </body></html>
