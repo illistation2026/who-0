@@ -5583,8 +5583,8 @@ function v48SyncChoices(){
   v48Stamp();
 }
 function v48Stamp(){
- document.querySelectorAll('.small,.footer').forEach(e=>{e.textContent=e.textContent.replace(/VERSION\s+\d+/gi,'VERSION 48').replace(/Version\s+\d+/g,'Version 48')});
- document.title='WHO-0 · Version 48';
+ document.querySelectorAll('.small,.footer').forEach(e=>{e.textContent=e.textContent.replace(/VERSION\s+\d+/gi,'VERSION 53').replace(/Version\s+\d+/g,'Version 53')});
+ document.title='WHO-0 · Version 53';
 }
 /* Sync after every menu interaction without replacing the game's handlers. */
 document.addEventListener('click',()=>setTimeout(v48SyncChoices,0),true);
@@ -5616,5 +5616,41 @@ button.v48Selected,button.selected,button.sel,button[aria-pressed="true"]{
   if(typeof oldMenu==='function') window.menu=function(){ var r=oldMenu.apply(this,arguments); stamp51(); return r; };
   document.addEventListener('DOMContentLoaded',stamp51);
   setTimeout(stamp51,0);
+})();
+</script>
+
+<style id="v53-selected-contrast">
+/* V53: the V32 "stone texture" skin put an !important background-image on
+   every button, which silently wiped out the plain background color that
+   .segment button.on (and friends) used to show which toggle was selected.
+   Selected and unselected buttons ended up looking almost identical
+   (OFF/ON, difficulty re-rolls, etc). Restore a strong, unmistakable fill
+   for every class the game actually uses to mark a button "selected",
+   including .on which the earlier gold-highlight pass missed. */
+button.on,
+button.selected,
+button.sel,
+button.activeToggle,
+button.activeMode,
+button.v48Selected,
+button[aria-pressed="true"]{
+  background:linear-gradient(180deg,#ffe7a2 0%,#d8a846 100%) !important;
+  color:#071117 !important;
+  border-color:#fff0b4 !important;
+  box-shadow:0 0 0 3px rgba(240,190,75,.55),0 0 18px rgba(240,190,75,.38) !important;
+}
+</style>
+<script id="v53-script">
+(function(){
+  function stamp53(){
+    document.title='WHO-0 · Version 53';
+    document.querySelectorAll('.small,.footer').forEach(function(e){
+      e.textContent=e.textContent.replace(/VERSION\s+\d+/gi,'VERSION 53').replace(/Version\s+\d+/g,'Version 53');
+    });
+  }
+  var oldMenu=window.menu;
+  if(typeof oldMenu==='function') window.menu=function(){ var r=oldMenu.apply(this,arguments); stamp53(); return r; };
+  document.addEventListener('DOMContentLoaded',stamp53);
+  setTimeout(stamp53,0);
 })();
 </script>
