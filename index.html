@@ -5063,7 +5063,19 @@ function mbResolveAIDefence(vals){let sacrificed=false,detail=[];for(let a of va
 function mbAIAttack(){if(!MB||MB.phase!=='attackM')return;if(MB.m.length<=1)return mbFinal();let groups={};MB.m.forEach((v,i)=>(groups[v]??=[]).push(i));let same=Object.values(groups).filter(g=>g.length>=2&&MB.m.length-g.length>=1).sort((a,b)=>b.length-a.length)[0];let vals=[];if(same&&Math.random()<.3){let ids=same.slice(0,Math.min(3,same.length)).sort((a,b)=>b-a);vals=ids.map(i=>MB.m[i]);ids.forEach(i=>MB.m.splice(i,1))}else{let mx=Math.max(...MB.m),i=MB.m.indexOf(mx);vals=[MB.m.splice(i,1)[0]]}MB.attack=vals;MB.phase='defendD';MB.msg=`MORBIUS PROBES WITH ${vals.join(', ')}. ${vals.length>1?'PSYCHIC ASSAULT. ':''}Resist each card if you can, otherwise your lowest memory is lost.`;MB.sel.clear();mbRender()}
 function mbLegalDefence(i){if(MB.phase!=='defendD'||MB.attack.length!==1)return false;let a=MB.attack[0],can=MB.d.some((v,j)=>j!==i?v>=a:v>=a);if(MB.d.length<=1)return false;if(MB.d.some(v=>v>=a))return MB.d[i]>=a;return MB.d[i]===Math.min(...MB.d)}
 function mbDefend(i){if(MB.phase!=='defendD'||MB.d.length<=1)return;let a=MB.attack.shift();let can=MB.d.some(v=>v>=a);let legal=can?MB.d[i]>=a:MB.d[i]===Math.min(...MB.d);if(!legal)return;let v=MB.d.splice(i,1)[0],sac=!can;MB._sac=(MB._sac||false)||sac;MB.msg=`${sac?`No defence. Memory ${v} is lost.`:`${v} resists ${a}.`}`;if(MB.attack.length){mbRender();return}let sacrificed=!!MB._sac;MB._sac=false;if(MB.d.length===1&&MB.m.length===1){mbRender();return setTimeout(mbFinal,600)}MB.attacker=sacrificed?'m':'d';MB.phase=MB.attacker==='d'?'attackD':'attackM';MB.msg+=` ${sacrificed?'Morbius keeps control.':'The Doctor takes control.'}`;mbRender();if(MB.phase==='attackM')setTimeout(mbAIAttack,700)}
-function mbFinal(){if(!MB||!MB.d.length||!MB.m.length)return;let d=MB.d[0],m=MB.m[0];if(d===m){MB.msg=`FINAL MEMORIES: ${d} · ${m}. Deadlock. The round resets.`;mbRender();return setTimeout(mbRound,900)}let w=d<m?'d':'m';MB.msg=`FINAL MEMORIES: DOCTOR ${d} · MORBIUS ${m}. LOWEST WINS. ${w==='d'?'THE DOCTOR':'MORBIUS'} WINS THE ROUND.`;MB.phase='final';mbRender();setTimeout(()=>mbMove(w),1100)}
+function mbFinal(){
+ if(!MB||!MB.d.length||!MB.m.length)return;
+ /* Move both final cards out of the hands and onto the shared stage, same as
+    every other reveal, and wait for the player to tap Continue instead of
+    auto-advancing — including on this last, decisive card. */
+ let d=MB.d.shift(),m=MB.m.shift();
+ MB.phase='final';
+ if(d===m){
+  return mb45Pause(`FINAL MEMORIES: ${d} · ${m}. DEADLOCK. THE ROUND RESETS.`,()=>{mbRound()},d,m);
+ }
+ let w=d<m?'d':'m';
+ return mb45Pause(`FINAL MEMORIES: DOCTOR ${d} · MORBIUS ${m}. LOWEST WINS. ${w==='d'?'THE DOCTOR':'MORBIUS'} WINS THE ROUND.`,()=>{mbMove(w)},d,m);
+}
 function mbMove(w){let old=MB.pos;MB.burn.add(old);let dir=w==='d'?1:-1,p=old+dir;while(p>0&&p<8&&MB.burn.has(p))p+=dir;MB.pos=p;mbRound()}
 function mbIntro(){app.innerHTML=`<div class="card"><div class="small">THE BRAIN OF MORBIUS · MINDBENDING</div><h2>A BATTLE OF PREVIOUS LIVES</h2><div class="story">Each round begins with a <b>Mind Clash</b>. Highest card takes control.<br><br>Probe with a card. Your opponent must <b>equal or beat it</b> to Resist. If they cannot, they lose their <b>lowest</b> memory and you keep control. Matching cards, or runs of three or more, can become a <b>Psychic Assault</b>.<br><br>When one memory remains each, reveal them together. <b>The lowest final card wins the round.</b> Every regeneration space you leave burns away, so a comeback can jump across the wreckage.</div><button onclick="mbStart()">BEGIN MINDBENDING</button><button class="secondary" onclick="menu()">BACK</button></div>`;scrollTop()}
 function mbRender(){let labels=['M','3','2','1','C','1','2','3','D'];let b=labels.map((x,i)=>`<div class="mbCell ${i===0||i===8?'home ':''}${MB.burn.has(i)?'burn ':''}${i===MB.pos?'now':''}">${MB.burn.has(i)?'VOID':x}</div>`).join('');let cards=MB.d.map((v,i)=>{let clickable=['replaceD','duelD','attackD'].includes(MB.phase)||(MB.phase==='defendD'&&mbLegalDefence(i));return `<button class="mbCard ${MB.sel.has(i)?'sel ':''}${MB.phase==='duelD'?'duel':''}" ${clickable?'':'disabled'} onclick="${MB.phase==='defendD'?`mbDefend(${i})`:`mbToggle(${i})`}">${v}</button>`}).join('');let actions='';if(MB.phase==='replaceD')actions=`<div class="mbActions"><button onclick="mbConfirmReplace()">REPLACE SELECTED</button><button class="secondary" onclick="mbSkipReplace()">KEEP HAND</button></div>`;if(MB.phase==='duelD')actions=`<div class="mbActions"><button ${MB.sel.size===1?'':'disabled'} onclick="mbDuel()">MIND CLASH</button></div>`;if(MB.phase==='attackD')actions=`<div class="mbActions"><button ${mbCanAttackSelection()?'':'disabled'} onclick="mbDoctorAttack()">${MB.sel.size>1?'PSYCHIC ASSAULT':'PROBE'}</button></div>`;let phaseName={replaceD:'RESHAPE MEMORIES',duelD:'MIND CLASH',attackD:'YOUR PROBE',attackM:'MORBIUS THINKS',defendD:'RESIST',final:'ROUND OVER'}[MB.phase]||'';let hidden=MB.m.map(()=>'<span class="mbBack">?</span>').join('');app.innerHTML=`<div class="card"><div class="small">MINDBENDING · ROUND ${MB.round}</div><h2>THE BRAIN OF MORBIUS</h2><div class="mbBoard">${b}</div><div class="small">MORBIUS HOME ← BURNED MIND FIELD → DOCTOR HOME</div><div class="mbPhase"><b>${phaseName}</b><div class="mbTiny">${MB.msg}</div></div><h3>THE DOCTOR · ${MB.d.length} MEMORIES</h3><div class="mbHand">${cards}</div>${actions}<h3>MORBIUS · ${MB.m.length} MEMORIES</h3><div class="mbHidden">${hidden}</div>${MB.phase==='defendD'&&MB.attack.length?`<div class="mbPhase mbAttack">INCOMING: ${MB.attack.join(' · ')}</div>`:''}</div>`;scrollTop()}
@@ -5466,13 +5478,20 @@ mbToggle=function(i){
 };
 
 /* Animate a played card only when the actual play-state changes, not every render. */
-let MB47_LAST_STAGE='';
+let MB47_LAST_ROUND=undefined, MB47_LAST_D=undefined, MB47_LAST_HAS_D=false, MB47_LAST_M=undefined, MB47_LAST_HAS_M=false;
 mb45StageHTML=function(probe){
   const hasD=MB&&MB._v45Doctor!=null, hasM=MB&&MB._v45Morbius!=null;
-  const sig=MB?[MB.round,MB.phase,MB.d.length,MB.m.length,MB.attack?MB.attack.length:'',MB._v45Doctor,MB._v45Morbius,MB._v45Result||''].join('|'):'';
-  const fresh=sig!==MB47_LAST_STAGE; MB47_LAST_STAGE=sig;
-  const d=hasD?`<div class="mb45Played doctor fromDoctor ${fresh?'mb47Animate':''}">${MB._v45Doctor}</div>`:'';
-  const m=hasM?`<div class="mb45Played morbius fromMorbius ${fresh?'mb47Animate':''}">${MB._v45Morbius}</div>`:'';
+  /* Track each side's own "did this specific card just appear/change" state
+     independently, so revealing Morbius's card doesn't replay the Doctor's
+     already-placed card's animation (and vice versa). Reset both trackers
+     whenever a new round starts so stale values don't leak in. */
+  if(MB && MB.round!==MB47_LAST_ROUND){MB47_LAST_ROUND=MB.round;MB47_LAST_D=undefined;MB47_LAST_HAS_D=false;MB47_LAST_M=undefined;MB47_LAST_HAS_M=false}
+  const freshD=hasD&&(!MB47_LAST_HAS_D||MB._v45Doctor!==MB47_LAST_D);
+  const freshM=hasM&&(!MB47_LAST_HAS_M||MB._v45Morbius!==MB47_LAST_M);
+  MB47_LAST_HAS_D=hasD; MB47_LAST_D=hasD?MB._v45Doctor:undefined;
+  MB47_LAST_HAS_M=hasM; MB47_LAST_M=hasM?MB._v45Morbius:undefined;
+  const d=hasD?`<div class="mb45Played doctor fromDoctor ${freshD?'mb47Animate':''}">${MB._v45Doctor}</div>`:'';
+  const m=hasM?`<div class="mb45Played morbius fromMorbius ${freshM?'mb47Animate':''}">${MB._v45Morbius}</div>`:'';
   return `<div class="mb45Stage">${d}${m}</div>`;
 };
 
@@ -5502,7 +5521,7 @@ mbRender=function(){
 
 /* Reset animation identity at the start of a new round. */
 const mb47RoundBase=mbRound;
-mbRound=function(){MB47_LAST_STAGE='';mb47RoundBase()};
+mbRound=function(){MB47_LAST_ROUND=undefined;MB47_LAST_D=undefined;MB47_LAST_HAS_D=false;MB47_LAST_M=undefined;MB47_LAST_HAS_M=false;mb47RoundBase()};
 
 /* One source of truth for visible version labels. */
 function v47Stamp(){
