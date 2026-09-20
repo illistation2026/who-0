@@ -5004,9 +5004,9 @@ menu();
 <script id="v41-script">
 /* WHO-0 V41 · Mindbending + revised bonus ladder */
 let V41_BETA=false, MB=null;
-function v41RandomTeam(){let roster=uniqueCharacters(allCharacters()),d=shuffle(roster.filter(c=>c.type==='Doctor')).slice(0,1),c=shuffle(roster.filter(c=>c.type==='Companion')).slice(0,2),u=shuffle(roster.filter(c=>c.type==='Support')).slice(0,2);let a=[...d,...c,...u];if(a.length<5){let used=new Set(a.map(x=>x.name));let fill=shuffle(roster.filter(x=>!used.has(x.name)));while(a.length<5&&fill.length)a.push(fill.shift())}slots.forEach((s,i)=>team[s]=a[i]);return a}
-function v41BetaToy(){V41_BETA=true;v41RandomTeam();if(!team.Doctor){alert('Could not create a beta team.');return}startCelestialIntro()}
-function v41BetaDeath(){V41_BETA=true;v41RandomTeam();if(!team.Doctor){alert('Could not create a beta team.');return}chooseBonusDoctor()}
+function v41RandomTeam(){let d=shuffle(characters.filter(c=>c.type==='Doctor')).slice(0,1),c=shuffle(characters.filter(c=>c.type==='Companion')).slice(0,2),u=shuffle(characters.filter(c=>c.type==='Support')).slice(0,2);let a=[...d,...c,...u];if(a.length<5)a=shuffle(allCharacters()).slice(0,5);slots.forEach((s,i)=>team[s]=a[i]);return a}
+function v41BetaToy(){V41_BETA=true;v41RandomTeam();startCelestialIntro()}
+function v41BetaDeath(){V41_BETA=true;v41RandomTeam();chooseBonusDoctor()}
 function v41BetaParadigm(){V41_BETA=true;p25Intro()}
 function v41BetaMind(){V41_BETA=true;mbIntro()}
 function v41BetaWar(){V41_BETA=true;tw33FactionMenu()}
@@ -5057,13 +5057,25 @@ function mbAIReplaceThenDuel(){mbAIReplace(3);MB.phase='duelD';MB.msg='Morbius r
 function mbDuel(){if(MB.phase!=='duelD'||MB.sel.size!==1)return;let di=[...MB.sel][0],dv=MB.d.splice(di,1)[0];MB.sel.clear();let mi=mbAIChooseDuel(),mv=MB.m.splice(mi,1)[0];if(dv===mv){MB.msg=`MIND CLASH: ${dv} vs ${mv}. Deadlock. Clash again.`;if(MB.d.length<=1||MB.m.length<=1)return mbFinal();MB.phase='duelD';mbRender();return}MB.attacker=dv>mv?'d':'m';MB.msg=`MIND CLASH: Doctor ${dv} · Morbius ${mv}. ${MB.attacker==='d'?'THE DOCTOR':'MORBIUS'} TAKES CONTROL.`;if(MB.d.length===1&&MB.m.length===1)return setTimeout(mbFinal,600);MB.phase=MB.attacker==='d'?'attackD':'attackM';mbRender();if(MB.phase==='attackM')setTimeout(mbAIAttack,650)}
 function mbAIChooseDuel(){let s=MB.m.map((v,i)=>({v,i})).sort((a,b)=>b.v-a.v);return Math.random()<.72?s[0].i:s[Math.floor(Math.random()*Math.min(3,s.length))].i}
 function mbIsJumbo(vals){if(vals.length<2)return false;if(vals.every(v=>v===vals[0]))return true;if(vals.length>=3){let s=[...vals].sort((a,b)=>a-b);return s.every((v,i)=>i===0||v===s[i-1]+1)}return false}
-function mbCanAttackSelection(){let vals=[...MB.sel].map(i=>MB.d[i]);if(vals.length===1)return true;return mbIsJumbo(vals)&&MB.d.length-vals.length>=1}
+function mbCanAttackSelection(){let vals=[...MB.sel].map(i=>MB.d[i]);if(vals.length===1)return true;return mbIsJumbo(vals)&&MB.d.length-vals.length>=1&&MB.m.length-vals.length>=1}
 function mbDoctorAttack(){if(MB.phase!=='attackD'||!mbCanAttackSelection())return;let ids=[...MB.sel].sort((a,b)=>b-a),vals=ids.map(i=>MB.d[i]);ids.forEach(i=>MB.d.splice(i,1));MB.sel.clear();mbResolveAIDefence(vals)}
-function mbResolveAIDefence(vals){let sacrificed=false,detail=[];for(let a of vals){if(MB.m.length<=1)break;let options=MB.m.map((v,i)=>({v,i})).filter(x=>x.v>=a).sort((x,y)=>x.v-y.v);let pick;if(options.length){pick=options[0];detail.push(`${a}→${pick.v} resisted`)}else{let min=Math.min(...MB.m),i=MB.m.indexOf(min);pick={v:min,i};sacrificed=true;detail.push(`${a}→${min} lost`)}MB.m.splice(pick.i,1)}if(MB.d.length===1&&MB.m.length===1){MB.msg='Psychic exchange complete. Final memories remain.';mbRender();return setTimeout(mbFinal,650)}MB.attacker=sacrificed?'d':'m';MB.phase=MB.attacker==='d'?'attackD':'attackM';MB.msg=`${detail.join(' · ')}. ${sacrificed?'Morbius lost a memory, Doctor keeps control.':'Morbius resisted everything and takes control.'}`;mbRender();if(MB.phase==='attackM')setTimeout(mbAIAttack,700)}
+function mbResolveAIDefence(vals){let sacrificed=false,detail=[];for(let a of vals){if(MB.m.length<=1)break;let options=MB.m.map((v,i)=>({v,i})).filter(x=>x.v>=a).sort((x,y)=>x.v-y.v);let pick;if(options.length){pick=options[0];detail.push(`${a}→${pick.v} resisted`)}else{let min=Math.min(...MB.m),i=MB.m.indexOf(min);pick={v:min,i};sacrificed=true;detail.push(`${a}→${min} lost`)}MB.m.splice(pick.i,1)}if(MB.d.length===1&&MB.m.length===1){return mb45Pause('Psychic exchange complete. Final memories remain.',()=>{mbFinal()})}MB.attacker=sacrificed?'d':'m';MB.phase=MB.attacker==='d'?'attackD':'attackM';MB.msg=`${detail.join(' · ')}. ${sacrificed?'Morbius lost a memory, Doctor keeps control.':'Morbius resisted everything and takes control.'}`;mbRender();if(MB.phase==='attackM')setTimeout(mbAIAttack,700)}
 function mbAIAttack(){if(!MB||MB.phase!=='attackM')return;if(MB.m.length<=1)return mbFinal();let groups={};MB.m.forEach((v,i)=>(groups[v]??=[]).push(i));let same=Object.values(groups).filter(g=>g.length>=2&&MB.m.length-g.length>=1).sort((a,b)=>b.length-a.length)[0];let vals=[];if(same&&Math.random()<.3){let ids=same.slice(0,Math.min(3,same.length)).sort((a,b)=>b-a);vals=ids.map(i=>MB.m[i]);ids.forEach(i=>MB.m.splice(i,1))}else{let mx=Math.max(...MB.m),i=MB.m.indexOf(mx);vals=[MB.m.splice(i,1)[0]]}MB.attack=vals;MB.phase='defendD';MB.msg=`MORBIUS PROBES WITH ${vals.join(', ')}. ${vals.length>1?'PSYCHIC ASSAULT. ':''}Resist each card if you can, otherwise your lowest memory is lost.`;MB.sel.clear();mbRender()}
 function mbLegalDefence(i){if(MB.phase!=='defendD'||MB.attack.length!==1)return false;let a=MB.attack[0],can=MB.d.some((v,j)=>j!==i?v>=a:v>=a);if(MB.d.length<=1)return false;if(MB.d.some(v=>v>=a))return MB.d[i]>=a;return MB.d[i]===Math.min(...MB.d)}
 function mbDefend(i){if(MB.phase!=='defendD'||MB.d.length<=1)return;let a=MB.attack.shift();let can=MB.d.some(v=>v>=a);let legal=can?MB.d[i]>=a:MB.d[i]===Math.min(...MB.d);if(!legal)return;let v=MB.d.splice(i,1)[0],sac=!can;MB._sac=(MB._sac||false)||sac;MB.msg=`${sac?`No defence. Memory ${v} is lost.`:`${v} resists ${a}.`}`;if(MB.attack.length){mbRender();return}let sacrificed=!!MB._sac;MB._sac=false;if(MB.d.length===1&&MB.m.length===1){mbRender();return setTimeout(mbFinal,600)}MB.attacker=sacrificed?'m':'d';MB.phase=MB.attacker==='d'?'attackD':'attackM';MB.msg+=` ${sacrificed?'Morbius keeps control.':'The Doctor takes control.'}`;mbRender();if(MB.phase==='attackM')setTimeout(mbAIAttack,700)}
-function mbFinal(){if(!MB||!MB.d.length||!MB.m.length)return;let d=MB.d[0],m=MB.m[0];if(d===m){MB.msg=`FINAL MEMORIES: ${d} · ${m}. Deadlock. The round resets.`;mbRender();return setTimeout(mbRound,900)}let w=d<m?'d':'m';MB.msg=`FINAL MEMORIES: DOCTOR ${d} · MORBIUS ${m}. LOWEST WINS. ${w==='d'?'THE DOCTOR':'MORBIUS'} WINS THE ROUND.`;MB.phase='final';mbRender();setTimeout(()=>mbMove(w),1100)}
+function mbFinal(){
+ if(!MB||!MB.d.length||!MB.m.length)return;
+ /* Move both final cards out of the hands and onto the shared stage, same as
+    every other reveal, and wait for the player to tap Continue instead of
+    auto-advancing — including on this last, decisive card. */
+ let d=MB.d.shift(),m=MB.m.shift();
+ MB.phase='final';
+ if(d===m){
+  return mb45Pause(`FINAL MEMORIES: ${d} · ${m}. DEADLOCK. THE ROUND RESETS.`,()=>{mbRound()},d,m);
+ }
+ let w=d<m?'d':'m';
+ return mb45Pause(`FINAL MEMORIES: DOCTOR ${d} · MORBIUS ${m}. LOWEST WINS. ${w==='d'?'THE DOCTOR':'MORBIUS'} WINS THE ROUND.`,()=>{mbMove(w)},d,m);
+}
 function mbMove(w){let old=MB.pos;MB.burn.add(old);let dir=w==='d'?1:-1,p=old+dir;while(p>0&&p<8&&MB.burn.has(p))p+=dir;MB.pos=p;mbRound()}
 function mbIntro(){app.innerHTML=`<div class="card"><div class="small">THE BRAIN OF MORBIUS · MINDBENDING</div><h2>A BATTLE OF PREVIOUS LIVES</h2><div class="story">Each round begins with a <b>Mind Clash</b>. Highest card takes control.<br><br>Probe with a card. Your opponent must <b>equal or beat it</b> to Resist. If they cannot, they lose their <b>lowest</b> memory and you keep control. Matching cards, or runs of three or more, can become a <b>Psychic Assault</b>.<br><br>When one memory remains each, reveal them together. <b>The lowest final card wins the round.</b> Every regeneration space you leave burns away, so a comeback can jump across the wreckage.</div><button onclick="mbStart()">BEGIN MINDBENDING</button><button class="secondary" onclick="menu()">BACK</button></div>`;scrollTop()}
 function mbRender(){let labels=['M','3','2','1','C','1','2','3','D'];let b=labels.map((x,i)=>`<div class="mbCell ${i===0||i===8?'home ':''}${MB.burn.has(i)?'burn ':''}${i===MB.pos?'now':''}">${MB.burn.has(i)?'VOID':x}</div>`).join('');let cards=MB.d.map((v,i)=>{let clickable=['replaceD','duelD','attackD'].includes(MB.phase)||(MB.phase==='defendD'&&mbLegalDefence(i));return `<button class="mbCard ${MB.sel.has(i)?'sel ':''}${MB.phase==='duelD'?'duel':''}" ${clickable?'':'disabled'} onclick="${MB.phase==='defendD'?`mbDefend(${i})`:`mbToggle(${i})`}">${v}</button>`}).join('');let actions='';if(MB.phase==='replaceD')actions=`<div class="mbActions"><button onclick="mbConfirmReplace()">REPLACE SELECTED</button><button class="secondary" onclick="mbSkipReplace()">KEEP HAND</button></div>`;if(MB.phase==='duelD')actions=`<div class="mbActions"><button ${MB.sel.size===1?'':'disabled'} onclick="mbDuel()">MIND CLASH</button></div>`;if(MB.phase==='attackD')actions=`<div class="mbActions"><button ${mbCanAttackSelection()?'':'disabled'} onclick="mbDoctorAttack()">${MB.sel.size>1?'PSYCHIC ASSAULT':'PROBE'}</button></div>`;let phaseName={replaceD:'RESHAPE MEMORIES',duelD:'MIND CLASH',attackD:'YOUR PROBE',attackM:'MORBIUS THINKS',defendD:'RESIST',final:'ROUND OVER'}[MB.phase]||'';let hidden=MB.m.map(()=>'<span class="mbBack">?</span>').join('');app.innerHTML=`<div class="card"><div class="small">MINDBENDING · ROUND ${MB.round}</div><h2>THE BRAIN OF MORBIUS</h2><div class="mbBoard">${b}</div><div class="small">MORBIUS HOME ← BURNED MIND FIELD → DOCTOR HOME</div><div class="mbPhase"><b>${phaseName}</b><div class="mbTiny">${MB.msg}</div></div><h3>THE DOCTOR · ${MB.d.length} MEMORIES</h3><div class="mbHand">${cards}</div>${actions}<h3>MORBIUS · ${MB.m.length} MEMORIES</h3><div class="mbHidden">${hidden}</div>${MB.phase==='defendD'&&MB.attack.length?`<div class="mbPhase mbAttack">INCOMING: ${MB.attack.join(' · ')}</div>`:''}</div>`;scrollTop()}
@@ -5279,8 +5291,9 @@ mbDoctorAttack=function(){
  let ids=[...MB.sel].sort((a,b)=>b-a),vals=ids.map(i=>MB.d[i]);
  ids.forEach(i=>MB.d.splice(i,1)); MB.sel.clear();
  MB._v45Doctor=vals[0]; MB._v45Morbius=null; MB.lastProbe=vals[0];
+ MB._v45Next=()=>{};
  MB.msg=`THE DOCTOR PROBES WITH ${vals.join(', ')}.`; mbRender();
- setTimeout(()=>{ if(MB) mb45ResolveAIBase(vals) },520);
+ setTimeout(()=>{ if(!MB)return; MB._v45Next=null; mb45ResolveAIBase(vals) },520);
 };
 
 /* Morbius probe: animate his card into the centre before defence becomes active. */
@@ -5465,13 +5478,20 @@ mbToggle=function(i){
 };
 
 /* Animate a played card only when the actual play-state changes, not every render. */
-let MB47_LAST_STAGE='';
+let MB47_LAST_ROUND=undefined, MB47_LAST_D=undefined, MB47_LAST_HAS_D=false, MB47_LAST_M=undefined, MB47_LAST_HAS_M=false;
 mb45StageHTML=function(probe){
   const hasD=MB&&MB._v45Doctor!=null, hasM=MB&&MB._v45Morbius!=null;
-  const sig=MB?[MB.round,MB.phase,MB.d.length,MB.m.length,MB.attack?MB.attack.length:'',MB._v45Doctor,MB._v45Morbius,MB._v45Result||''].join('|'):'';
-  const fresh=sig!==MB47_LAST_STAGE; MB47_LAST_STAGE=sig;
-  const d=hasD?`<div class="mb45Played doctor fromDoctor ${fresh?'mb47Animate':''}">${MB._v45Doctor}</div>`:'';
-  const m=hasM?`<div class="mb45Played morbius fromMorbius ${fresh?'mb47Animate':''}">${MB._v45Morbius}</div>`:'';
+  /* Track each side's own "did this specific card just appear/change" state
+     independently, so revealing Morbius's card doesn't replay the Doctor's
+     already-placed card's animation (and vice versa). Reset both trackers
+     whenever a new round starts so stale values don't leak in. */
+  if(MB && MB.round!==MB47_LAST_ROUND){MB47_LAST_ROUND=MB.round;MB47_LAST_D=undefined;MB47_LAST_HAS_D=false;MB47_LAST_M=undefined;MB47_LAST_HAS_M=false}
+  const freshD=hasD&&(!MB47_LAST_HAS_D||MB._v45Doctor!==MB47_LAST_D);
+  const freshM=hasM&&(!MB47_LAST_HAS_M||MB._v45Morbius!==MB47_LAST_M);
+  MB47_LAST_HAS_D=hasD; MB47_LAST_D=hasD?MB._v45Doctor:undefined;
+  MB47_LAST_HAS_M=hasM; MB47_LAST_M=hasM?MB._v45Morbius:undefined;
+  const d=hasD?`<div class="mb45Played doctor fromDoctor ${freshD?'mb47Animate':''}">${MB._v45Doctor}</div>`:'';
+  const m=hasM?`<div class="mb45Played morbius fromMorbius ${freshM?'mb47Animate':''}">${MB._v45Morbius}</div>`:'';
   return `<div class="mb45Stage">${d}${m}</div>`;
 };
 
@@ -5501,7 +5521,7 @@ mbRender=function(){
 
 /* Reset animation identity at the start of a new round. */
 const mb47RoundBase=mbRound;
-mbRound=function(){MB47_LAST_STAGE='';mb47RoundBase()};
+mbRound=function(){MB47_LAST_ROUND=undefined;MB47_LAST_D=undefined;MB47_LAST_HAS_D=false;MB47_LAST_M=undefined;MB47_LAST_HAS_M=false;mb47RoundBase()};
 
 /* One source of truth for visible version labels. */
 function v47Stamp(){
@@ -5582,14 +5602,111 @@ function v48SyncChoices(){
   v48Stamp();
 }
 function v48Stamp(){
- document.querySelectorAll('.small,.footer').forEach(e=>{e.textContent=e.textContent.replace(/VERSION\s+\d+/gi,'VERSION 48').replace(/Version\s+\d+/g,'Version 48')});
- document.title='WHO-0 · Version 48';
+ document.querySelectorAll('.small,.footer').forEach(e=>{e.textContent=e.textContent.replace(/VERSION\s+\d+/gi,'VERSION 53').replace(/Version\s+\d+/g,'Version 53')});
+ document.title='WHO-0 · Version 53';
 }
 /* Sync after every menu interaction without replacing the game's handlers. */
 document.addEventListener('click',()=>setTimeout(v48SyncChoices,0),true);
 const v48MenuBase=menu; menu=function(){v48MenuBase();setTimeout(v48SyncChoices,0)};
 document.addEventListener('DOMContentLoaded',()=>setTimeout(v48SyncChoices,0));
 setTimeout(v48SyncChoices,0);
+</script>
+
+
+
+<!-- V55: beta launch repair + cleaner character assignment -->
+<style id="v55-style">
+/* Character cards are now the selection control. Assignment only appears on the active card. */
+.v55Pick{cursor:pointer;transition:border-color .15s ease,box-shadow .15s ease,transform .15s ease}
+.v55Pick:active{transform:scale(.995)}
+.v55Pick.v55Active{border-color:#ffd36e!important;box-shadow:0 0 0 2px rgba(255,211,110,.34),0 0 18px rgba(255,211,110,.18)}
+.v55Assign{margin-top:12px;padding-top:11px;border-top:1px solid rgba(255,211,110,.35)}
+.v55Assign label{display:block;margin:0 0 6px;color:#ffd36e;font-size:10px;font-weight:900;letter-spacing:.12em;text-transform:uppercase}
+.v55AssignRow{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:stretch}
+.v55Assign select{width:100%;min-height:48px;background:#08131c;color:#ecf7ff;border:2px solid #d3a947;border-radius:12px;padding:0 12px;font:800 14px inherit}
+.v55Assign button{width:auto;min-width:108px;margin:0!important}
+.v55Hint{margin-top:8px;color:#9db5c7;font-size:10px;line-height:1.35}
+@media(max-width:390px){.v55AssignRow{grid-template-columns:1fr}.v55Assign button{width:100%}}
+</style>
+<script id="v55-script">
+/*
+  V55
+  1. Repair the Toyroom and Death Zone beta launchers. V41 referenced a
+     non-existent global `characters`; the canonical database is allCharacters().
+  2. Character cards show their information first. Tapping one character opens
+     a single assignment control on that card. Tapping another closes the old one.
+*/
+let v55SelectedOffer=-1;
+
+function v41RandomTeam(){
+  const pool=uniqueCharacters(allCharacters());
+  const docs=shuffle(pool.filter(c=>c.type==='Doctor' && doctorNumbers[c.name]>=settings.minDoc && doctorNumbers[c.name]<=settings.maxDoc));
+  const comps=shuffle(pool.filter(c=>c.type==='Companion'));
+  const supports=shuffle(pool.filter(c=>c.type==='Support'));
+  if(!docs.length || comps.length<2 || supports.length<2) throw new Error('Unable to create beta team from character database.');
+  team={
+    'Doctor':{...docs[0]},
+    'Companion 1':{...comps[0]},
+    'Companion 2':{...comps[1]},
+    'Team-up 1':{...supports[0]},
+    'Team-up 2':{...supports[1]}
+  };
+  return slots.map(s=>team[s]);
+}
+
+function v55SelectCharacter(i){
+  if(!currentOffer[i])return;
+  v55SelectedOffer=(v55SelectedOffer===i?-1:i);
+  draft(false);
+}
+function v55AssignCharacter(i){
+  if(i!==v55SelectedOffer || !currentOffer[i])return;
+  const select=document.getElementById('v55-slot-'+i);
+  const slot=select && select.value;
+  if(!slot)return;
+  v55SelectedOffer=-1;
+  pick(i,slot);
+}
+function v55Assignment(c,i,empty){
+  if(v55SelectedOffer!==i)return '';
+  const eligible=empty.filter(s=>role(c,s));
+  if(!eligible.length)return '<div class="v55Assign"><div class="v55Hint">There is no open position for this character.</div></div>';
+  if(eligible.length===1){
+    const s=eligible[0];
+    return `<div class="v55Assign" onclick="event.stopPropagation()"><label>Position</label><div class="v55AssignRow"><select id="v55-slot-${i}"><option value="${s}">${s}${s==='Doctor'?'':` · ${overall(c,s)}`}</option></select><button onclick="v55AssignCharacter(${i})">ADD</button></div></div>`;
+  }
+  return `<div class="v55Assign" onclick="event.stopPropagation()"><label>Choose position</label><div class="v55AssignRow"><select id="v55-slot-${i}"><option value="" selected disabled>Place 1 or 2…</option>${eligible.map(s=>`<option value="${s}">${s} · ${overall(c,s)}</option>`).join('')}</select><button onclick="v55AssignCharacter(${i})">ADD</button></div><div class="v55Hint">The position changes how this character contributes to the team.</div></div>`;
+}
+
+/* Optional scroll argument is deliberately ignored during card selection, so opening
+   or closing the assignment control never throws the player back to the top. */
+draft=function(shouldScroll=true){
+ if(Object.keys(team).length===5){
+   v55SelectedOffer=-1;
+   evaluateTeamAwards();
+   app.innerHTML=teamHTML()+`<div class="card"><div class="small">THE TEAM IS ASSEMBLED</div><h2 style="margin:6px 0 10px">The universe is waiting.</h2><button onclick="beginRun()">BEGIN ENCOUNTERS</button><button class="secondary" style="margin-top:8px" onclick="resetUniverse()">RESET THE UNIVERSE</button></div>`;
+   if(shouldScroll)scrollTop();return;
+ }
+ const empty=slots.filter(s=>!team[s]);
+ if(v55SelectedOffer>=currentOffer.length)v55SelectedOffer=-1;
+ app.innerHTML=teamHTML()+`<div class="card"><div class="small">TIME SCOOP LOCKED ON</div><div class="season">${current.n}</div><div class="small">${current.y}</div><div class="counter">RE-ROLLS: ${rerollsLeft}</div><div class="options">${currentOffer.length?currentOffer.map((c,i)=>`<div class="pick ${roleClass(c.type)} v55Pick ${v55SelectedOffer===i?'v55Active':''}" onclick="v55SelectCharacter(${i})"><div class="pickTop"><div><h3>${c.name}</h3><div class="meta"><span class="${c.type==='Doctor'?'roleDoctor':c.type==='Companion'?'roleCompanion':'roleTeamup'}"><span class="roleDot"></span>${roleLabel(c)}</span></div></div><div class="overall">${overall(c)}<small>VALUE</small></div></div><div class="stats">Science ${c.sci} · Action ${c.act} · Influence ${c.inf} · Survival ${c.surv}${c.pop?` · Popularity ${c.pop}`:''}</div>${v55Assignment(c,i,empty)}</div>`).join(''):`<div class="empty">No eligible characters in this Time Scoop. Activate a new one.</div>`}</div><div class="toolbar" style="margin-top:12px"><button class="ghost" onclick="resetUniverse()">RESET THE UNIVERSE</button><button class="secondary" ${rerollsLeft<1?'disabled':''} onclick="reroll()">RE-ROLL TIME SCOOP (${rerollsLeft})</button></div></div>`;
+ if(shouldScroll)scrollTop();
+};
+
+/* New Scoop means no character remains expanded. */
+const v55DrawSeasonBase=drawSeason;
+drawSeason=function(){v55SelectedOffer=-1;return v55DrawSeasonBase.apply(this,arguments)};
+const v55RerollBase=reroll;
+reroll=function(){v55SelectedOffer=-1;return v55RerollBase.apply(this,arguments)};
+
+function v55Stamp(){
+ document.title='WHO-0 · Version 55';
+ document.querySelectorAll('.small,.footer').forEach(e=>{e.textContent=e.textContent.replace(/VERSION\s+\d+/gi,'VERSION 55').replace(/Version\s+\d+/g,'Version 55')});
+}
+const v55MenuBase=menu;
+menu=function(){const r=v55MenuBase.apply(this,arguments);v55Stamp();return r};
+document.addEventListener('DOMContentLoaded',v55Stamp);
+setTimeout(v55Stamp,0);
 </script>
 
 </body></html>
@@ -5615,5 +5732,41 @@ button.v48Selected,button.selected,button.sel,button[aria-pressed="true"]{
   if(typeof oldMenu==='function') window.menu=function(){ var r=oldMenu.apply(this,arguments); stamp51(); return r; };
   document.addEventListener('DOMContentLoaded',stamp51);
   setTimeout(stamp51,0);
+})();
+</script>
+
+<style id="v53-selected-contrast">
+/* V53: the V32 "stone texture" skin put an !important background-image on
+   every button, which silently wiped out the plain background color that
+   .segment button.on (and friends) used to show which toggle was selected.
+   Selected and unselected buttons ended up looking almost identical
+   (OFF/ON, difficulty re-rolls, etc). Restore a strong, unmistakable fill
+   for every class the game actually uses to mark a button "selected",
+   including .on which the earlier gold-highlight pass missed. */
+button.on,
+button.selected,
+button.sel,
+button.activeToggle,
+button.activeMode,
+button.v48Selected,
+button[aria-pressed="true"]{
+  background:linear-gradient(180deg,#ffe7a2 0%,#d8a846 100%) !important;
+  color:#071117 !important;
+  border-color:#fff0b4 !important;
+  box-shadow:0 0 0 3px rgba(240,190,75,.55),0 0 18px rgba(240,190,75,.38) !important;
+}
+</style>
+<script id="v53-script">
+(function(){
+  function stamp53(){
+    document.title='WHO-0 · Version 53';
+    document.querySelectorAll('.small,.footer').forEach(function(e){
+      e.textContent=e.textContent.replace(/VERSION\s+\d+/gi,'VERSION 53').replace(/Version\s+\d+/g,'Version 53');
+    });
+  }
+  var oldMenu=window.menu;
+  if(typeof oldMenu==='function') window.menu=function(){ var r=oldMenu.apply(this,arguments); stamp53(); return r; };
+  document.addEventListener('DOMContentLoaded',stamp53);
+  setTimeout(stamp53,0);
 })();
 </script>
